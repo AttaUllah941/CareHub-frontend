@@ -1,0 +1,7 @@
+    <app-login-form
+      [form]="loginForm"
+      [loading]="authService.loading()"
+      [error]="authService.error() ?? ''"
+      (submitted)="onSubmit()"
+    />
+  

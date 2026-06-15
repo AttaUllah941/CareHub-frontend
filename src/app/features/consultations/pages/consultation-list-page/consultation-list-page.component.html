@@ -1,0 +1,22 @@
+<div class="space-y-6">
+  <div>
+    <h1 class="text-2xl font-bold text-gray-900">My Consultations</h1>
+    <p class="text-sm text-gray-500 mt-1">View diagnosis, observations, and recommendations from your visits</p>
+  </div>
+
+  @if (consultationService.error()) { <app-alert [message]="consultationService.error()!" variant="error" /> }
+
+  @if (selected(); as c) {
+    <button type="button" (click)="closeDetail()" class="text-sm text-teal-600 hover:text-teal-800">&larr; Back to list</button>
+    <app-consultation-detail [consultation]="c" />
+  } @else {
+    <div class="bg-white rounded-xl border border-gray-200 shadow-sm">
+      <app-consultation-table
+        [consultations]="consultationService.myConsultations()"
+        [loading]="consultationService.loading()"
+        [showActions]="true"
+        (viewConsultation)="onView($event)"
+      />
+    </div>
+  }
+</div>

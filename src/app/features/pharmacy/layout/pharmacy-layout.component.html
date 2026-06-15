@@ -1,0 +1,19 @@
+<div class="min-h-screen bg-gray-50">
+  <header class="bg-white border-b border-gray-200 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-8">
+        <a routerLink="/pharmacy/dashboard" class="text-xl font-bold text-teal-600">CareHub Pharmacy</a>
+        <nav class="flex gap-4 text-sm flex-wrap">
+          <a routerLink="/pharmacy/dashboard" routerLinkActive="text-teal-600 font-medium" class="text-gray-600 hover:text-teal-600">Dashboard</a>
+          <a routerLink="/pharmacy/medicines" routerLinkActive="text-teal-600 font-medium" class="text-gray-600 hover:text-teal-600">Medicines</a>
+          <a routerLink="/pharmacy/inventory" routerLinkActive="text-teal-600 font-medium" class="text-gray-600 hover:text-teal-600">Inventory</a>
+          <a routerLink="/pharmacy/orders" routerLinkActive="text-teal-600 font-medium" class="text-gray-600 hover:text-teal-600">Orders</a>
+          <a routerLink="/pharmacy/prescription-uploads" routerLinkActive="text-teal-600 font-medium" class="text-gray-600 hover:text-teal-600">Rx Uploads</a>
+        </nav>
+      </div>
+    </div>
+  </header>
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <router-outlet />
+  </main>
+</div>

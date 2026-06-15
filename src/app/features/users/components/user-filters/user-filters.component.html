@@ -1,0 +1,65 @@
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-4">
+      <div class="lg:col-span-2">
+        <label class="block text-xs font-medium text-gray-500 mb-1">Search</label>
+        <input
+          type="text"
+          [ngModel]="query().search"
+          (ngModelChange)="onSearchChange($event)"
+          placeholder="Name, email, phone..."
+          class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
+        />
+      </div>
+
+      <div>
+        <label class="block text-xs font-medium text-gray-500 mb-1">Role</label>
+        <select
+          [ngModel]="query().role"
+          (ngModelChange)="filterChange.emit({ role: $event, page: 1 })"
+          class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
+        >
+          <option value="">All Roles</option>
+          @for (role of roleOptions; track role.value) {
+            <option [value]="role.value">{{ role.label }}</option>
+          }
+        </select>
+      </div>
+
+      <div>
+        <label class="block text-xs font-medium text-gray-500 mb-1">Status</label>
+        <select
+          [ngModel]="query().isActive"
+          (ngModelChange)="filterChange.emit({ isActive: $event, page: 1 })"
+          class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
+        >
+          <option value="">All</option>
+          <option value="true">Active</option>
+          <option value="false">Inactive</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="block text-xs font-medium text-gray-500 mb-1">Sort By</label>
+        <select
+          [ngModel]="query().sortBy"
+          (ngModelChange)="filterChange.emit({ sortBy: $event, page: 1 })"
+          class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
+        >
+          @for (field of sortFields; track field.value) {
+            <option [value]="field.value">{{ field.label }}</option>
+          }
+        </select>
+      </div>
+
+      <div>
+        <label class="block text-xs font-medium text-gray-500 mb-1">Order</label>
+        <select
+          [ngModel]="query().sortOrder"
+          (ngModelChange)="filterChange.emit({ sortOrder: $event, page: 1 })"
+          class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
+        >
+          <option value="desc">Descending</option>
+          <option value="asc">Ascending</option>
+        </select>
+      </div>
+    </div>
+  

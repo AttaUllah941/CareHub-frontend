@@ -1,0 +1,55 @@
+    <div class="space-y-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-2xl font-bold text-gray-900">Roles</h1>
+          <p class="text-sm text-gray-500 mt-1">Manage roles and permission assignments</p>
+        </div>
+        <a routerLink="/admin/roles/create"><app-button>Create Role</app-button></a>
+      </div>
+
+      @if (roleService.error()) { <app-alert [message]="roleService.error()!" variant="error" /> }
+      @if (roleService.successMessage()) { <app-alert [message]="roleService.successMessage()!" variant="success" /> }
+
+      <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-4 grid grid-cols-1 md:grid-cols-4 gap-4">
+        <input
+          type="text"
+          placeholder="Search roles..."
+          [ngModel]="roleService.rolesQuery().search"
+          (ngModelChange)="onSearch($event)"
+          class="md:col-span-2 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-teal-500 focus:outline-none"
+        />
+        <select
+          [ngModel]="roleService.rolesQuery().isSystem"
+          (ngModelChange)="onFilter({ isSystem: $event, page: 1 })"
+          class="rounded-lg border border-gray-300 px-3 py-2 text-sm"
+        >
+          <option value="">All Types</option>
+          <option value="true">System</option>
+          <option value="false">Custom</option>
+        </select>
+        <select
+          [ngModel]="roleService.rolesQuery().sortBy"
+          (ngModelChange)="onFilter({ sortBy: $event, page: 1 })"
+          class="rounded-lg border border-gray-300 px-3 py-2 text-sm"
+        >
+          <option value="createdAt">Created Date</option>
+          <option value="name">Name</option>
+          <option value="slug">Slug</option>
+        </select>
+      </div>
+
+      <div class="bg-white rounded-xl border border-gray-200 shadow-sm">
+        <app-role-table
+          [roles]="roleService.roles()"
+          [loading]="roleService.loading()"
+          (deleteRole)="onDelete($event)"
+        />
+        <app-pagination
+          [page]="roleService.rolesPagination().page"
+          [totalPages]="roleService.rolesPagination().totalPages"
+          [total]="roleService.rolesPagination().total"
+          (pageChange)="onFilter({ page: $event })"
+        />
+      </div>
+    </div>
+  

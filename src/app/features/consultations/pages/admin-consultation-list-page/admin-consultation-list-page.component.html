@@ -1,0 +1,43 @@
+<div class="space-y-6">
+  <div>
+    <h1 class="text-2xl font-bold text-gray-900">Consultations</h1>
+    <p class="text-sm text-gray-500 mt-1">View all consultation records across the platform</p>
+  </div>
+
+  @if (consultationService.error()) { <app-alert [message]="consultationService.error()!" variant="error" /> }
+  @if (consultationService.successMessage()) { <app-alert [message]="consultationService.successMessage()!" variant="success" /> }
+
+  @if (viewing(); as c) {
+    <button type="button" (click)="viewing.set(null)" class="text-sm text-teal-600 hover:text-teal-800">&larr; Back to list</button>
+    <app-consultation-detail [consultation]="c" />
+  } @else {
+    <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
+      <input
+        type="search"
+        placeholder="Search diagnosis, notes, recommendations..."
+        [ngModel]="search()"
+        (ngModelChange)="search.set($event)"
+        (keyup.enter)="onSearch()"
+        class="w-full max-w-md rounded-lg border border-gray-300 px-3 py-2 text-sm"
+      />
+    </div>
+
+    <div class="bg-white rounded-xl border border-gray-200 shadow-sm">
+      <app-consultation-table
+        [consultations]="consultationService.consultations()"
+        [loading]="consultationService.loading()"
+        [showPatient]="true"
+        [adminMode]="true"
+        [showActions]="true"
+        (viewConsultation)="onView($event)"
+        (deleteConsultation)="onDelete($event)"
+      />
+    </div>
+
+    <app-pagination
+      [page]="consultationService.pagination().page"
+      [totalPages]="consultationService.pagination().totalPages"
+      (pageChange)="onPageChange($event)"
+    />
+  }
+</div>

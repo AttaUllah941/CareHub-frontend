@@ -1,0 +1,54 @@
+<div class="overflow-x-auto">
+  <table class="min-w-full divide-y divide-gray-200">
+    <thead class="bg-gray-50">
+      <tr>
+        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Appointment</th>
+        @if (showPatient()) {
+          <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Patient</th>
+        }
+        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Diagnosis</th>
+        @if (showActions()) {
+          <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
+        }
+      </tr>
+    </thead>
+    <tbody class="bg-white divide-y divide-gray-200">
+      @if (loading()) {
+        <tr><td [attr.colspan]="showActions() ? (showPatient() ? 5 : 4) : (showPatient() ? 4 : 3)" class="px-4 py-8 text-center text-sm text-gray-500">Loading...</td></tr>
+      } @else if (consultations().length === 0) {
+        <tr><td [attr.colspan]="showActions() ? (showPatient() ? 5 : 4) : (showPatient() ? 4 : 3)" class="px-4 py-8 text-center text-sm text-gray-500">No consultations found</td></tr>
+      } @else {
+        @for (c of consultations(); track c.id) {
+          <tr class="hover:bg-gray-50">
+            <td class="px-4 py-3 text-sm text-gray-900">{{ formatDate(c.createdAt) }}</td>
+            <td class="px-4 py-3 text-sm text-gray-700">
+              @if (c.appointment) {
+                {{ formatAppointmentDateTime(c.appointment.appointmentDate, c.appointment.startTime) }}
+              } @else {
+                —
+              }
+            </td>
+            @if (showPatient()) {
+              <td class="px-4 py-3 text-sm text-gray-700">
+                {{ c.appointment?.patient?.user?.firstName }} {{ c.appointment?.patient?.user?.lastName }}
+              </td>
+            }
+            <td class="px-4 py-3 text-sm text-gray-600 max-w-xs truncate">{{ c.diagnosis || '—' }}</td>
+            @if (showActions()) {
+              <td class="px-4 py-3 text-sm text-right space-x-2">
+                <button type="button" (click)="viewConsultation.emit(c)" class="text-teal-600 hover:text-teal-800">View</button>
+                @if (doctorMode() || adminMode()) {
+                  <button type="button" (click)="editConsultation.emit(c)" class="text-blue-600 hover:text-blue-800">Edit</button>
+                }
+                @if (adminMode()) {
+                  <button type="button" (click)="deleteConsultation.emit(c)" class="text-red-600 hover:text-red-800">Delete</button>
+                }
+              </td>
+            }
+          </tr>
+        }
+      }
+    </tbody>
+  </table>
+</div>

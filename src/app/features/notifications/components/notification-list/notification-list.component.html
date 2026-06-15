@@ -1,0 +1,57 @@
+<div class="divide-y divide-gray-200">
+  @if (loading()) {
+    <div class="px-4 py-8 text-center text-sm text-gray-500">Loading notifications...</div>
+  } @else if (notifications().length === 0) {
+    <div class="px-4 py-8 text-center text-sm text-gray-500">No notifications yet</div>
+  } @else {
+    @for (n of notifications(); track n.id) {
+      <div
+        class="px-4 py-4 flex gap-4"
+        [class.bg-teal-50]="!n.isRead"
+        [class.bg-white]="n.isRead"
+      >
+        <div class="flex-1 min-w-0">
+          <div class="flex flex-wrap items-center gap-2 mb-1">
+            <span class="text-xs font-medium text-teal-700 bg-teal-100 px-2 py-0.5 rounded">
+              {{ typeLabel(n.type) }}
+            </span>
+            <span class="text-xs text-gray-400">{{ formatDate(n.createdAt) }}</span>
+            @if (!n.isRead) {
+              <span class="text-xs font-medium text-teal-600">New</span>
+            }
+          </div>
+          <h3 class="text-sm font-semibold text-gray-900">{{ n.title }}</h3>
+          <p class="text-sm text-gray-600 mt-1">{{ n.body }}</p>
+          @if (showDelivery() && n.deliveries?.length) {
+            <div class="flex flex-wrap gap-2 mt-2">
+              @for (d of n.deliveries; track d.channel) {
+                <span class="text-xs px-2 py-0.5 rounded bg-gray-100 text-gray-600">
+                  {{ channelLabel(d.channel) }}: {{ d.status }}
+                </span>
+              }
+            </div>
+          }
+        </div>
+        <div class="flex flex-col gap-2 shrink-0">
+          @if (!n.isRead) {
+            <button
+              type="button"
+              (click)="markRead.emit(n)"
+              class="text-xs text-teal-600 hover:text-teal-800"
+            >
+              Mark read
+            </button>
+          }
+          @if (n.metadata?.actionUrl) {
+            <a
+              [routerLink]="n.metadata!.actionUrl!"
+              class="text-xs text-blue-600 hover:text-blue-800"
+            >
+              View
+            </a>
+          }
+        </div>
+      </div>
+    }
+  }
+</div>

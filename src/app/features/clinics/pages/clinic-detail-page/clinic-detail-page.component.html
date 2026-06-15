@@ -1,0 +1,111 @@
+<div class="space-y-6">
+  <a routerLink="/admin/clinics" class="text-sm text-teal-600 hover:text-teal-800">&larr; Back to Clinics</a>
+
+  @if (clinicService.error()) { <app-alert [message]="clinicService.error()!" /> }
+  @if (clinicService.successMessage()) { <app-alert [message]="clinicService.successMessage()!" variant="success" /> }
+
+  @if (clinicService.loading()) {
+    <p class="text-sm text-gray-500">Loading clinic...</p>
+  } @else if (clinicService.selectedClinic(); as clinic) {
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div class="lg:col-span-2 space-y-6">
+        <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+          <div class="px-6 py-4 border-b flex items-center justify-between">
+            <div>
+              <h2 class="text-xl font-semibold text-gray-900">{{ clinic.name }}</h2>
+              <p class="text-sm text-gray-500 font-mono">{{ clinic.slug }}</p>
+            </div>
+            <div class="flex gap-2">
+              <a [routerLink]="['/admin/clinics', clinic.id, 'edit']">
+                <app-button variant="outline">Edit</app-button>
+              </a>
+              @if (clinic.isActive) {
+                <app-button variant="outline" (click)="onDelete(clinic.id)">Delete</app-button>
+              }
+            </div>
+          </div>
+
+          <div class="px-6 py-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <span class="text-xs text-gray-500 uppercase">Description</span>
+              <p class="text-sm mt-1">{{ clinic.description || '—' }}</p>
+            </div>
+            <div>
+              <span class="text-xs text-gray-500 uppercase">Status</span>
+              <p class="text-sm mt-1">
+                <span class="px-2 py-0.5 rounded-full text-xs" [class]="clinic.isActive ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'">
+                  {{ clinic.isActive ? 'Active' : 'Inactive' }}
+                </span>
+              </p>
+            </div>
+            <div>
+              <span class="text-xs text-gray-500 uppercase">Phone</span>
+              <p class="text-sm mt-1">{{ clinic.phone || '—' }}</p>
+            </div>
+            <div>
+              <span class="text-xs text-gray-500 uppercase">Email</span>
+              <p class="text-sm mt-1">{{ clinic.email || '—' }}</p>
+            </div>
+            <div class="md:col-span-2">
+              <span class="text-xs text-gray-500 uppercase">Address</span>
+              <p class="text-sm mt-1">{{ fullAddress(clinic) || '—' }}</p>
+            </div>
+            @if (clinic.manager) {
+              <div class="md:col-span-2">
+                <span class="text-xs text-gray-500 uppercase">Manager</span>
+                <p class="text-sm mt-1">{{ clinic.manager.firstName }} {{ clinic.manager.lastName }} ({{ clinic.manager.email }})</p>
+              </div>
+            }
+          </div>
+        </div>
+
+        <section class="bg-white rounded-xl border border-gray-200 p-5">
+          <h3 class="font-semibold text-gray-900 mb-4">Working Hours</h3>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            @for (day of clinic.workingHours; track day.dayOfWeek) {
+              <div class="rounded-lg border p-3 text-sm" [class]="day.isOpen ? 'border-teal-200 bg-teal-50/40' : 'border-gray-200 bg-gray-50'">
+                <p class="font-medium">{{ dayNames[day.dayOfWeek] }}</p>
+                @if (day.isOpen) {
+                  <p class="text-gray-600">{{ day.openTime }} – {{ day.closeTime }}</p>
+                  @if (day.breaks?.length) {
+                    <p class="text-xs text-gray-500 mt-1">Breaks: @for (br of day.breaks; track $index) { {{ br.startTime }}–{{ br.endTime }} }</p>
+                  }
+                } @else {
+                  <p class="text-gray-400">Closed</p>
+                }
+              </div>
+            }
+          </div>
+        </section>
+
+        <section class="bg-white rounded-xl border border-gray-200 p-5">
+          <h3 class="font-semibold text-gray-900 mb-4">Assigned Doctors ({{ clinic.doctors?.length ?? 0 }})</h3>
+          @if (clinic.doctors?.length) {
+            <ul class="divide-y">
+              @for (doc of clinic.doctors; track doc.id) {
+                <li class="py-3 flex justify-between items-center">
+                  <div>
+                    <p class="text-sm font-medium">{{ doc.user ? 'Dr. ' + doc.user.firstName + ' ' + doc.user.lastName : doc.title }}</p>
+                    <p class="text-xs text-gray-500">{{ doc.user?.email }}</p>
+                  </div>
+                  <span class="text-xs px-2 py-0.5 rounded-full bg-gray-100">{{ doc.verificationStatus }}</span>
+                </li>
+              }
+            </ul>
+          } @else {
+            <p class="text-sm text-gray-400">No doctors assigned.</p>
+          }
+        </section>
+      </div>
+
+      <div>
+        <app-clinic-map-preview
+          [latitude]="clinic.location?.latitude"
+          [longitude]="clinic.location?.longitude"
+          [mapUrl]="clinic.mapUrl"
+          [address]="fullAddress(clinic)"
+        />
+      </div>
+    </div>
+  }
+</div>

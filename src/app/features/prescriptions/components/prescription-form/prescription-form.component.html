@@ -1,0 +1,51 @@
+<form [formGroup]="form()" (ngSubmit)="submitted.emit()" class="space-y-5">
+  <div class="space-y-4">
+    <div class="flex items-center justify-between">
+      <h3 class="text-sm font-medium text-gray-900">Medicines</h3>
+      <button type="button" (click)="addMedicine.emit()" class="text-sm text-teal-600 hover:text-teal-800">
+        + Add Medicine
+      </button>
+    </div>
+
+    @for (med of medicinesArray().controls; track $index; let i = $index) {
+      <div [formGroup]="medicineGroup(i)" class="rounded-lg border border-gray-200 p-4 space-y-3">
+        <div class="flex items-center justify-between">
+          <span class="text-sm font-medium text-gray-700">Medicine {{ i + 1 }}</span>
+          @if (medicinesArray().length > 1) {
+            <button type="button" (click)="removeMedicine.emit(i)" class="text-sm text-red-600 hover:text-red-800">
+              Remove
+            </button>
+          }
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Name</label>
+          <input formControlName="name" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" placeholder="e.g. Paracetamol" />
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Dosage</label>
+            <input formControlName="dosage" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" placeholder="e.g. 500mg twice daily" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Duration</label>
+            <input formControlName="duration" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" placeholder="e.g. 7 days" />
+          </div>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Instructions</label>
+          <textarea formControlName="instructions" rows="2" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" placeholder="Take after meals..."></textarea>
+        </div>
+      </div>
+    }
+  </div>
+
+  <div>
+    <label class="block text-sm font-medium text-gray-700 mb-1">Additional Notes</label>
+    <textarea formControlName="notes" rows="3" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" placeholder="Optional notes..."></textarea>
+  </div>
+
+  <div class="flex gap-3 pt-2">
+    <app-button type="submit" [loading]="loading()">{{ isEdit() ? 'Update' : 'Save' }} Prescription</app-button>
+    <app-button type="button" variant="secondary" (click)="cancelled.emit()">Cancel</app-button>
+  </div>
+</form>

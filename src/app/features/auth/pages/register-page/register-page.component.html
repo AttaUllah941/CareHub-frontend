@@ -1,0 +1,7 @@
+    <app-register-form
+      [form]="registerForm"
+      [loading]="authService.loading()"
+      [error]="authService.error() ?? ''"
+      (submitted)="onSubmit()"
+    />
+  

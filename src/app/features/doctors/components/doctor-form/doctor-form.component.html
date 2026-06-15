@@ -1,0 +1,151 @@
+<form [formGroup]="form()" (ngSubmit)="submitted.emit()" class="space-y-8">
+  @if (error()) { <app-alert [message]="error()" variant="error" /> }
+
+  @if (mode() === 'create' || mode() === 'edit') {
+    <section class="space-y-4">
+      <h3 class="text-lg font-semibold text-gray-900 border-b pb-2">Account Information</h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <app-input label="First Name" formControlName="firstName" [required]="true" />
+        <app-input label="Last Name" formControlName="lastName" [required]="true" />
+        <app-input label="Email" type="email" formControlName="email" [required]="true" />
+        <app-input label="Phone" formControlName="phone" [required]="true" />
+        @if (mode() === 'create') {
+          <app-input label="Password" type="password" formControlName="password" [required]="true" />
+        }
+      </div>
+      @if (mode() === 'edit') {
+        <label class="flex items-center gap-2 text-sm text-gray-700">
+          <input type="checkbox" formControlName="isActive" class="rounded border-gray-300 text-teal-600" />
+          Active account
+        </label>
+      }
+    </section>
+  }
+
+  <section class="space-y-4">
+    <h3 class="text-lg font-semibold text-gray-900 border-b pb-2">Personal Information</h3>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="space-y-1">
+        <label class="block text-sm font-medium text-gray-700">Gender</label>
+        <select formControlName="gender" class="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm">
+          <option value="">Select gender</option>
+          <option value="MALE">Male</option>
+          <option value="FEMALE">Female</option>
+          <option value="OTHER">Other</option>
+        </select>
+      </div>
+      <app-input label="Date of Birth" type="date" formControlName="dateOfBirth" />
+      <app-input label="City" formControlName="city" />
+      <app-input label="Country" formControlName="country" />
+      <app-input label="Address" formControlName="address" class="md:col-span-2" />
+      <app-input label="Profile Image URL" formControlName="profileImageUrl" class="md:col-span-2" />
+    </div>
+    <div class="space-y-1">
+      <label class="block text-sm font-medium text-gray-700">Bio</label>
+      <textarea formControlName="bio" rows="3" class="block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm"></textarea>
+    </div>
+  </section>
+
+  <section class="space-y-4">
+    <h3 class="text-lg font-semibold text-gray-900 border-b pb-2">Professional Information</h3>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <app-input label="Title" formControlName="title" placeholder="Dr." />
+      <app-input label="License Number" formControlName="licenseNumber" />
+      <app-input label="License Authority" formControlName="licenseAuthority" />
+      <app-input label="Medical Registration #" formControlName="medicalRegistrationNumber" />
+    </div>
+    <div class="space-y-1">
+      <label class="block text-sm font-medium text-gray-700">About</label>
+      <textarea formControlName="about" rows="3" class="block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm"></textarea>
+    </div>
+  </section>
+
+  <section class="space-y-4">
+    <h3 class="text-lg font-semibold text-gray-900 border-b pb-2">Experience</h3>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <app-input label="Years of Experience" type="number" formControlName="yearsOfExperience" />
+      <div></div>
+    </div>
+    <div class="space-y-1">
+      <label class="block text-sm font-medium text-gray-700">Experience Summary</label>
+      <textarea formControlName="experienceSummary" rows="3" class="block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm"></textarea>
+    </div>
+    <div class="space-y-3" formArrayName="workHistory">
+      @for (item of workHistory.controls; track $index) {
+        <div [formGroupName]="$index" class="p-4 border rounded-lg grid grid-cols-1 md:grid-cols-2 gap-3">
+          <app-input label="Organization" formControlName="organization" />
+          <app-input label="Position" formControlName="position" />
+          <app-input label="Start Year" type="number" formControlName="startYear" />
+          <app-input label="End Year" type="number" formControlName="endYear" />
+          <label class="flex items-center gap-2 text-sm text-gray-700 md:col-span-2">
+            <input type="checkbox" formControlName="isCurrent" class="rounded border-gray-300 text-teal-600" />
+            Current position
+          </label>
+          <button type="button" (click)="removeWorkHistory($index)" class="text-sm text-red-600 md:col-span-2 text-left">Remove</button>
+        </div>
+      }
+    </div>
+  </section>
+
+  <section class="space-y-4">
+    <h3 class="text-lg font-semibold text-gray-900 border-b pb-2">Specializations</h3>
+    <div class="flex flex-wrap gap-2">
+      @for (specialty of specialties(); track specialty.id) {
+        <label class="inline-flex items-center gap-2 px-3 py-2 border rounded-lg text-sm cursor-pointer hover:bg-gray-50">
+          <input
+            type="checkbox"
+            [checked]="isSpecialtySelected(specialty.id)"
+            (change)="toggleSpecialty(specialty.id)"
+          />
+          {{ specialty.name }}
+        </label>
+      }
+    </div>
+  </section>
+
+  <section class="space-y-4">
+    <h3 class="text-lg font-semibold text-gray-900 border-b pb-2">Qualifications</h3>
+    <div class="space-y-3" formArrayName="qualifications">
+      @for (item of qualifications.controls; track $index) {
+        <div [formGroupName]="$index" class="p-4 border rounded-lg grid grid-cols-1 md:grid-cols-2 gap-3">
+          <app-input label="Degree" formControlName="degree" />
+          <app-input label="Institution" formControlName="institution" />
+          <app-input label="Year" type="number" formControlName="year" />
+          <app-input label="Certificate URL" formControlName="certificateUrl" />
+          <button type="button" (click)="removeQualification($index)" class="text-sm text-red-600 md:col-span-2 text-left">Remove</button>
+        </div>
+      }
+    </div>
+  </section>
+
+  <section class="space-y-4">
+    <h3 class="text-lg font-semibold text-gray-900 border-b pb-2">Languages</h3>
+    <div class="flex flex-wrap gap-2">
+      @for (language of languages(); track language.id) {
+        <label class="inline-flex items-center gap-2 px-3 py-2 border rounded-lg text-sm cursor-pointer hover:bg-gray-50">
+          <input
+            type="checkbox"
+            [checked]="isLanguageSelected(language.id)"
+            (change)="toggleLanguage(language.id)"
+          />
+          {{ language.name }} ({{ language.code }})
+        </label>
+      }
+    </div>
+  </section>
+
+  <section class="space-y-4">
+    <h3 class="text-lg font-semibold text-gray-900 border-b pb-2">Consultation Fee</h3>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <app-input label="Fee" type="number" formControlName="consultationFee" />
+      <app-input label="Currency" formControlName="currency" placeholder="USD" />
+    </div>
+  </section>
+
+  <div class="flex gap-3">
+    <app-button type="submit" [loading]="loading()">
+      {{ mode() === 'create' ? 'Create Doctor' : 'Save Changes' }}
+    </app-button>
+    <app-button type="button" variant="outline" (click)="cancelled.emit()">Cancel</app-button>
+  </div>
+</form>

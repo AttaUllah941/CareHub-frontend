@@ -1,0 +1,58 @@
+<div class="overflow-x-auto">
+  <table class="min-w-full divide-y divide-gray-200">
+    <thead class="bg-gray-50">
+      <tr>
+        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
+        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Title</th>
+        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">File</th>
+        @if (showPatient()) {
+          <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Patient</th>
+        }
+        @if (showActions()) {
+          <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
+        }
+      </tr>
+    </thead>
+    <tbody class="bg-white divide-y divide-gray-200">
+      @if (loading()) {
+        <tr>
+          <td [attr.colspan]="colspan()" class="px-4 py-8 text-center text-sm text-gray-500">Loading...</td>
+        </tr>
+      } @else if (records().length === 0) {
+        <tr>
+          <td [attr.colspan]="colspan()" class="px-4 py-8 text-center text-sm text-gray-500">No medical records found</td>
+        </tr>
+      } @else {
+        @for (r of records(); track r.id) {
+          <tr class="hover:bg-gray-50">
+            <td class="px-4 py-3 text-sm text-gray-900">{{ formatDate(r.createdAt) }}</td>
+            <td class="px-4 py-3 text-sm">
+              <span class="inline-flex px-2 py-0.5 rounded text-xs font-medium bg-teal-50 text-teal-700">
+                {{ typeLabel(r.recordType) }}
+              </span>
+            </td>
+            <td class="px-4 py-3 text-sm text-gray-900">{{ r.title }}</td>
+            <td class="px-4 py-3 text-sm text-gray-600">
+              {{ r.originalFileName }} (v{{ r.version }}, {{ formatSize(r.fileSize) }})
+            </td>
+            @if (showPatient()) {
+              <td class="px-4 py-3 text-sm text-gray-700">
+                {{ r.patient?.user?.firstName }} {{ r.patient?.user?.lastName }}
+              </td>
+            }
+            @if (showActions()) {
+              <td class="px-4 py-3 text-sm text-right space-x-2">
+                <button type="button" (click)="viewRecord.emit(r)" class="text-teal-600 hover:text-teal-800">View</button>
+                <button type="button" (click)="downloadRecord.emit(r)" class="text-purple-600 hover:text-purple-800">Download</button>
+                @if (adminMode()) {
+                  <button type="button" (click)="deleteRecord.emit(r)" class="text-red-600 hover:text-red-800">Delete</button>
+                }
+              </td>
+            }
+          </tr>
+        }
+      }
+    </tbody>
+  </table>
+</div>

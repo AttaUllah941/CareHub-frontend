@@ -1,0 +1,35 @@
+<div class="space-y-6">
+  <div class="flex flex-wrap items-center justify-between gap-4">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900">Patient Reviews</h1>
+      <p class="text-sm text-gray-500 mt-1">Ratings and feedback from your patients</p>
+    </div>
+    @if (reviewService.doctorReviews().length > 0) {
+      <div class="text-right">
+        <div class="text-2xl text-amber-400">{{ stars(Math.round(averageRating())) }}</div>
+        <p class="text-sm text-gray-500">{{ averageRating() }} avg · {{ reviewService.doctorReviews().length }} reviews</p>
+      </div>
+    }
+  </div>
+
+  @if (reviewService.error()) {
+    <app-alert [message]="reviewService.error()!" variant="error" />
+  }
+
+  @if (selected(); as r) {
+    <button type="button" (click)="closeDetail()" class="text-sm text-teal-600 hover:text-teal-800">&larr; Back to list</button>
+    <app-review-detail [review]="r" [showModeration]="true" />
+  } @else {
+    <div class="bg-white rounded-xl border border-gray-200 shadow-sm">
+      <app-review-table
+        [reviews]="reviewService.doctorReviews()"
+        [loading]="reviewService.loading()"
+        [showDoctor]="false"
+        [showPatient]="true"
+        [showStatus]="true"
+        [showActions]="true"
+        (viewReview)="onView($event)"
+      />
+    </div>
+  }
+</div>

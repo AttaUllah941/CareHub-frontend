@@ -1,0 +1,61 @@
+<div class="space-y-6">
+  <div>
+    <h1 class="text-2xl font-bold text-gray-900">Consultations</h1>
+    <p class="text-sm text-gray-500 mt-1">Record and manage patient consultation notes</p>
+  </div>
+
+  @if (consultationService.error()) { <app-alert [message]="consultationService.error()!" variant="error" /> }
+  @if (consultationService.successMessage()) { <app-alert [message]="consultationService.successMessage()!" variant="success" /> }
+
+  @if (viewing(); as c) {
+    <button type="button" (click)="viewing.set(null)" class="text-sm text-teal-600 hover:text-teal-800">&larr; Back to list</button>
+    <app-consultation-detail [consultation]="c" />
+    <app-button (click)="startEdit(c)">Edit Consultation</app-button>
+  } @else if (showForm()) {
+    <button type="button" (click)="cancelForm()" class="text-sm text-teal-600 hover:text-teal-800">&larr; Back to list</button>
+    <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+      @if (selectedAppointment(); as appt) {
+        <p class="text-sm text-gray-600 mb-4">
+          Recording for: {{ appt.patient?.user?.firstName }} {{ appt.patient?.user?.lastName }}
+          · {{ appt.appointmentDate | date:'mediumDate' }} {{ appt.startTime }}
+        </p>
+      }
+      <app-consultation-form
+        [form]="form"
+        [loading]="consultationService.saving()"
+        [isEdit]="!!editingConsultation()"
+        (submitted)="onSubmit()"
+        (cancelled)="cancelForm()"
+      />
+    </div>
+  } @else {
+    @if (appointmentsWithoutConsultation().length) {
+      <div class="bg-amber-50 border border-amber-200 rounded-xl p-4">
+        <h2 class="text-sm font-medium text-amber-900">Appointments awaiting consultation notes</h2>
+        <div class="mt-3 flex flex-wrap gap-2">
+          @for (a of appointmentsWithoutConsultation(); track a.id) {
+            <button
+              type="button"
+              (click)="startRecord(a)"
+              class="rounded-lg border border-amber-300 bg-white px-3 py-1.5 text-sm text-amber-800 hover:bg-amber-100"
+            >
+              {{ a.patient?.user?.firstName }} {{ a.patient?.user?.lastName }} — {{ a.startTime }}
+            </button>
+          }
+        </div>
+      </div>
+    }
+
+    <div class="bg-white rounded-xl border border-gray-200 shadow-sm">
+      <app-consultation-table
+        [consultations]="consultationService.doctorConsultations()"
+        [loading]="consultationService.loading()"
+        [showPatient]="true"
+        [doctorMode]="true"
+        [showActions]="true"
+        (viewConsultation)="onView($event)"
+        (editConsultation)="startEdit($event)"
+      />
+    </div>
+  }
+</div>

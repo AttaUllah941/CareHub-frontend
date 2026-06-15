@@ -1,0 +1,53 @@
+---
+description: Angular components must use separate HTML, SCSS, and TS files
+globs: CareHub-frontend/src/**/*.component.ts
+alwaysApply: false
+---
+
+# Angular multi-file components
+
+Every component in this app uses the standard three-file structure. Do not use inline templates or inline styles.
+
+## Required file layout
+
+```
+feature-name/
+  feature-name.component.ts
+  feature-name.component.html
+  feature-name.component.scss
+```
+
+## Component decorator
+
+```typescript
+@Component({
+  selector: 'app-feature-name',
+  standalone: true,
+  imports: [...],
+  templateUrl: './feature-name.component.html',
+  styleUrl: './feature-name.component.scss',
+})
+export class FeatureNameComponent {}
+```
+
+## Rules
+
+- Never use `template: \`...\`` or `styles: [...]` in `@Component`.
+- Put all markup in `.html`; put component-scoped styles in `.scss` (Tailwind utility classes stay in HTML).
+- Keep `.ts` for class logic, inputs/outputs, DI, and lifecycle hooks only.
+- When creating a component, generate all three files together.
+- Use `ng generate component` (CLI defaults are configured for this pattern).
+
+## Do not
+
+```typescript
+// BAD — inline template
+@Component({
+  template: `<div>...</div>`,
+})
+
+// BAD — inline styles
+@Component({
+  styles: [`:host { display: block; }`],
+})
+```

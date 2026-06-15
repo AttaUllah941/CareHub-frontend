@@ -1,0 +1,54 @@
+<div class="space-y-6">
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900">Clinics</h1>
+      <p class="text-sm text-gray-500 mt-1">Manage clinic locations, hours, and assigned doctors</p>
+    </div>
+    <a routerLink="/admin/clinics/create"><app-button>Create Clinic</app-button></a>
+  </div>
+
+  @if (clinicService.error()) { <app-alert [message]="clinicService.error()!" /> }
+  @if (clinicService.successMessage()) { <app-alert [message]="clinicService.successMessage()!" variant="success" /> }
+
+  <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-4 grid grid-cols-1 md:grid-cols-4 gap-4">
+    <input
+      type="text"
+      placeholder="Search clinics..."
+      [ngModel]="clinicService.query().search"
+      (ngModelChange)="onSearch($event)"
+      class="md:col-span-2 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-teal-500 focus:outline-none"
+    />
+    <select
+      [ngModel]="clinicService.query().isActive"
+      (ngModelChange)="onFilter({ isActive: $event, page: 1 })"
+      class="rounded-lg border border-gray-300 px-3 py-2 text-sm"
+    >
+      <option value="">All Status</option>
+      <option value="true">Active</option>
+      <option value="false">Inactive</option>
+    </select>
+    <select
+      [ngModel]="clinicService.query().sortBy"
+      (ngModelChange)="onFilter({ sortBy: $event, page: 1 })"
+      class="rounded-lg border border-gray-300 px-3 py-2 text-sm"
+    >
+      <option value="name">Name</option>
+      <option value="city">City</option>
+      <option value="createdAt">Created Date</option>
+    </select>
+  </div>
+
+  <div class="bg-white rounded-xl border border-gray-200 shadow-sm">
+    <app-clinic-table
+      [clinics]="clinicService.clinics()"
+      [loading]="clinicService.loading()"
+      (deleteClinic)="onDelete($event)"
+    />
+    <app-pagination
+      [page]="clinicService.pagination().page"
+      [totalPages]="clinicService.pagination().totalPages"
+      [total]="clinicService.pagination().total"
+      (pageChange)="onFilter({ page: $event })"
+    />
+  </div>
+</div>

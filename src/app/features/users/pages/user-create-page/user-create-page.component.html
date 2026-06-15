@@ -1,0 +1,18 @@
+    <div class="space-y-6 max-w-2xl">
+      <div>
+        <a routerLink="/admin/users" class="text-sm text-teal-600 hover:text-teal-800">&larr; Back to Users</a>
+        <h1 class="text-2xl font-bold text-gray-900 mt-2">Create User</h1>
+      </div>
+
+      <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+        <app-user-form
+          [form]="form"
+          [loading]="userService.saving()"
+          [error]="userService.error() ?? ''"
+          [isEdit]="false"
+          (submitted)="onSubmit()"
+          (cancelled)="onCancel()"
+        />
+      </div>
+    </div>
+  

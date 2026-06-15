@@ -1,0 +1,54 @@
+    <form [formGroup]="form()" (ngSubmit)="submitted.emit()" class="space-y-5">
+      @if (error()) {
+        <app-alert [message]="error()" variant="error" />
+      }
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <app-input label="First Name" formControlName="firstName" [required]="true" />
+        <app-input label="Last Name" formControlName="lastName" [required]="true" />
+      </div>
+
+      <app-input label="Email" type="email" formControlName="email" [required]="true" />
+      <app-input label="Phone" type="tel" formControlName="phone" [required]="true" />
+
+      <div class="space-y-1">
+        <label class="block text-sm font-medium text-gray-700">Role <span class="text-red-500">*</span></label>
+        <select
+          formControlName="role"
+          class="block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
+        >
+          @for (role of roleOptions; track role.value) {
+            <option [value]="role.value">{{ role.label }}</option>
+          }
+        </select>
+      </div>
+
+      @if (!isEdit()) {
+        <app-input label="Password" type="password" formControlName="password" [required]="true" />
+      } @else {
+        <app-input
+          label="New Password (leave blank to keep current)"
+          type="password"
+          formControlName="password"
+        />
+      }
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <label class="flex items-center gap-2 text-sm text-gray-700">
+          <input type="checkbox" formControlName="isActive" class="rounded border-gray-300 text-teal-600" />
+          Active account
+        </label>
+        <label class="flex items-center gap-2 text-sm text-gray-700">
+          <input type="checkbox" formControlName="isEmailVerified" class="rounded border-gray-300 text-teal-600" />
+          Email verified
+        </label>
+      </div>
+
+      <div class="flex gap-3">
+        <app-button type="submit" [loading]="loading()">
+          {{ isEdit() ? 'Update User' : 'Create User' }}
+        </app-button>
+        <app-button type="button" variant="outline" (click)="cancelled.emit()">Cancel</app-button>
+      </div>
+    </form>
+  

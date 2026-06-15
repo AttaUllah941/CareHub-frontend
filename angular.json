@@ -8,7 +8,14 @@
   "projects": {
     "CareHub-frontend": {
       "projectType": "application",
-      "schematics": {},
+      "schematics": {
+        "@schematics/angular:component": {
+          "style": "scss",
+          "inlineTemplate": false,
+          "inlineStyle": false,
+          "standalone": true
+        }
+      },
       "root": "",
       "sourceRoot": "src",
       "prefix": "app",

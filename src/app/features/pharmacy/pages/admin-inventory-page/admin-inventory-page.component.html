@@ -1,0 +1,50 @@
+<div class="space-y-6">
+  <div>
+    <h1 class="text-2xl font-bold text-gray-900">Pharmacy Inventory</h1>
+    <p class="text-sm text-gray-500 mt-1">Track stock levels and reorder points</p>
+  </div>
+
+  @if (pharmacyService.error()) { <app-alert [message]="pharmacyService.error()!" variant="error" /> }
+  @if (pharmacyService.successMessage()) { <app-alert [message]="pharmacyService.successMessage()!" variant="success" /> }
+
+  <form class="bg-white rounded-xl border p-4 grid grid-cols-1 md:grid-cols-4 gap-4" (ngSubmit)="save()">
+    <select class="border rounded-lg px-3 py-2 text-sm" [ngModel]="medicineId()" (ngModelChange)="medicineId.set($event)" name="medicineId" required>
+      <option value="">Select medicine</option>
+      @for (m of pharmacyService.medicines(); track m.id) {
+        <option [value]="m.id">{{ m.name }}</option>
+      }
+    </select>
+    <input type="number" class="border rounded-lg px-3 py-2 text-sm" placeholder="Quantity" [ngModel]="quantity()" (ngModelChange)="quantity.set(+$event)" name="quantity" />
+    <input type="number" class="border rounded-lg px-3 py-2 text-sm" placeholder="Reorder level" [ngModel]="reorderLevel()" (ngModelChange)="reorderLevel.set(+$event)" name="reorderLevel" />
+    <button type="submit" class="px-4 py-2 bg-teal-600 text-white rounded-lg text-sm">Update Stock</button>
+  </form>
+
+  <div class="bg-white rounded-xl border overflow-x-auto">
+    <table class="min-w-full divide-y divide-gray-200">
+      <thead class="bg-gray-50">
+        <tr>
+          <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Medicine</th>
+          <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Qty</th>
+          <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Available</th>
+          <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Reorder</th>
+          <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-200">
+        @for (row of pharmacyService.inventory(); track row.id) {
+          <tr [class.bg-red-50]="row.isLowStock">
+            <td class="px-4 py-3 text-sm font-medium">{{ row.medicine?.name || row.medicineId }}</td>
+            <td class="px-4 py-3 text-sm">{{ row.quantity }}</td>
+            <td class="px-4 py-3 text-sm">{{ row.availableQuantity ?? (row.quantity - row.reservedQuantity) }}</td>
+            <td class="px-4 py-3 text-sm">{{ row.reorderLevel }}</td>
+            <td class="px-4 py-3 text-sm">
+              @if (row.isLowStock) { <span class="text-red-600 font-medium">Low stock</span> } @else { <span class="text-green-600">OK</span> }
+            </td>
+          </tr>
+        } @empty {
+          <tr><td colspan="5" class="px-4 py-8 text-center text-sm text-gray-500">No inventory records</td></tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

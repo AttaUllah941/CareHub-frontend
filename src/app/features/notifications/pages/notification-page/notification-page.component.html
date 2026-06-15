@@ -1,0 +1,74 @@
+<div class="space-y-6">
+  <div class="flex flex-wrap items-center justify-between gap-4">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900">Notifications</h1>
+      <p class="text-sm text-gray-500 mt-1">
+        Email, SMS, push, and in-app alerts for appointments and prescriptions
+      </p>
+    </div>
+    <div class="flex gap-2">
+      @if (notificationService.unreadCount() > 0) {
+        <button
+          type="button"
+          (click)="onMarkAllRead()"
+          class="px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50"
+        >
+          Mark all read
+        </button>
+      }
+      <button
+        type="button"
+        (click)="showPreferences.set(!showPreferences())"
+        class="px-3 py-2 text-sm bg-teal-600 text-white rounded-lg hover:bg-teal-700"
+      >
+        {{ showPreferences() ? 'Hide Settings' : 'Preferences' }}
+      </button>
+    </div>
+  </div>
+
+  @if (notificationService.error()) {
+    <app-alert [message]="notificationService.error()!" variant="error" />
+  }
+  @if (notificationService.successMessage()) {
+    <app-alert [message]="notificationService.successMessage()!" variant="success" />
+  }
+
+  @if (showPreferences()) {
+    <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+      <h2 class="text-lg font-semibold text-gray-900 mb-4">Notification Preferences</h2>
+      <app-notification-preferences-form
+        [preferences]="notificationService.preferences()"
+        [saving]="notificationService.saving()"
+        (save)="onSavePreferences($event)"
+      />
+    </div>
+  }
+
+  <div class="flex items-center gap-3">
+    <label class="flex items-center gap-2 text-sm text-gray-600">
+      <input
+        type="checkbox"
+        [ngModel]="unreadOnly()"
+        (ngModelChange)="unreadOnly.set($event); onFilterChange()"
+      />
+      Unread only
+    </label>
+    @if (notificationService.unreadCount() > 0) {
+      <span class="text-sm text-teal-600 font-medium">{{ notificationService.unreadCount() }} unread</span>
+    }
+  </div>
+
+  <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+    <app-notification-list
+      [notifications]="notificationService.notifications()"
+      [loading]="notificationService.loading()"
+      (markRead)="onMarkRead($event)"
+    />
+  </div>
+
+  <app-pagination
+    [page]="notificationService.pagination().page"
+    [totalPages]="notificationService.pagination().totalPages"
+    (pageChange)="onPageChange($event)"
+  />
+</div>

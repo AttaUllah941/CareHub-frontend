@@ -1,0 +1,68 @@
+@if (doctor(); as d) {
+  <article class="bg-white rounded-xl border border-gray-200 shadow-sm p-5 flex flex-col h-full">
+    <div class="flex items-start gap-4">
+      @if (d.profileImageUrl) {
+        <img [src]="d.profileImageUrl" alt="" class="h-16 w-16 rounded-full object-cover shrink-0" />
+      } @else {
+        <div class="h-16 w-16 rounded-full bg-teal-100 text-teal-700 flex items-center justify-center text-lg font-semibold shrink-0">
+          {{ d.user?.firstName?.charAt(0) }}{{ d.user?.lastName?.charAt(0) }}
+        </div>
+      }
+      <div class="min-w-0 flex-1">
+        <h3 class="text-lg font-semibold text-gray-900 truncate">
+          {{ d.title ? d.title + ' ' : '' }}{{ d.user?.firstName }} {{ d.user?.lastName }}
+        </h3>
+        <p class="text-sm text-gray-500 mt-0.5">
+          {{ d.yearsOfExperience ?? 0 }} years experience
+          @if (d.gender) { · {{ d.gender }} }
+        </p>
+        @if (d.consultationFee != null) {
+          <p class="text-sm font-medium text-teal-700 mt-1">{{ d.currency || 'USD' }} {{ d.consultationFee }}</p>
+        }
+      </div>
+    </div>
+
+    @if (d.specialties?.length) {
+      <div class="mt-4 flex flex-wrap gap-1.5">
+        @for (s of d.specialties; track s.id) {
+          <span class="px-2 py-0.5 rounded-full text-xs bg-blue-50 text-blue-700">{{ s.name }}</span>
+        }
+      </div>
+    }
+
+    @if (d.languages?.length) {
+      <p class="mt-3 text-sm text-gray-600">
+        <span class="font-medium text-gray-700">Languages:</span>
+        {{ languageNames(d) }}
+      </p>
+    }
+
+    @if (d.clinics?.length) {
+      <p class="mt-2 text-sm text-gray-600">
+        <span class="font-medium text-gray-700">Clinics:</span>
+        {{ clinicLabels(d) }}
+      </p>
+    } @else if (d.city) {
+      <p class="mt-2 text-sm text-gray-600">
+        <span class="font-medium text-gray-700">Location:</span> {{ d.city }}{{ d.country ? ', ' + d.country : '' }}
+      </p>
+    }
+
+    @if (d.availableDays?.length) {
+      <p class="mt-2 text-sm text-gray-600">
+        <span class="font-medium text-gray-700">Available:</span>
+        {{ availableDayLabels(d) }}
+      </p>
+    }
+
+    @if (d.about) {
+      <p class="mt-3 text-sm text-gray-600 line-clamp-2">{{ d.about }}</p>
+    }
+
+    <div class="mt-4 pt-4 border-t border-gray-100">
+      <a [routerLink]="['/patient/appointments/book', d.id]" [state]="{ doctor: d }">
+        <app-button class="w-full">Book Appointment</app-button>
+      </a>
+    </div>
+  </article>
+}

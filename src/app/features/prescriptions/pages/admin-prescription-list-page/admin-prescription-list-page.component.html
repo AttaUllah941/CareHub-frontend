@@ -1,0 +1,48 @@
+<div class="space-y-6">
+  <div>
+    <h1 class="text-2xl font-bold text-gray-900">Prescriptions</h1>
+    <p class="text-sm text-gray-500 mt-1">View all prescriptions across the platform</p>
+  </div>
+
+  @if (prescriptionService.error()) { <app-alert [message]="prescriptionService.error()!" variant="error" /> }
+  @if (prescriptionService.successMessage()) { <app-alert [message]="prescriptionService.successMessage()!" variant="success" /> }
+
+  @if (viewing(); as p) {
+    <button type="button" (click)="viewing.set(null)" class="text-sm text-teal-600 hover:text-teal-800">&larr; Back to list</button>
+    <app-prescription-detail
+      [prescription]="p"
+      [downloading]="prescriptionService.downloading()"
+      (downloadPdf)="onDownload(p)"
+    />
+  } @else {
+    <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
+      <input
+        type="search"
+        placeholder="Search medicines, notes..."
+        [ngModel]="search()"
+        (ngModelChange)="search.set($event)"
+        (keyup.enter)="onSearch()"
+        class="w-full max-w-md rounded-lg border border-gray-300 px-3 py-2 text-sm"
+      />
+    </div>
+
+    <div class="bg-white rounded-xl border border-gray-200 shadow-sm">
+      <app-prescription-table
+        [prescriptions]="prescriptionService.prescriptions()"
+        [loading]="prescriptionService.loading()"
+        [showPatient]="true"
+        [adminMode]="true"
+        [showActions]="true"
+        (viewPrescription)="onView($event)"
+        (downloadPdf)="onDownload($event)"
+        (deletePrescription)="onDelete($event)"
+      />
+    </div>
+
+    <app-pagination
+      [page]="prescriptionService.pagination().page"
+      [totalPages]="prescriptionService.pagination().totalPages"
+      (pageChange)="onPageChange($event)"
+    />
+  }
+</div>

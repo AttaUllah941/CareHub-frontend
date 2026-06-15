@@ -1,0 +1,40 @@
+    <div class="space-y-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-2xl font-bold text-gray-900">User Management</h1>
+          <p class="text-sm text-gray-500 mt-1">Manage platform users, roles, and access</p>
+        </div>
+        <a routerLink="/admin/users/create">
+          <app-button>Create User</app-button>
+        </a>
+      </div>
+
+      @if (userService.error()) {
+        <app-alert [message]="userService.error()!" variant="error" />
+      }
+      @if (userService.successMessage()) {
+        <app-alert [message]="userService.successMessage()!" variant="success" />
+      }
+
+      <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
+        <app-user-filters
+          [query]="userService.query()"
+          (filterChange)="onFilterChange($event)"
+        />
+      </div>
+
+      <div class="bg-white rounded-xl border border-gray-200 shadow-sm">
+        <app-user-table
+          [users]="userService.users()"
+          [loading]="userService.loading()"
+          (deleteUser)="onDelete($event)"
+        />
+        <app-pagination
+          [page]="userService.pagination().page"
+          [totalPages]="userService.pagination().totalPages"
+          [total]="userService.pagination().total"
+          (pageChange)="onPageChange($event)"
+        />
+      </div>
+    </div>
+  

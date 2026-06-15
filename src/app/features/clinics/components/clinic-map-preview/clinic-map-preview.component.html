@@ -1,0 +1,27 @@
+<div class="rounded-xl border border-gray-200 bg-white overflow-hidden">
+  <div class="px-4 py-3 border-b bg-gray-50">
+    <h3 class="font-semibold text-gray-900">Map Preview</h3>
+    @if (address()) {
+      <p class="text-sm text-gray-500 mt-0.5">{{ address() }}</p>
+    }
+  </div>
+
+  @if (hasCoordinates() && safeEmbedUrl()) {
+    <iframe
+      [src]="safeEmbedUrl()!"
+      class="w-full h-64 border-0"
+      loading="lazy"
+      title="Clinic location map"
+    ></iframe>
+    <div class="px-4 py-2 text-xs text-gray-500 flex justify-between items-center border-t">
+      <span>{{ latitude() }}, {{ longitude() }}</span>
+      @if (mapUrl()) {
+        <a [href]="mapUrl()!" target="_blank" rel="noopener" class="text-teal-600 hover:text-teal-800">Open in map</a>
+      }
+    </div>
+  } @else {
+    <div class="h-48 flex items-center justify-center text-sm text-gray-400 p-4 text-center">
+      Enter latitude and longitude to preview the clinic on the map.
+    </div>
+  }
+</div>

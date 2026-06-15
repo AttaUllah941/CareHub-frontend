@@ -1,0 +1,116 @@
+<div class="space-y-6">
+  <div>
+    <h1 class="text-2xl font-bold text-gray-900">Reports</h1>
+    <p class="text-sm text-gray-500 mt-1">Generate and export platform reports</p>
+  </div>
+
+  @if (reportService.error()) {
+    <app-alert [message]="reportService.error()!" variant="error" />
+  }
+  @if (reportService.successMessage()) {
+    <app-alert [message]="reportService.successMessage()!" variant="success" />
+  }
+
+  <div class="border-b border-gray-200">
+    <nav class="flex gap-1 -mb-px">
+      @for (opt of typeOptions; track opt.value) {
+        <button
+          type="button"
+          (click)="selectTab(opt.value)"
+          class="px-4 py-2 text-sm font-medium border-b-2 transition-colors"
+          [class.border-teal-600]="activeTab() === opt.value"
+          [class.text-teal-600]="activeTab() === opt.value"
+          [class.border-transparent]="activeTab() !== opt.value"
+          [class.text-gray-500]="activeTab() !== opt.value"
+          [class.hover:text-gray-700]="activeTab() !== opt.value"
+        >
+          {{ opt.label }}
+        </button>
+      }
+    </nav>
+  </div>
+
+  <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
+    <div class="flex flex-wrap gap-3 items-end">
+      <div>
+        <label class="block text-xs font-medium text-gray-600 mb-1">From</label>
+        <input
+          type="date"
+          [ngModel]="fromDate()"
+          (ngModelChange)="fromDate.set($event)"
+          class="rounded-lg border border-gray-300 px-3 py-2 text-sm"
+        />
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-gray-600 mb-1">To</label>
+        <input
+          type="date"
+          [ngModel]="toDate()"
+          (ngModelChange)="toDate.set($event)"
+          class="rounded-lg border border-gray-300 px-3 py-2 text-sm"
+        />
+      </div>
+      @if (activeTab() === 'APPOINTMENTS') {
+        <div>
+          <label class="block text-xs font-medium text-gray-600 mb-1">Status</label>
+          <select
+            [ngModel]="statusFilter()"
+            (ngModelChange)="statusFilter.set($event)"
+            class="rounded-lg border border-gray-300 px-3 py-2 text-sm"
+          >
+            <option value="">All statuses</option>
+            @for (opt of statusOptions; track opt.value) {
+              <option [value]="opt.value">{{ opt.label }}</option>
+            }
+          </select>
+        </div>
+      }
+      @if (activeTab() === 'DOCTORS') {
+        <div>
+          <label class="block text-xs font-medium text-gray-600 mb-1">Verification</label>
+          <select
+            [ngModel]="verificationFilter()"
+            (ngModelChange)="verificationFilter.set($event)"
+            class="rounded-lg border border-gray-300 px-3 py-2 text-sm"
+          >
+            @for (opt of verificationOptions; track opt.value) {
+              <option [value]="opt.value">{{ opt.label }}</option>
+            }
+          </select>
+        </div>
+      }
+      <button
+        type="button"
+        (click)="loadReport()"
+        [disabled]="reportService.loading()"
+        class="px-4 py-2 bg-teal-600 text-white text-sm font-medium rounded-lg hover:bg-teal-700 disabled:opacity-50"
+      >
+        {{ reportService.loading() ? 'Loading...' : 'Generate Report' }}
+      </button>
+      <button
+        type="button"
+        (click)="exportPdf()"
+        [disabled]="reportService.exporting() || !reportService.report()"
+        class="px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 disabled:opacity-50"
+      >
+        Export PDF
+      </button>
+      <button
+        type="button"
+        (click)="exportExcel()"
+        [disabled]="reportService.exporting() || !reportService.report()"
+        class="px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 disabled:opacity-50"
+      >
+        Export Excel
+      </button>
+    </div>
+  </div>
+
+  @if (reportService.loading() && !reportService.report()) {
+    <div class="text-center py-12 text-gray-500 text-sm">Generating report...</div>
+  }
+
+  @if (reportService.report(); as r) {
+    <app-report-preview [report]="r" />
+  }
+</div>

@@ -1,0 +1,44 @@
+    <div class="space-y-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-2xl font-bold text-gray-900">Permissions</h1>
+          <p class="text-sm text-gray-500 mt-1">Manage granular access permissions</p>
+        </div>
+      </div>
+
+      @if (roleService.error()) { <app-alert [message]="roleService.error()!" variant="error" /> }
+      @if (roleService.successMessage()) { <app-alert [message]="roleService.successMessage()!" variant="success" /> }
+
+      <div class="bg-white rounded-xl border p-6">
+        <h2 class="text-lg font-semibold mb-4">Create Permission</h2>
+        <form [formGroup]="createForm" (ngSubmit)="onCreate()" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <app-input label="Name" formControlName="name" [required]="true" />
+          <app-input label="Slug (module:action)" formControlName="slug" placeholder="users:read" [required]="true" />
+          <div class="space-y-1">
+            <label class="block text-sm font-medium text-gray-700">Module</label>
+            <select formControlName="module" class="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm">
+              @for (m of modules; track m) { <option [value]="m">{{ m }}</option> }
+            </select>
+          </div>
+          <app-input label="Description" formControlName="description" />
+          <div class="md:col-span-2">
+            <app-button type="submit" [loading]="roleService.saving()">Create Permission</app-button>
+          </div>
+        </form>
+      </div>
+
+      <div class="bg-white rounded-xl border shadow-sm">
+        <app-permission-table
+          [permissions]="roleService.permissions()"
+          [loading]="roleService.loading()"
+          (deletePermission)="onDelete($event)"
+        />
+        <app-pagination
+          [page]="roleService.permissionsPagination().page"
+          [totalPages]="roleService.permissionsPagination().totalPages"
+          [total]="roleService.permissionsPagination().total"
+          (pageChange)="roleService.loadPermissions({ page: $event })"
+        />
+      </div>
+    </div>
+  

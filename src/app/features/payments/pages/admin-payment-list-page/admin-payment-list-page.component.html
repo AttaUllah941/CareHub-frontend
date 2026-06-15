@@ -1,0 +1,88 @@
+<div class="space-y-6">
+  <div>
+    <h1 class="text-2xl font-bold text-gray-900">Payment Transactions</h1>
+    <p class="text-sm text-gray-500 mt-1">View all payments and process refunds</p>
+  </div>
+
+  @if (paymentService.error()) {
+    <app-alert [message]="paymentService.error()!" variant="error" />
+  }
+  @if (paymentService.successMessage()) {
+    <app-alert [message]="paymentService.successMessage()!" variant="success" />
+  }
+
+  @if (viewing(); as p) {
+    <button type="button" (click)="closeDetail()" class="text-sm text-teal-600 hover:text-teal-800">&larr; Back to list</button>
+    <app-payment-detail [payment]="p" />
+  } @else if (refunding(); as p) {
+    <button type="button" (click)="closeDetail()" class="text-sm text-teal-600 hover:text-teal-800">&larr; Back to list</button>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <app-payment-detail [payment]="p" />
+      <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+        <h2 class="text-lg font-semibold text-gray-900 mb-4">Process Refund</h2>
+        <app-payment-refund-form
+          [maxAmount]="p.refundableAmount ?? p.amount - p.refundAmount"
+          [currency]="p.currency"
+          [saving]="paymentService.saving()"
+          (submit)="onSubmitRefund($event)"
+        />
+      </div>
+    </div>
+  } @else {
+    <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-4 flex flex-wrap gap-3">
+      <input
+        type="text"
+        [ngModel]="search()"
+        (ngModelChange)="search.set($event)"
+        (keyup.enter)="onSearch()"
+        placeholder="Search order/transaction ID..."
+        class="flex-1 min-w-[200px] rounded-lg border border-gray-300 px-3 py-2 text-sm"
+      />
+      <select
+        [ngModel]="statusFilter()"
+        (ngModelChange)="statusFilter.set($event)"
+        class="rounded-lg border border-gray-300 px-3 py-2 text-sm"
+      >
+        <option value="">All statuses</option>
+        @for (opt of statusOptions; track opt.value) {
+          <option [value]="opt.value">{{ opt.label }}</option>
+        }
+      </select>
+      <select
+        [ngModel]="gatewayFilter()"
+        (ngModelChange)="gatewayFilter.set($event)"
+        class="rounded-lg border border-gray-300 px-3 py-2 text-sm"
+      >
+        <option value="">All gateways</option>
+        @for (opt of gatewayOptions; track opt.value) {
+          <option [value]="opt.value">{{ opt.label }}</option>
+        }
+      </select>
+      <button
+        type="button"
+        (click)="onSearch()"
+        class="px-4 py-2 bg-teal-600 text-white text-sm font-medium rounded-lg hover:bg-teal-700"
+      >
+        Search
+      </button>
+    </div>
+
+    <div class="bg-white rounded-xl border border-gray-200 shadow-sm">
+      <app-payment-table
+        [payments]="paymentService.payments()"
+        [loading]="paymentService.loading()"
+        [showAppointment]="true"
+        [showActions]="true"
+        [adminMode]="true"
+        (viewPayment)="onView($event)"
+        (refundPayment)="onRefund($event)"
+      />
+    </div>
+
+    <app-pagination
+      [page]="paymentService.pagination().page"
+      [totalPages]="paymentService.pagination().totalPages"
+      (pageChange)="onPageChange($event)"
+    />
+  }
+</div>

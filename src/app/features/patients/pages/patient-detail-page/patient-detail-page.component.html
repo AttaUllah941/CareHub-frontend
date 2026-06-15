@@ -1,0 +1,23 @@
+<div class="space-y-6">
+  <a routerLink="/admin/patients" class="text-sm text-teal-600 hover:text-teal-800">&larr; Back to Patients</a>
+
+  @if (patientService.error()) { <app-alert [message]="patientService.error()!" /> }
+  @if (patientService.successMessage()) { <app-alert [message]="patientService.successMessage()!" variant="success" /> }
+
+  @if (patientService.loading()) {
+    <p class="text-sm text-gray-500">Loading patient...</p>
+  } @else if (patientService.selectedPatient(); as patient) {
+    <div class="flex justify-end gap-2">
+      <a [routerLink]="['/admin/patients', patient.id, 'family-members']">
+        <app-button variant="outline">Family Members</app-button>
+      </a>
+      <a [routerLink]="['/admin/patients', patient.id, 'edit']">
+        <app-button variant="outline">Edit</app-button>
+      </a>
+      @if (patient.isActive) {
+        <app-button variant="outline" (click)="onDelete(patient.id)">Delete</app-button>
+      }
+    </div>
+    <app-patient-profile-card [patient]="patient" />
+  }
+</div>

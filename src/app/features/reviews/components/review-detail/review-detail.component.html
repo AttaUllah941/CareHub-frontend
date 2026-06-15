@@ -1,0 +1,65 @@
+<div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-4">
+  <div class="flex flex-wrap items-start justify-between gap-4">
+    <div>
+      <div class="text-amber-400 text-xl">{{ stars(review().rating) }}</div>
+      @if (review().title) {
+        <h2 class="text-xl font-semibold text-gray-900 mt-1">{{ review().title }}</h2>
+      }
+      @if (showModeration()) {
+        <span class="inline-flex mt-2 px-2 py-0.5 rounded text-xs font-medium {{ statusClass(review().status) }}">
+          {{ statusLabel(review().status) }}
+        </span>
+      }
+    </div>
+    <span class="text-sm text-gray-500">{{ formatDate(review().createdAt) }}</span>
+  </div>
+
+  @if (review().comment) {
+    <p class="text-sm text-gray-700 whitespace-pre-wrap">{{ review().comment }}</p>
+  }
+
+  <dl class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm border-t border-gray-100 pt-4">
+    @if (review().doctor) {
+      <div>
+        <dt class="text-gray-500">Doctor</dt>
+        <dd class="text-gray-900">
+          {{ review().doctor!.title }} {{ review().doctor!.user?.firstName }} {{ review().doctor!.user?.lastName }}
+        </dd>
+      </div>
+    }
+    @if (review().patient) {
+      <div>
+        <dt class="text-gray-500">Patient</dt>
+        <dd class="text-gray-900">
+          {{ review().patient!.user?.firstName }} {{ review().patient!.user?.lastName }}
+        </dd>
+      </div>
+    }
+    @if (review().clinic) {
+      <div>
+        <dt class="text-gray-500">Clinic</dt>
+        <dd class="text-gray-900">{{ review().clinic!.name }}, {{ review().clinic!.city }}</dd>
+      </div>
+    }
+    @if (review().appointment) {
+      <div>
+        <dt class="text-gray-500">Visit Date</dt>
+        <dd class="text-gray-900">{{ formatDate(review().appointment!.appointmentDate) }}</dd>
+      </div>
+    }
+    @if (showModeration() && review().moderationNote) {
+      <div class="sm:col-span-2">
+        <dt class="text-gray-500">Moderation Note</dt>
+        <dd class="text-gray-700">{{ review().moderationNote }}</dd>
+      </div>
+    }
+    @if (showModeration() && review().moderatedBy) {
+      <div>
+        <dt class="text-gray-500">Moderated By</dt>
+        <dd class="text-gray-900">
+          {{ review().moderatedBy!.firstName }} {{ review().moderatedBy!.lastName }}
+        </dd>
+      </div>
+    }
+  </dl>
+</div>

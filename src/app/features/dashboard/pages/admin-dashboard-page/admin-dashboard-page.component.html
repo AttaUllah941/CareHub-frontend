@@ -1,0 +1,218 @@
+<div class="space-y-6">
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
+      <p class="text-sm text-gray-500 mt-1">
+        Welcome back, {{ authService.user()?.firstName }} — platform overview at a glance
+      </p>
+    </div>
+    <button
+      type="button"
+      (click)="refresh()"
+      [disabled]="loading()"
+      class="px-4 py-2 text-sm font-medium text-teal-700 bg-teal-50 border border-teal-200 rounded-lg hover:bg-teal-100 disabled:opacity-50"
+    >
+      {{ loading() ? 'Refreshing...' : 'Refresh' }}
+    </button>
+  </div>
+
+  @if (error()) {
+    <app-alert [message]="error()!" variant="error" />
+  }
+
+  @if (loading() && !stats()) {
+    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-4">
+      @for (i of [1, 2, 3, 4, 5]; track i) {
+        <div class="bg-white rounded-xl border border-gray-200 p-5 h-32 animate-pulse">
+          <div class="h-4 bg-gray-200 rounded w-1/2 mb-3"></div>
+          <div class="h-8 bg-gray-200 rounded w-1/3"></div>
+        </div>
+      }
+    </div>
+  }
+
+  @if (stats(); as s) {
+    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-4">
+      <app-dashboard-stat-widget
+        title="Doctors"
+        [value]="s.doctors.total"
+        [subtitle]="s.doctors.verified + ' verified · ' + s.doctors.newThisMonth + ' new this month'"
+        icon="🩺"
+        accent="teal"
+        link="/admin/doctors"
+      />
+      <app-dashboard-stat-widget
+        title="Patients"
+        [value]="s.patients.active"
+        [subtitle]="s.patients.total + ' total · ' + s.patients.newThisMonth + ' new this month'"
+        icon="👥"
+        accent="blue"
+        link="/admin/patients"
+      />
+      <app-dashboard-stat-widget
+        title="Appointments"
+        [value]="s.appointments.total"
+        [subtitle]="s.appointments.today + ' today · ' + s.appointments.thisMonth + ' this month'"
+        icon="📅"
+        accent="green"
+        link="/admin/appointments"
+      />
+      <app-dashboard-stat-widget
+        title="Revenue"
+        [value]="formatAmount(s.revenue.net, s.revenue.currency)"
+        [subtitle]="formatAmount(s.revenue.thisMonth, s.revenue.currency) + ' this month'"
+        icon="💰"
+        accent="purple"
+        link="/admin/payments"
+        [trend]="revenueTrend()"
+      />
+      <app-dashboard-stat-widget
+        title="Pending Approvals"
+        [value]="s.pendingApprovals.total"
+        [subtitle]="s.pendingApprovals.doctors + ' doctors · ' + s.pendingApprovals.reviews + ' reviews · ' + s.pendingApprovals.appointments + ' appointments'"
+        icon="⏳"
+        accent="amber"
+        link="/admin/doctors"
+      />
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
+        <h2 class="text-sm font-semibold text-gray-900 mb-4">Appointment Breakdown</h2>
+        <dl class="space-y-3 text-sm">
+          <div class="flex justify-between">
+            <dt class="text-gray-500">Pending</dt>
+            <dd class="font-medium text-amber-700">{{ s.appointments.pending }}</dd>
+          </div>
+          <div class="flex justify-between">
+            <dt class="text-gray-500">Confirmed</dt>
+            <dd class="font-medium text-blue-700">{{ s.appointments.confirmed }}</dd>
+          </div>
+          <div class="flex justify-between">
+            <dt class="text-gray-500">Completed</dt>
+            <dd class="font-medium text-green-700">{{ s.appointments.completed }}</dd>
+          </div>
+          <div class="flex justify-between">
+            <dt class="text-gray-500">Cancelled</dt>
+            <dd class="font-medium text-red-700">{{ s.appointments.cancelled }}</dd>
+          </div>
+        </dl>
+      </div>
+
+      <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
+        <h2 class="text-sm font-semibold text-gray-900 mb-4">Revenue Summary</h2>
+        <dl class="space-y-3 text-sm">
+          <div class="flex justify-between">
+            <dt class="text-gray-500">Gross Revenue</dt>
+            <dd class="font-medium text-gray-900">{{ formatAmount(s.revenue.total, s.revenue.currency) }}</dd>
+          </div>
+          <div class="flex justify-between">
+            <dt class="text-gray-500">Refunded</dt>
+            <dd class="font-medium text-red-600">{{ formatAmount(s.revenue.refunded, s.revenue.currency) }}</dd>
+          </div>
+          <div class="flex justify-between border-t border-gray-100 pt-3">
+            <dt class="text-gray-700 font-medium">Net Revenue</dt>
+            <dd class="font-bold text-purple-700">{{ formatAmount(s.revenue.net, s.revenue.currency) }}</dd>
+          </div>
+          <div class="flex justify-between">
+            <dt class="text-gray-500">Last Month</dt>
+            <dd class="font-medium text-gray-900">{{ formatAmount(s.revenue.lastMonth, s.revenue.currency) }}</dd>
+          </div>
+        </dl>
+      </div>
+
+      <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
+        <h2 class="text-sm font-semibold text-gray-900 mb-4">Doctor Verification</h2>
+        <dl class="space-y-3 text-sm">
+          <div class="flex justify-between">
+            <dt class="text-gray-500">Verified</dt>
+            <dd class="font-medium text-green-700">{{ s.doctors.verified }}</dd>
+          </div>
+          <div class="flex justify-between">
+            <dt class="text-gray-500">Pending Review</dt>
+            <dd class="font-medium text-amber-700">{{ s.doctors.pending }}</dd>
+          </div>
+          <div class="flex justify-between">
+            <dt class="text-gray-500">Rejected</dt>
+            <dd class="font-medium text-red-700">{{ s.doctors.rejected }}</dd>
+          </div>
+          <div class="pt-2">
+            <a routerLink="/admin/doctors" class="text-xs text-teal-600 hover:text-teal-800 font-medium">
+              Review pending doctors →
+            </a>
+          </div>
+        </dl>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div class="bg-white rounded-xl border border-gray-200 shadow-sm">
+        <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
+          <h2 class="text-sm font-semibold text-gray-900">Doctors Awaiting Approval</h2>
+          <a routerLink="/admin/doctors" class="text-xs text-teal-600 hover:text-teal-800">View all</a>
+        </div>
+        @if (s.recentPendingDoctors.length === 0) {
+          <p class="px-5 py-8 text-sm text-gray-500 text-center">No pending doctor approvals</p>
+        } @else {
+          <ul class="divide-y divide-gray-100">
+            @for (d of s.recentPendingDoctors; track d.id) {
+              <li class="px-5 py-3 flex items-center justify-between">
+                <div>
+                  <p class="text-sm font-medium text-gray-900">
+                    {{ d.title }} {{ d.user?.firstName }} {{ d.user?.lastName }}
+                  </p>
+                  <p class="text-xs text-gray-500">{{ d.user?.email }}</p>
+                </div>
+                <span class="text-xs text-amber-700 bg-amber-50 px-2 py-0.5 rounded">Pending</span>
+              </li>
+            }
+          </ul>
+        }
+      </div>
+
+      <div class="bg-white rounded-xl border border-gray-200 shadow-sm">
+        <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
+          <h2 class="text-sm font-semibold text-gray-900">Recent Appointments</h2>
+          <a routerLink="/admin/appointments" class="text-xs text-teal-600 hover:text-teal-800">View all</a>
+        </div>
+        @if (s.recentAppointments.length === 0) {
+          <p class="px-5 py-8 text-sm text-gray-500 text-center">No appointments yet</p>
+        } @else {
+          <ul class="divide-y divide-gray-100">
+            @for (a of s.recentAppointments; track a.id) {
+              <li class="px-5 py-3">
+                <div class="flex items-center justify-between">
+                  <p class="text-sm font-medium text-gray-900">
+                    {{ a.patient?.firstName }} {{ a.patient?.lastName }}
+                  </p>
+                  <span
+                    class="text-xs px-2 py-0.5 rounded"
+                    [class.bg-amber-50]="a.status === 'PENDING'"
+                    [class.text-amber-700]="a.status === 'PENDING'"
+                    [class.bg-green-50]="a.status === 'CONFIRMED' || a.status === 'COMPLETED'"
+                    [class.text-green-700]="a.status === 'CONFIRMED' || a.status === 'COMPLETED'"
+                    [class.bg-gray-50]="a.status === 'CANCELLED'"
+                    [class.text-gray-600]="a.status === 'CANCELLED'"
+                  >
+                    {{ a.status }}
+                  </span>
+                </div>
+                <p class="text-xs text-gray-500 mt-0.5">
+                  {{ a.appointmentDate | date: 'mediumDate' }} {{ a.startTime }} ·
+                  Dr. {{ a.doctor?.firstName }} {{ a.doctor?.lastName }}
+                  @if (a.clinic?.name) {
+                    · {{ a.clinic?.name }}
+                  }
+                </p>
+              </li>
+            }
+          </ul>
+        }
+      </div>
+    </div>
+
+    <p class="text-xs text-gray-400 text-right">
+      Last updated: {{ s.generatedAt | date: 'medium' }}
+    </p>
+  }
+</div>

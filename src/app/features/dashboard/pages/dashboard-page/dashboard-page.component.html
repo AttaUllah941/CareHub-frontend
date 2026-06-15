@@ -1,0 +1,30 @@
+    <div class="min-h-screen bg-gray-50">
+      <header class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
+          <div>
+            <h1 class="text-xl font-bold text-teal-600">CareHub</h1>
+            <p class="text-sm text-gray-500">{{ title() }} Dashboard</p>
+          </div>
+          <div class="flex items-center gap-4">
+            <a routerLink="/admin/users" class="text-sm text-teal-600 hover:text-teal-700">Manage Users</a>
+            <span class="text-sm text-gray-700">{{ authService.user()?.firstName }}</span>
+            <a routerLink="/auth/change-password">
+              <app-button variant="outline">Change Password</app-button>
+            </a>
+            <app-button variant="outline" (click)="authService.logout()">Logout</app-button>
+          </div>
+        </div>
+      </header>
+
+      <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
+          <h2 class="text-2xl font-semibold text-gray-900 mb-2">
+            Welcome, {{ authService.user()?.firstName }}
+          </h2>
+          <p class="text-gray-500">
+            Your {{ authService.role() }} dashboard is ready. Feature modules will be loaded here.
+          </p>
+        </div>
+      </main>
+    </div>
+  

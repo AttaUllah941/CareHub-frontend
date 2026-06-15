@@ -1,0 +1,75 @@
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+  @for (day of orderedSchedule; track day.dayOfWeek) {
+    <div
+      class="rounded-xl border p-4 transition-colors"
+      [class]="day.isAvailable ? 'border-teal-200 bg-teal-50/40' : 'border-gray-200 bg-gray-50'"
+    >
+      <div class="flex items-center justify-between mb-3">
+        <h4 class="font-semibold text-gray-900">{{ dayNames[day.dayOfWeek] }}</h4>
+        <label class="flex items-center gap-2 text-sm">
+          <input
+            type="checkbox"
+            [checked]="day.isAvailable"
+            (change)="updateDay(day.dayOfWeek, { isAvailable: $any($event.target).checked })"
+            class="rounded border-gray-300 text-teal-600"
+          />
+          Available
+        </label>
+      </div>
+
+      @if (day.isAvailable) {
+        <div class="grid grid-cols-2 gap-2 mb-3">
+          <div>
+            <label class="text-xs text-gray-500">Start</label>
+            <input
+              type="time"
+              [value]="day.startTime"
+              (change)="updateDay(day.dayOfWeek, { startTime: $any($event.target).value })"
+              class="w-full rounded border border-gray-300 px-2 py-1.5 text-sm"
+            />
+          </div>
+          <div>
+            <label class="text-xs text-gray-500">End</label>
+            <input
+              type="time"
+              [value]="day.endTime"
+              (change)="updateDay(day.dayOfWeek, { endTime: $any($event.target).value })"
+              class="w-full rounded border border-gray-300 px-2 py-1.5 text-sm"
+            />
+          </div>
+        </div>
+
+        <div class="space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-medium text-gray-600 uppercase">Breaks</span>
+            <button type="button" (click)="addBreak(day.dayOfWeek)" class="text-xs text-teal-600 hover:text-teal-800">
+              + Add break
+            </button>
+          </div>
+          @for (br of day.breaks; track $index) {
+            <div class="flex items-center gap-2">
+              <input
+                type="time"
+                [value]="br.startTime"
+                (change)="updateBreak(day.dayOfWeek, $index, 'startTime', $any($event.target).value)"
+                class="flex-1 rounded border border-gray-300 px-2 py-1 text-sm"
+              />
+              <span class="text-gray-400">–</span>
+              <input
+                type="time"
+                [value]="br.endTime"
+                (change)="updateBreak(day.dayOfWeek, $index, 'endTime', $any($event.target).value)"
+                class="flex-1 rounded border border-gray-300 px-2 py-1 text-sm"
+              />
+              <button type="button" (click)="removeBreak(day.dayOfWeek, $index)" class="text-red-500 text-sm">×</button>
+            </div>
+          } @empty {
+            <p class="text-xs text-gray-400">No breaks configured</p>
+          }
+        </div>
+      } @else {
+        <p class="text-sm text-gray-400">Not available</p>
+      }
+    </div>
+  }
+</div>

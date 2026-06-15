@@ -1,0 +1,47 @@
+<div class="space-y-6">
+  <div>
+    <h1 class="text-2xl font-bold text-gray-900">Platform Notifications</h1>
+    <p class="text-sm text-gray-500 mt-1">Monitor all email, SMS, push, and in-app notifications</p>
+  </div>
+
+  @if (notificationService.error()) {
+    <app-alert [message]="notificationService.error()!" variant="error" />
+  }
+
+  <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-4 flex flex-wrap gap-3">
+    <input
+      type="text"
+      [(ngModel)]="search"
+      (keyup.enter)="onSearch()"
+      placeholder="Search notifications..."
+      class="flex-1 min-w-[200px] rounded-lg border border-gray-300 px-3 py-2 text-sm"
+    />
+    <select [(ngModel)]="typeFilter" class="rounded-lg border border-gray-300 px-3 py-2 text-sm">
+      <option value="">All types</option>
+      @for (opt of typeOptions; track opt[0]) {
+        <option [value]="opt[0]">{{ opt[1] }}</option>
+      }
+    </select>
+    <button
+      type="button"
+      (click)="onSearch()"
+      class="px-4 py-2 bg-teal-600 text-white text-sm font-medium rounded-lg hover:bg-teal-700"
+    >
+      Search
+    </button>
+  </div>
+
+  <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+    <app-notification-list
+      [notifications]="notificationService.notifications()"
+      [loading]="notificationService.loading()"
+      [showDelivery]="true"
+    />
+  </div>
+
+  <app-pagination
+    [page]="notificationService.pagination().page"
+    [totalPages]="notificationService.pagination().totalPages"
+    (pageChange)="onPageChange($event)"
+  />
+</div>

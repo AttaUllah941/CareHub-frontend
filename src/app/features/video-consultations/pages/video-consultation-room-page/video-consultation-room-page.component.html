@@ -1,0 +1,123 @@
+<div class="video-room min-h-screen bg-gray-900 text-white flex flex-col">
+  @if (error()) {
+    <div class="p-4">
+      <app-alert variant="error" [message]="error()" />
+    </div>
+  }
+
+  <header class="flex items-center justify-between px-4 py-3 bg-gray-800 border-b border-gray-700">
+    <div>
+      <h1 class="text-lg font-semibold">Video Consultation</h1>
+      <p class="text-sm text-gray-400">
+        @if (session()) {
+          Room: {{ session()?.roomId }}
+          · Status: {{ session()?.status }}
+        }
+        · Connection: {{ connectionState() }}
+      </p>
+    </div>
+    <a [routerLink]="backUrl()" class="text-sm text-gray-400 hover:text-white">← Back to appointments</a>
+  </header>
+
+  <div class="flex-1 flex overflow-hidden relative">
+    @if (loading()) {
+      <div class="absolute inset-0 z-10 flex items-center justify-center bg-gray-900/90">
+        <p class="text-lg text-gray-300">Connecting to video consultation...</p>
+      </div>
+    }
+
+    <div class="flex-1 relative p-4">
+      <video
+        #remoteVideo
+        autoplay
+        playsinline
+        class="w-full h-full max-h-[calc(100vh-12rem)] bg-black rounded-lg object-cover"
+      ></video>
+      <video
+        #localVideo
+        autoplay
+        playsinline
+        muted
+        class="absolute bottom-6 right-6 w-48 h-36 bg-gray-800 rounded-lg border-2 border-gray-600 object-cover shadow-lg"
+      ></video>
+      @if (!loading() && connectionState() !== 'connected') {
+        <div class="absolute inset-4 flex items-center justify-center bg-black/50 rounded-lg">
+          <p class="text-gray-300">Waiting for participant to connect...</p>
+        </div>
+      }
+    </div>
+
+    @if (chatOpen()) {
+      <aside class="w-80 bg-gray-800 border-l border-gray-700 flex flex-col">
+        <div class="px-4 py-3 border-b border-gray-700 font-medium">Chat</div>
+        <div #chatContainer class="flex-1 overflow-y-auto p-4 space-y-3">
+          @for (msg of messages(); track msg.id) {
+            <div class="text-sm">
+              <span class="font-medium text-teal-400">
+                {{ msg.sender?.firstName }} {{ msg.sender?.lastName }}
+              </span>
+              <span class="text-gray-500 text-xs ml-2">{{ msg.createdAt | date: 'shortTime' }}</span>
+              <p class="text-gray-200 mt-0.5">{{ msg.message }}</p>
+            </div>
+          } @empty {
+            <p class="text-gray-500 text-sm">No messages yet</p>
+          }
+        </div>
+        <form class="p-3 border-t border-gray-700 flex gap-2" (ngSubmit)="sendMessage()">
+          <input
+            type="text"
+            [ngModel]="chatInput()"
+            (ngModelChange)="chatInput.set($event)"
+            name="chatInput"
+            placeholder="Type a message..."
+            class="flex-1 bg-gray-700 border border-gray-600 rounded px-3 py-2 text-sm text-white placeholder-gray-400"
+          />
+          <button type="submit" class="px-3 py-2 bg-teal-600 rounded text-sm hover:bg-teal-500">Send</button>
+        </form>
+      </aside>
+    }
+  </div>
+
+  <footer class="px-4 py-4 bg-gray-800 border-t border-gray-700 flex items-center justify-center gap-3 flex-wrap">
+    <button
+      type="button"
+      (click)="toggleAudio()"
+      class="px-4 py-2 rounded-full text-sm"
+      [class]="audioEnabled() ? 'bg-gray-600 hover:bg-gray-500' : 'bg-red-600 hover:bg-red-500'"
+    >
+      {{ audioEnabled() ? 'Mute' : 'Unmute' }}
+    </button>
+    <button
+      type="button"
+      (click)="toggleVideo()"
+      class="px-4 py-2 rounded-full text-sm"
+      [class]="videoEnabled() ? 'bg-gray-600 hover:bg-gray-500' : 'bg-red-600 hover:bg-red-500'"
+    >
+      {{ videoEnabled() ? 'Stop Video' : 'Start Video' }}
+    </button>
+    <button
+      type="button"
+      (click)="toggleScreenShare()"
+      class="px-4 py-2 rounded-full text-sm"
+      [class]="screenSharing() ? 'bg-blue-600 hover:bg-blue-500' : 'bg-gray-600 hover:bg-gray-500'"
+    >
+      {{ screenSharing() ? 'Stop Share' : 'Share Screen' }}
+    </button>
+    <button type="button" (click)="toggleChat()" class="px-4 py-2 rounded-full text-sm bg-gray-600 hover:bg-gray-500">
+      {{ chatOpen() ? 'Hide Chat' : 'Show Chat' }}
+    </button>
+    @if (isDoctor()) {
+      <button
+        type="button"
+        (click)="toggleRecording()"
+        class="px-4 py-2 rounded-full text-sm"
+        [class]="recording() ? 'bg-red-700 hover:bg-red-600 animate-pulse' : 'bg-gray-600 hover:bg-gray-500'"
+      >
+        {{ recording() ? 'Stop Recording' : 'Record' }}
+      </button>
+    }
+    <button type="button" (click)="endCall()" class="px-5 py-2 rounded-full text-sm bg-red-600 hover:bg-red-500 font-medium">
+      End Call
+    </button>
+  </footer>
+</div>

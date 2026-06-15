@@ -1,0 +1,27 @@
+<div class="space-y-6">
+  <div>
+    <h1 class="text-2xl font-bold text-gray-900">My Prescriptions</h1>
+    <p class="text-sm text-gray-500 mt-1">View and download your prescribed medicines</p>
+  </div>
+
+  @if (prescriptionService.error()) { <app-alert [message]="prescriptionService.error()!" variant="error" /> }
+
+  @if (selected(); as p) {
+    <button type="button" (click)="closeDetail()" class="text-sm text-teal-600 hover:text-teal-800">&larr; Back to list</button>
+    <app-prescription-detail
+      [prescription]="p"
+      [downloading]="prescriptionService.downloading()"
+      (downloadPdf)="onDownload(p)"
+    />
+  } @else {
+    <div class="bg-white rounded-xl border border-gray-200 shadow-sm">
+      <app-prescription-table
+        [prescriptions]="prescriptionService.myPrescriptions()"
+        [loading]="prescriptionService.loading()"
+        [showActions]="true"
+        (viewPrescription)="onView($event)"
+        (downloadPdf)="onDownload($event)"
+      />
+    </div>
+  }
+</div>

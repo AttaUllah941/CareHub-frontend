@@ -1,0 +1,117 @@
+@if (doctor(); as d) {
+  <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+    <div class="px-6 py-5 border-b flex items-start gap-5">
+      @if (d.profileImageUrl) {
+        <img [src]="d.profileImageUrl" alt="" class="h-20 w-20 rounded-full object-cover" />
+      } @else {
+        <div class="h-20 w-20 rounded-full bg-teal-100 text-teal-700 flex items-center justify-center text-xl font-semibold">
+          {{ d.user?.firstName?.charAt(0) }}{{ d.user?.lastName?.charAt(0) }}
+        </div>
+      }
+      <div class="flex-1">
+        <h2 class="text-2xl font-semibold text-gray-900">
+          {{ d.title ? d.title + ' ' : '' }}{{ d.user?.firstName }} {{ d.user?.lastName }}
+        </h2>
+        <p class="text-sm text-gray-500">{{ d.user?.email }} · {{ d.user?.phone }}</p>
+        <div class="mt-2 flex flex-wrap gap-2">
+          <span class="px-2 py-0.5 rounded-full text-xs" [class]="verificationClass(d.verificationStatus)">
+            {{ d.verificationStatus }}
+          </span>
+          <span class="px-2 py-0.5 rounded-full text-xs" [class]="d.isActive ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'">
+            {{ d.isActive ? 'Active' : 'Inactive' }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div class="px-6 py-5 grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div>
+        <h3 class="text-sm font-semibold text-gray-900 mb-3">Personal Information</h3>
+        <dl class="space-y-2 text-sm">
+          <div><dt class="text-gray-500">Gender</dt><dd>{{ d.gender || '—' }}</dd></div>
+          <div><dt class="text-gray-500">Date of Birth</dt><dd>{{ d.dateOfBirth ? (d.dateOfBirth | date:'mediumDate') : '—' }}</dd></div>
+          <div><dt class="text-gray-500">Location</dt><dd>{{ d.city || '—' }}{{ d.country ? ', ' + d.country : '' }}</dd></div>
+          <div><dt class="text-gray-500">Address</dt><dd>{{ d.address || '—' }}</dd></div>
+          <div><dt class="text-gray-500">Bio</dt><dd>{{ d.bio || '—' }}</dd></div>
+        </dl>
+      </div>
+
+      <div>
+        <h3 class="text-sm font-semibold text-gray-900 mb-3">Professional Information</h3>
+        <dl class="space-y-2 text-sm">
+          <div><dt class="text-gray-500">License</dt><dd>{{ d.licenseNumber || '—' }}</dd></div>
+          <div><dt class="text-gray-500">Authority</dt><dd>{{ d.licenseAuthority || '—' }}</dd></div>
+          <div><dt class="text-gray-500">Registration #</dt><dd>{{ d.medicalRegistrationNumber || '—' }}</dd></div>
+          <div><dt class="text-gray-500">Experience</dt><dd>{{ d.yearsOfExperience ?? '—' }} years</dd></div>
+          <div><dt class="text-gray-500">Consultation Fee</dt>
+            <dd>@if (d.consultationFee != null) { {{ d.currency || 'USD' }} {{ d.consultationFee }} } @else { — }</dd>
+          </div>
+        </dl>
+      </div>
+
+      <div class="lg:col-span-2">
+        <h3 class="text-sm font-semibold text-gray-900 mb-3">About</h3>
+        <p class="text-sm text-gray-700">{{ d.about || '—' }}</p>
+      </div>
+
+      <div>
+        <h3 class="text-sm font-semibold text-gray-900 mb-3">Specializations</h3>
+        <div class="flex flex-wrap gap-2">
+          @for (s of d.specialties ?? []; track s.id) {
+            <span class="px-2 py-1 bg-teal-50 text-teal-700 rounded text-xs">{{ s.name }}</span>
+          } @empty { <span class="text-sm text-gray-400">None selected</span> }
+        </div>
+      </div>
+
+      <div>
+        <h3 class="text-sm font-semibold text-gray-900 mb-3">Languages</h3>
+        <div class="flex flex-wrap gap-2">
+          @for (l of d.languages ?? []; track l.id) {
+            <span class="px-2 py-1 bg-blue-50 text-blue-700 rounded text-xs">{{ l.name }}</span>
+          } @empty { <span class="text-sm text-gray-400">None selected</span> }
+        </div>
+      </div>
+
+      <div class="lg:col-span-2">
+        <h3 class="text-sm font-semibold text-gray-900 mb-3">Qualifications</h3>
+        @if ((d.qualifications ?? []).length) {
+          <ul class="space-y-2 text-sm">
+            @for (q of d.qualifications; track $index) {
+              <li class="p-3 border rounded-lg">
+                <strong>{{ q.degree }}</strong> — {{ q.institution }}
+                @if (q.year) { <span class="text-gray-500">({{ q.year }})</span> }
+              </li>
+            }
+          </ul>
+        } @else {
+          <p class="text-sm text-gray-400">No qualifications listed</p>
+        }
+      </div>
+
+      <div class="lg:col-span-2">
+        <h3 class="text-sm font-semibold text-gray-900 mb-3">Work History</h3>
+        @if ((d.workHistory ?? []).length) {
+          <ul class="space-y-2 text-sm">
+            @for (w of d.workHistory; track $index) {
+              <li class="p-3 border rounded-lg">
+                <strong>{{ w.position }}</strong> at {{ w.organization }}
+                <span class="text-gray-500">
+                  ({{ w.startYear || '?' }} – {{ w.isCurrent ? 'Present' : (w.endYear || '?') }})
+                </span>
+              </li>
+            }
+          </ul>
+        } @else {
+          <p class="text-sm text-gray-400">No work history listed</p>
+        }
+      </div>
+
+      @if (d.verificationNotes) {
+        <div class="lg:col-span-2">
+          <h3 class="text-sm font-semibold text-gray-900 mb-2">Verification Notes</h3>
+          <p class="text-sm text-gray-600">{{ d.verificationNotes }}</p>
+        </div>
+      }
+    </div>
+  </div>
+}

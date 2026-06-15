@@ -1,0 +1,34 @@
+<div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-5">
+  @if (consultation().appointment; as appt) {
+    <div class="border-b border-gray-100 pb-4">
+      <h2 class="text-lg font-semibold text-gray-900">Appointment</h2>
+      <p class="text-sm text-gray-600 mt-1">
+        {{ formatAppointmentDateTime(appt.appointmentDate, appt.startTime) }}
+        @if (appt.clinic?.name) { · {{ appt.clinic?.name }} }
+      </p>
+      <p class="text-sm text-gray-600">
+        Dr. {{ appt.doctor?.title ? appt.doctor?.title + ' ' : '' }}{{ appt.doctor?.user?.firstName }} {{ appt.doctor?.user?.lastName }}
+      </p>
+    </div>
+  }
+
+  <div>
+    <h3 class="text-sm font-medium text-gray-500 uppercase">Diagnosis</h3>
+    <p class="mt-1 text-sm text-gray-900 whitespace-pre-wrap">{{ consultation().diagnosis || '—' }}</p>
+  </div>
+
+  <div>
+    <h3 class="text-sm font-medium text-gray-500 uppercase">Observations</h3>
+    <p class="mt-1 text-sm text-gray-900 whitespace-pre-wrap">{{ consultation().observations || '—' }}</p>
+  </div>
+
+  <div>
+    <h3 class="text-sm font-medium text-gray-500 uppercase">Doctor Notes</h3>
+    <p class="mt-1 text-sm text-gray-900 whitespace-pre-wrap">{{ consultation().doctorNotes || '—' }}</p>
+  </div>
+
+  <div>
+    <h3 class="text-sm font-medium text-gray-500 uppercase">Recommendations</h3>
+    <p class="mt-1 text-sm text-gray-900 whitespace-pre-wrap">{{ consultation().recommendations || '—' }}</p>
+  </div>
+</div>

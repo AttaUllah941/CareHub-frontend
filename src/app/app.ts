@@ -1,12 +1,18 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, inject, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { AuthService } from './features/auth/services/auth.service';
 
 @Component({
   selector: 'app-root',
   imports: [RouterOutlet],
   templateUrl: './app.html',
-  styleUrl: './app.css'
+  styleUrl: './app.scss'
 })
-export class App {
-  protected readonly title = signal('CareHub-frontend');
+export class App implements OnInit {
+  protected readonly title = signal('CareHub');
+  private readonly authService = inject(AuthService);
+
+  ngOnInit(): void {
+    this.authService.initSession();
+  }
 }

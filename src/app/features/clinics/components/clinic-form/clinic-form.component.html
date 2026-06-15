@@ -1,0 +1,70 @@
+<form [formGroup]="form()" (ngSubmit)="submitted.emit()" class="space-y-6">
+  @if (error()) { <app-alert [message]="error()" /> }
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="lg:col-span-2 space-y-6">
+      <section class="rounded-xl border border-gray-200 bg-white p-5 space-y-4">
+        <h2 class="text-lg font-semibold text-gray-900">Basic Information</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <app-input label="Clinic Name" formControlName="name" [required]="true" />
+          @if (!isEdit() || showAdminFields()) {
+            <app-input label="Slug" formControlName="slug" [required]="!isEdit()" />
+          }
+          <app-input label="Phone" formControlName="phone" />
+          <app-input label="Email" type="email" formControlName="email" />
+        </div>
+        <app-input label="Description" formControlName="description" />
+        @if (showAdminFields() && !isEdit()) {
+          <app-input label="Manager User ID (optional)" formControlName="managerId" />
+        }
+      </section>
+
+      <section class="rounded-xl border border-gray-200 bg-white p-5 space-y-4">
+        <h2 class="text-lg font-semibold text-gray-900">Location</h2>
+        <app-input label="Street Address" formControlName="address" />
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <app-input label="City" formControlName="city" />
+          <app-input label="State / Province" formControlName="state" />
+          <app-input label="Country" formControlName="country" />
+          <app-input label="Postal Code" formControlName="postalCode" />
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <app-input label="Latitude" type="number" formControlName="latitude" />
+          <app-input label="Longitude" type="number" formControlName="longitude" />
+        </div>
+      </section>
+
+      <section class="rounded-xl border border-gray-200 bg-white p-5">
+        <h2 class="text-lg font-semibold text-gray-900 mb-4">Working Hours</h2>
+        <app-clinic-working-hours
+          [workingHours]="workingHours()"
+          (workingHoursChange)="workingHoursChange.emit($event)"
+        />
+      </section>
+
+      <section>
+        <app-clinic-doctor-picker
+          [doctors]="doctors()"
+          [selectedIds]="selectedDoctorIds()"
+          [loading]="doctorsLoading()"
+          (selectedIdsChange)="selectedDoctorIdsChange.emit($event)"
+        />
+      </section>
+    </div>
+
+    <div>
+      <app-clinic-map-preview
+        [latitude]="form().get('latitude')?.value"
+        [longitude]="form().get('longitude')?.value"
+        [address]="fullAddress()"
+      />
+    </div>
+  </div>
+
+  <div class="flex gap-3">
+    <app-button type="submit" [loading]="loading()" [disabled]="form().invalid || loading()">
+      {{ isEdit() ? 'Save Changes' : 'Create Clinic' }}
+    </app-button>
+    <app-button type="button" variant="outline" (click)="cancelled.emit()">Cancel</app-button>
+  </div>
+</form>
