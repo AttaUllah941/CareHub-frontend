@@ -1,12 +1,11 @@
 <div class="bg-gray-50 min-h-full">
   @if (hospital(); as h) {
-    <!-- Hero -->
     <div class="bg-white border-b border-gray-200">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <nav class="text-sm text-gray-500 mb-3">
           <a routerLink="/" class="hover:text-brand-600">CareHub</a>
           <span class="mx-2">&gt;</span>
-          <a [routerLink]="['/hospitals', citySlug()]" class="hover:text-brand-600">Hospitals in {{ cityName() }}</a>
+          <a [routerLink]="['/surgery', citySlug()]" class="hover:text-brand-600">Surgery in {{ cityName() }}</a>
           <span class="mx-2">&gt;</span>
           <span class="text-gray-800">{{ h.name }}</span>
         </nav>
@@ -22,7 +21,9 @@
                 <span class="rounded-full bg-emerald-50 border border-emerald-200 px-3 py-1 text-xs font-semibold text-emerald-700">Open 24/7</span>
               }
             </div>
-            <p class="mt-2 text-amber-500 font-semibold">★ {{ h.rating }} · {{ h.doctorCount }} Doctors available</p>
+            <p class="mt-2 text-amber-500 font-semibold">
+              ★ {{ h.rating }} · {{ h.surgeryCount }} Surgeries · {{ h.specialistCount }} Specialists
+            </p>
             <p class="mt-3 text-gray-600 leading-relaxed">{{ h.description }}</p>
 
             <div class="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
@@ -50,8 +51,8 @@
               <div class="flex items-start gap-2">
                 <span class="text-gray-400">🏥</span>
                 <div>
-                  <p class="font-medium text-gray-900">Specialties</p>
-                  <p class="text-gray-600">{{ h.specialties.join(', ') }}</p>
+                  <p class="font-medium text-gray-900">Surgical Facilities</p>
+                  <p class="text-gray-600">{{ h.facilities.join(', ') }}</p>
                 </div>
               </div>
             </div>
@@ -60,20 +61,55 @@
       </div>
     </div>
 
-    <!-- Doctors -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <h2 class="text-xl font-bold text-gray-900 mb-1">Doctors at {{ h.name }}</h2>
-      <p class="text-sm text-gray-600 mb-6">Book video consultation or in-clinic appointment with PMC verified doctors</p>
+    <!-- Available Surgeries -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 border-b border-gray-200">
+      <h2 class="text-xl font-bold text-gray-900 mb-1">Available Surgeries at {{ h.name }}</h2>
+      <p class="text-sm text-gray-600 mb-6">Browse procedures, estimated pricing, and book a surgical consultation</p>
 
-      @if (h.doctors?.length) {
+      @if (h.surgeries?.length) {
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+          @for (surgery of h.surgeries; track surgery.id) {
+            <app-public-surgery-card [surgery]="surgery" />
+          }
+        </div>
+        <p class="mt-6 text-xs text-gray-500">
+          * Prices are estimated ranges and may vary based on patient condition, room category, and additional services. Contact the hospital for a detailed quote.
+        </p>
+      } @else {
+        <div class="bg-white rounded-xl border border-gray-200 p-10 text-center text-gray-600">
+          No surgeries listed for this hospital yet.
+        </div>
+      }
+    </div>
+
+    <!-- Facilities -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 border-b border-gray-200">
+      <h2 class="text-xl font-bold text-gray-900 mb-1">Surgical Facilities</h2>
+      <p class="text-sm text-gray-600 mb-6">Infrastructure and support services for safe surgical care</p>
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+        @for (facility of h.facilities; track facility) {
+          <div class="bg-white rounded-xl border border-gray-200 p-4 text-center shadow-sm">
+            <span class="text-2xl">⚕️</span>
+            <p class="mt-2 text-sm font-semibold text-gray-900">{{ facility }}</p>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Specialists -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <h2 class="text-xl font-bold text-gray-900 mb-1">Surgical Specialists at {{ h.name }}</h2>
+      <p class="text-sm text-gray-600 mb-6">PMC verified surgeons and specialists available for consultation</p>
+
+      @if (h.specialists?.length) {
         <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 items-stretch">
-          @for (doctor of h.doctors; track doctor.id; let i = $index) {
+          @for (doctor of h.specialists; track doctor.id; let i = $index) {
             <app-public-doctor-listing-card [doctor]="doctor" [rank]="i" [city]="cityName()" />
           }
         </div>
       } @else {
         <div class="bg-white rounded-xl border border-gray-200 p-10 text-center text-gray-600">
-          No doctors listed for this hospital yet.
+          No specialists listed for this hospital yet.
         </div>
       }
     </div>

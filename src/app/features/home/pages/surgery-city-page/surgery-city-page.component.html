@@ -1,0 +1,56 @@
+<div class="bg-gray-50 min-h-full">
+  <div class="bg-white border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <nav class="text-sm text-gray-500 mb-3">
+        <a routerLink="/" class="hover:text-brand-600">CareHub</a>
+        <span class="mx-2">&gt;</span>
+        <span class="text-gray-800">Surgery in {{ cityName() }}</span>
+      </nav>
+      <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">{{ pageTitle() }}</h1>
+      <p class="mt-2 text-gray-600">{{ hospitals().length }} hospitals offering surgical services in {{ cityName() }}</p>
+    </div>
+  </div>
+
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    @if (hospitals().length === 0) {
+      <div class="bg-white rounded-xl border border-gray-200 p-12 text-center text-gray-600">
+        No surgical hospitals found for this city yet.
+      </div>
+    } @else {
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        @for (hospital of hospitals(); track hospital.id) {
+          <a
+            [routerLink]="['/surgery', citySlug(), hospital.slug]"
+            class="group bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-lg hover:border-brand-200 transition-all"
+          >
+            <div class="h-44 overflow-hidden bg-gray-100">
+              <img [src]="hospital.imageUrl" [alt]="hospital.name" class="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300" />
+            </div>
+            <div class="p-5">
+              <div class="flex items-start justify-between gap-3">
+                <h2 class="text-lg font-bold text-gray-900 group-hover:text-brand-600">{{ hospital.name }}</h2>
+                @if (hospital.is24Hours) {
+                  <span class="shrink-0 rounded-full bg-emerald-50 border border-emerald-200 px-2 py-0.5 text-[10px] font-semibold text-emerald-700">24/7</span>
+                }
+              </div>
+              <p class="mt-1 text-sm text-gray-500">{{ hospital.address }}, {{ hospital.city }}</p>
+              <div class="mt-3 flex items-center gap-3 text-sm">
+                <span class="text-amber-500 font-semibold">★ {{ hospital.rating }}</span>
+                <span class="text-gray-400">|</span>
+                <span class="text-gray-600">{{ hospital.surgeryCount }} Surgeries</span>
+                <span class="text-gray-400">|</span>
+                <span class="text-gray-600">{{ hospital.specialistCount }} Specialists</span>
+              </div>
+              <div class="mt-3 flex flex-wrap gap-1.5">
+                @for (facility of hospital.facilities.slice(0, 3); track facility) {
+                  <span class="rounded-full bg-rose-50 border border-rose-100 px-2.5 py-0.5 text-xs text-rose-800">{{ facility }}</span>
+                }
+              </div>
+              <p class="mt-3 text-sm text-brand-600 font-semibold">View surgical profile & procedures →</p>
+            </div>
+          </a>
+        }
+      </div>
+    }
+  </div>
+</div>

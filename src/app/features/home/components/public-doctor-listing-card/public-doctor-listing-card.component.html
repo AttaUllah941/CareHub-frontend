@@ -1,112 +1,107 @@
 @if (doctor(); as d) {
-  <article class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-    <div class="p-5 sm:p-6">
-      <div class="flex flex-col lg:flex-row gap-5">
-        <!-- Profile -->
-        <div class="flex gap-4 flex-1 min-w-0">
-          <a [routerLink]="doctorProfileLink()" [queryParams]="doctorProfileQueryParams()" class="shrink-0">
-            @if (d.profileImageUrl) {
-              <img [src]="d.profileImageUrl" alt="" class="h-20 w-20 rounded-full object-cover border-2 border-gray-100 hover:border-brand-300 transition-colors" />
-            } @else {
-              <div class="h-20 w-20 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center text-xl font-bold border-2 border-gray-100 hover:border-brand-300 transition-colors">
-                {{ d.user?.firstName?.charAt(0) }}{{ d.user?.lastName?.charAt(0) }}
-              </div>
-            }
-          </a>
+  <article class="doctor-card group flex flex-col h-full bg-white rounded-2xl border border-gray-100 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden">
+    <div class="relative h-36 sm:h-40 bg-gradient-to-br overflow-hidden shrink-0" [class]="headerTheme()">
+      <div class="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.25),transparent_55%)]"></div>
+      <div class="absolute -bottom-6 -right-6 h-32 w-32 rounded-full bg-white/10"></div>
+      <div class="absolute -top-4 -left-4 h-24 w-24 rounded-full bg-white/10"></div>
 
-          <div class="min-w-0 flex-1">
-            <div class="flex flex-wrap items-center gap-2">
-              <a [routerLink]="doctorProfileLink()" [queryParams]="doctorProfileQueryParams()" class="text-lg sm:text-xl font-bold text-gray-900 hover:text-brand-600 transition-colors">
-                {{ doctorName(d) }}
-              </a>
-              @if (isTopBooked()) {
-                <span class="inline-flex items-center gap-1 rounded-full bg-teal-50 border border-teal-200 px-2.5 py-0.5 text-xs font-semibold text-teal-700">
-                  ★ Top Booked Doctor
-                </span>
-              }
-            </div>
-            <p class="text-sm font-medium text-emerald-600 mt-1">PMC Verified</p>
-            <p class="text-sm text-gray-600 mt-1 line-clamp-2">{{ degreeLine(d) }}</p>
+      <span class="absolute top-3 right-3 z-10 rounded-full bg-white/95 backdrop-blur-sm px-3 py-1 text-xs font-bold text-gray-800 shadow-sm">
+        {{ experienceBadge(d) }}
+      </span>
 
-            <div class="mt-4 grid grid-cols-3 gap-4 max-w-md">
-              <div>
-                <p class="text-lg font-bold text-gray-900">{{ reviewCount(d) | number }}</p>
-                <p class="text-xs text-gray-500">Reviews</p>
-              </div>
-              <div>
-                <p class="text-lg font-bold text-gray-900">{{ d.yearsOfExperience ?? 0 }} Yrs</p>
-                <p class="text-xs text-gray-500">Experience</p>
-              </div>
-              <div>
-                <p class="text-lg font-bold text-gray-900">{{ satisfactionPercent(d) }}%</p>
-                <p class="text-xs text-gray-500">Satisfaction</p>
-              </div>
-            </div>
+      <a
+        [routerLink]="doctorProfileLink()"
+        [queryParams]="doctorProfileQueryParams()"
+        class="absolute inset-x-0 bottom-0 flex justify-center translate-y-7 z-10"
+      >
+        @if (d.profileImageUrl) {
+          <img
+            [src]="d.profileImageUrl"
+            [alt]="doctorName(d)"
+            class="h-24 w-24 sm:h-28 sm:w-28 rounded-2xl object-cover border-4 border-white shadow-lg group-hover:scale-105 transition-transform duration-300"
+          />
+        } @else {
+          <div class="h-24 w-24 sm:h-28 sm:w-28 rounded-2xl bg-white border-4 border-white shadow-lg flex items-center justify-center text-2xl sm:text-3xl font-bold text-brand-600 group-hover:scale-105 transition-transform duration-300">
+            {{ d.user?.firstName?.charAt(0) }}{{ d.user?.lastName?.charAt(0) }}
           </div>
-        </div>
+        }
+      </a>
+    </div>
 
-        <!-- Actions -->
-        <div class="flex flex-col gap-2 shrink-0 lg:w-52">
-          <a
-            [routerLink]="['/auth/register']"
-            [queryParams]="{ intent: 'video', doctorId: d.id }"
-            class="inline-flex items-center justify-center rounded-lg bg-emerald-600 px-4 py-3 text-sm font-semibold text-white hover:bg-emerald-700 transition-colors text-center"
-          >
-            Book Video Call
-          </a>
-          <a
-            [routerLink]="['/auth/register']"
-            [queryParams]="{ intent: 'appointment', doctorId: d.id }"
-            class="inline-flex items-center justify-center rounded-lg bg-[#0B4F6C] px-4 py-3 text-sm font-semibold text-white hover:bg-[#093f56] transition-colors text-center"
-          >
-            Book Appointment
-          </a>
+    <div class="flex flex-col flex-1 px-4 sm:px-5 pt-9 sm:pt-10 pb-5 min-h-0">
+      <div class="text-center">
+        <a
+          [routerLink]="doctorProfileLink()"
+          [queryParams]="doctorProfileQueryParams()"
+          class="text-base sm:text-lg font-bold text-gray-900 hover:text-brand-600 transition-colors leading-tight line-clamp-2"
+        >
+          {{ doctorName(d) }}
+        </a>
+        <p class="mt-1 text-sm text-gray-500 font-medium line-clamp-1">{{ specialtyLabel(d) }}</p>
+        <span class="inline-flex mt-2 items-center gap-1 rounded-full bg-emerald-50 border border-emerald-100 px-2 py-0.5 text-[10px] font-semibold text-emerald-700">
+          ✓ PMC Verified
+        </span>
+      </div>
+
+      <div class="mt-4 grid grid-cols-3 gap-2">
+        <div class="rounded-xl bg-gray-50 border border-gray-100 px-1.5 py-2 text-center">
+          <p class="text-xs sm:text-sm font-bold text-gray-900 leading-none">{{ surgeriesCount(d) }}</p>
+          <p class="mt-1 text-[10px] text-gray-500 leading-tight">Surgeries</p>
+        </div>
+        <div class="rounded-xl bg-gray-50 border border-gray-100 px-1.5 py-2 text-center">
+          <p class="text-xs sm:text-sm font-bold text-gray-900 leading-none">{{ d.yearsOfExperience ?? 0 }}+</p>
+          <p class="mt-1 text-[10px] text-gray-500 leading-tight">Experience</p>
+        </div>
+        <div class="rounded-xl bg-gray-50 border border-gray-100 px-1.5 py-2 text-center">
+          <p class="text-xs sm:text-sm font-bold text-gray-900 leading-none">{{ successRate(d) }}%</p>
+          <p class="mt-1 text-[10px] text-gray-500 leading-tight">Success</p>
         </div>
       </div>
 
-      <!-- Service tags -->
-      @if (serviceTags(d).length) {
-        <div class="mt-5 flex flex-wrap gap-2">
-          @for (tag of serviceTags(d); track tag) {
-            <span class="rounded-full bg-sky-50 border border-sky-100 px-3 py-1 text-xs font-medium text-sky-800">{{ tag }}</span>
-          }
+      @if (expertiseTags(d).length) {
+        <div class="mt-4">
+          <p class="text-xs font-bold text-gray-900 mb-1.5">Expertise</p>
+          <div class="flex flex-wrap gap-1.5 min-h-[1.75rem]">
+            @for (tag of expertiseTags(d); track tag) {
+              <span class="rounded-full bg-sky-50 border border-sky-100 px-2 py-0.5 text-[10px] sm:text-[11px] font-medium text-sky-800 line-clamp-1">
+                {{ tag }}
+              </span>
+            }
+          </div>
         </div>
       }
-    </div>
 
-    <!-- Consultation slots -->
-    <div class="border-t border-gray-100 bg-gray-50/80 px-5 sm:px-6 py-4">
-      <div class="flex gap-3 overflow-x-auto pb-1 scrollbar-hide">
-        <!-- Video slot -->
-        <div class="shrink-0 w-56 rounded-xl border border-gray-200 bg-white overflow-hidden">
-          <div class="p-3 relative">
-            <span class="absolute top-2 right-2 rounded border border-emerald-300 bg-emerald-50 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-700">Fast Confirm</span>
-            <p class="text-sm font-semibold text-gray-900 pr-16">Video Consultation</p>
-            <p class="text-xs text-emerald-600 font-medium mt-2">Available Today</p>
-            <p class="text-sm font-bold text-gray-900 mt-1">{{ formatFee(d) }}</p>
-          </div>
-          <div class="bg-[#0B4F6C] px-3 py-1.5 text-center text-[10px] font-semibold text-white">
-            Limited Time Offer — Save 10%
-          </div>
-        </div>
-
-        @for (clinic of d.clinics ?? []; track clinic.id) {
-          <div class="shrink-0 w-64 rounded-xl border border-gray-200 bg-white p-3 relative">
-            <span class="absolute top-2 right-2 rounded border border-emerald-300 bg-emerald-50 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-700">Fast Confirm</span>
-            <p class="text-sm font-semibold text-gray-900 pr-16 line-clamp-2">{{ clinic.name }}{{ clinic.city ? ', ' + clinic.city : '' }}</p>
-            <p class="text-xs text-emerald-600 font-medium mt-2">Available Today</p>
-            <p class="text-sm font-bold text-gray-900 mt-1">{{ formatFee(d) }}</p>
-          </div>
-        } @empty {
-          @if (d.city) {
-            <div class="shrink-0 w-56 rounded-xl border border-gray-200 bg-white p-3 relative">
-              <span class="absolute top-2 right-2 rounded border border-emerald-300 bg-emerald-50 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-700">Fast Confirm</span>
-              <p class="text-sm font-semibold text-gray-900 pr-16">{{ d.city }} Clinic</p>
-              <p class="text-xs text-emerald-600 font-medium mt-2">Available Today</p>
-              <p class="text-sm font-bold text-gray-900 mt-1">{{ formatFee(d) }}</p>
-            </div>
+      <div class="mt-3">
+        <p class="text-xs font-bold text-gray-900 mb-1.5">Languages</p>
+        <div class="flex flex-wrap gap-1.5 min-h-[1.75rem]">
+          @for (lang of languageTags(d); track lang) {
+            <span class="rounded-full bg-gray-100 border border-gray-200 px-2 py-0.5 text-[10px] sm:text-[11px] font-medium text-gray-600">
+              {{ lang }}
+            </span>
           }
-        }
+        </div>
+      </div>
+
+      <p class="mt-3 text-center text-sm font-semibold text-brand-600">{{ formatFee(d) }}</p>
+
+      <div class="mt-auto pt-4 flex flex-col gap-2">
+        <a
+          [routerLink]="doctorProfileLink()"
+          [queryParams]="doctorProfileQueryParams()"
+          class="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-teal-500 to-cyan-600 px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-teal-500/25 hover:from-teal-600 hover:to-cyan-700 hover:shadow-lg transition-all"
+        >
+          <svg class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          </svg>
+          Book Appointment
+        </a>
+        <a
+          [routerLink]="['/auth/register']"
+          [queryParams]="{ intent: 'video', doctorId: d.id }"
+          class="flex w-full items-center justify-center rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-2 text-xs font-semibold text-emerald-700 hover:bg-emerald-100 transition-colors"
+        >
+          Video Consultation
+        </a>
       </div>
     </div>
   </article>
