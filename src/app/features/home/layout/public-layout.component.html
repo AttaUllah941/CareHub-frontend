@@ -1,0 +1,244 @@
+<div class="min-h-screen flex flex-col bg-white">
+  <header class="sticky top-0 z-50 bg-white border-b border-gray-100 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16 lg:h-[72px]">
+        <a routerLink="/" class="flex items-center gap-2 shrink-0" (click)="closeMobileMenu(); closeDropdowns()">
+          <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-600 text-white text-lg font-bold">C</span>
+          <span class="text-2xl font-bold text-brand-600 tracking-tight">CareHub</span>
+        </a>
+
+        <nav class="hidden lg:flex items-center gap-1">
+          <!-- Find Doctors dropdown -->
+          <div class="relative">
+            <button
+              type="button"
+              (click)="toggleDoctorsDropdown()"
+              class="inline-flex items-center gap-1 px-3 py-2 text-sm font-medium rounded-lg transition-colors"
+              [class]="doctorsDropdownOpen() ? 'text-brand-600 bg-brand-50' : 'text-gray-700 hover:text-brand-600'"
+            >
+              Find Doctors
+              <svg class="h-4 w-4 transition-transform" [class.rotate-180]="doctorsDropdownOpen()" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+
+            @if (doctorsDropdownOpen()) {
+              <div class="absolute left-0 top-full mt-2 w-[640px] rounded-2xl border border-gray-200 bg-white shadow-xl shadow-gray-200/60 p-5 z-50">
+                <p class="text-xs font-semibold uppercase tracking-wide text-gray-500 mb-3">Browse by Specialty</p>
+                <div class="grid grid-cols-2 gap-1 max-h-[360px] overflow-y-auto">
+                  @for (specialty of findDoctorSpecialties; track specialty.slug) {
+                    <a
+                      [routerLink]="['/find-doctors', specialty.slug]"
+                      (click)="closeDoctorsDropdown()"
+                      class="flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm text-gray-700 hover:bg-brand-50 hover:text-brand-600 transition-colors"
+                    >
+                      <span>{{ specialty.icon }}</span>
+                      <span class="font-medium">{{ specialty.name }}</span>
+                    </a>
+                  }
+                </div>
+                <div class="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between">
+                  <a
+                    routerLink="/find-doctors/general-practitioner"
+                    (click)="closeDoctorsDropdown()"
+                    class="text-sm font-semibold text-brand-600 hover:text-brand-700"
+                  >
+                    All Specialities →
+                  </a>
+                  <a
+                    routerLink="/auth/register"
+                    (click)="closeDoctorsDropdown()"
+                    class="text-sm text-gray-500 hover:text-gray-700"
+                  >
+                    Join as Doctor
+                  </a>
+                </div>
+              </div>
+            }
+          </div>
+
+          <!-- Hospitals dropdown -->
+          <div class="relative">
+            <button
+              type="button"
+              (click)="toggleHospitalsDropdown()"
+              class="inline-flex items-center gap-1 px-3 py-2 text-sm font-medium rounded-lg transition-colors"
+              [class]="hospitalsDropdownOpen() ? 'text-brand-600 bg-brand-50' : 'text-gray-700 hover:text-brand-600'"
+            >
+              Hospitals
+              <svg class="h-4 w-4 transition-transform" [class.rotate-180]="hospitalsDropdownOpen()" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+
+            @if (hospitalsDropdownOpen()) {
+              <div class="absolute left-0 top-full mt-2 w-72 rounded-2xl border border-gray-200 bg-white shadow-xl shadow-gray-200/60 p-3 z-50">
+                <p class="text-xs font-semibold uppercase tracking-wide text-gray-500 px-3 py-2">Browse by City</p>
+                @for (city of hospitalCities; track city.slug) {
+                  <a
+                    [routerLink]="['/hospitals', city.slug]"
+                    (click)="closeHospitalsDropdown()"
+                    class="flex items-center gap-3 rounded-lg px-3 py-3 text-sm text-gray-700 hover:bg-brand-50 hover:text-brand-600 transition-colors"
+                  >
+                    <span class="flex h-9 w-9 items-center justify-center rounded-lg bg-sky-50 text-lg">🏥</span>
+                    <span class="font-medium">Hospitals in {{ city.name }}</span>
+                  </a>
+                }
+                <div class="mt-2 pt-2 border-t border-gray-100 px-3">
+                  <a routerLink="/hospitals/lahore" (click)="closeHospitalsDropdown()" class="text-sm font-semibold text-brand-600 hover:text-brand-700">
+                    All Hospitals (City wise) →
+                  </a>
+                </div>
+              </div>
+            }
+          </div>
+
+          @for (link of navLinks; track link.label) {
+            <a
+              [routerLink]="link.href"
+              routerLinkActive="text-brand-600"
+              class="px-3 py-2 text-sm font-medium text-gray-700 hover:text-brand-600 rounded-lg transition-colors"
+            >
+              {{ link.label }}
+            </a>
+          }
+          <a
+            routerLink="/auth/register"
+            class="px-3 py-2 text-sm font-medium text-gray-700 hover:text-brand-600 rounded-lg transition-colors"
+          >
+            Join as Doctor
+          </a>
+        </nav>
+
+        <div class="hidden lg:flex items-center gap-3">
+          @if (authService.isAuthenticated()) {
+            <span class="text-sm text-gray-600">Hello, {{ authService.user()?.firstName }}</span>
+            <a
+              routerLink="/"
+              class="inline-flex items-center justify-center px-4 py-2 text-sm font-semibold rounded-lg bg-brand-600 text-white hover:bg-brand-700 transition-colors"
+            >
+              Home
+            </a>
+          } @else {
+            <a
+              routerLink="/auth/login"
+              class="inline-flex items-center justify-center px-4 py-2 text-sm font-semibold rounded-lg border border-brand-600 text-brand-600 hover:bg-brand-50 transition-colors"
+            >
+              Login
+            </a>
+            <a
+              routerLink="/auth/register"
+              class="inline-flex items-center justify-center px-4 py-2 text-sm font-semibold rounded-lg bg-brand-600 text-white hover:bg-brand-700 transition-colors"
+            >
+              Register
+            </a>
+          }
+        </div>
+
+        <button
+          type="button"
+          class="lg:hidden inline-flex items-center justify-center p-2 rounded-lg text-gray-600 hover:bg-gray-100"
+          (click)="toggleMobileMenu()"
+          aria-label="Toggle menu"
+        >
+          <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            @if (mobileMenuOpen()) {
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            } @else {
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            }
+          </svg>
+        </button>
+      </div>
+
+      @if (mobileMenuOpen()) {
+        <nav class="lg:hidden pb-4 border-t border-gray-100 pt-3 space-y-1">
+          <p class="px-3 pt-2 pb-1 text-xs font-semibold uppercase tracking-wide text-gray-400">Find Doctors</p>
+          <div class="grid grid-cols-2 gap-1 px-2 pb-3">
+            @for (specialty of findDoctorSpecialties; track specialty.slug) {
+              <a
+                [routerLink]="['/find-doctors', specialty.slug]"
+                (click)="closeMobileMenu()"
+                class="rounded-lg px-2 py-2 text-sm text-gray-700 hover:bg-brand-50 hover:text-brand-600"
+              >
+                {{ specialty.name }}
+              </a>
+            }
+          </div>
+
+          <p class="px-3 pt-2 pb-1 text-xs font-semibold uppercase tracking-wide text-gray-400">Hospitals</p>
+          <div class="px-2 pb-3 space-y-1">
+            @for (city of hospitalCities; track city.slug) {
+              <a
+                [routerLink]="['/hospitals', city.slug]"
+                (click)="closeMobileMenu()"
+                class="block rounded-lg px-3 py-2 text-sm text-gray-700 hover:bg-brand-50 hover:text-brand-600"
+              >
+                Hospitals in {{ city.name }}
+              </a>
+            }
+          </div>
+
+          @for (link of navLinks; track link.label) {
+            <a
+              [routerLink]="link.href"
+              (click)="closeMobileMenu()"
+              class="block px-3 py-2 text-sm font-medium text-gray-700 hover:text-brand-600 hover:bg-brand-50 rounded-lg"
+            >
+              {{ link.label }}
+            </a>
+          }
+          <a routerLink="/auth/register" (click)="closeMobileMenu()" class="block px-3 py-2 text-sm font-medium text-gray-700 hover:text-brand-600 hover:bg-brand-50 rounded-lg">
+            Join as Doctor
+          </a>
+          <div class="flex gap-2 pt-2 px-3">
+            <a routerLink="/auth/login" (click)="closeMobileMenu()" class="flex-1 text-center py-2 text-sm font-semibold border border-brand-600 text-brand-600 rounded-lg">Login</a>
+            <a routerLink="/auth/register" (click)="closeMobileMenu()" class="flex-1 text-center py-2 text-sm font-semibold bg-brand-600 text-white rounded-lg">Register</a>
+          </div>
+        </nav>
+      }
+    </div>
+  </header>
+
+  <main class="flex-1">
+    <router-outlet />
+  </main>
+
+  <footer class="bg-gray-900 text-gray-300">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-10">
+        <div>
+          <div class="flex items-center gap-2 mb-4">
+            <span class="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-600 text-white font-bold">C</span>
+            <span class="text-xl font-bold text-white">CareHub</span>
+          </div>
+          <p class="text-sm text-gray-400 leading-relaxed">
+            Pakistan's healthcare marketplace. Find doctors, book appointments, and consult online.
+          </p>
+        </div>
+
+        @for (group of footerCityLinks; track group.city) {
+          <div>
+            <h4 class="text-white font-semibold mb-3">{{ group.city }}</h4>
+            <ul class="space-y-2">
+              @for (link of group.links; track link) {
+                <li>
+                  <a [routerLink]="['/find-doctors', 'dermatologist']" class="text-sm text-gray-400 hover:text-white transition-colors">{{ link }}</a>
+                </li>
+              }
+            </ul>
+          </div>
+        }
+      </div>
+
+      <div class="border-t border-gray-800 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <p class="text-sm text-gray-500">Copyright &copy; CareHub. All rights reserved.</p>
+        <div class="flex items-center gap-6 text-sm">
+          <a routerLink="/auth/login" class="hover:text-white transition-colors">Terms & Policies</a>
+          <a routerLink="/auth/register" class="hover:text-white transition-colors">About Us</a>
+          <span class="text-brand-400 font-medium">042-34500888</span>
+        </div>
+      </div>
+    </div>
+  </footer>
+</div>

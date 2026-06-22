@@ -1,0 +1,362 @@
+<div class="bg-gray-50 min-h-full">
+  @if (loading()) {
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
+      <div class="inline-block h-10 w-10 animate-spin rounded-full border-4 border-brand-600 border-t-transparent"></div>
+      <p class="mt-4 text-gray-600">Loading doctor profile...</p>
+    </div>
+  } @else if (doctor(); as d) {
+    <!-- Breadcrumbs -->
+    <div class="bg-white border-b border-gray-200">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+        <nav class="text-sm text-gray-500">
+          <a routerLink="/" class="hover:text-brand-600">CareHub</a>
+          <span class="mx-2">&gt;</span>
+          <a [routerLink]="findDoctorsLink()" [queryParams]="findDoctorsQueryParams()" class="hover:text-brand-600">{{ breadcrumbSpecialty() }}</a>
+          <span class="mx-2">&gt;</span>
+          <span class="text-gray-500">{{ breadcrumbSpecialty() }} in {{ city() }}</span>
+          <span class="mx-2">&gt;</span>
+          <span class="text-gray-800 font-medium">{{ doctorName(d) }}</span>
+        </nav>
+      </div>
+    </div>
+
+    <!-- Profile Header -->
+    <div class="bg-white border-b border-gray-200">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 sm:p-6">
+          <div class="flex flex-col lg:flex-row gap-6">
+            <!-- Avatar -->
+            <div class="shrink-0">
+              @if (d.profileImageUrl) {
+                <img [src]="d.profileImageUrl" [alt]="doctorName(d)" class="h-28 w-28 sm:h-32 sm:w-32 rounded-full object-cover border-4 border-gray-100" />
+              } @else {
+                <div class="h-28 w-28 sm:h-32 sm:w-32 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center text-3xl font-bold border-4 border-gray-100">
+                  {{ d.user?.firstName?.charAt(0) }}{{ d.user?.lastName?.charAt(0) }}
+                </div>
+              }
+            </div>
+
+            <!-- Info -->
+            <div class="flex-1 min-w-0">
+              <div class="flex flex-wrap items-center gap-2 sm:gap-3">
+                <h1 class="text-xl sm:text-2xl font-bold text-gray-900">{{ doctorName(d) }}</h1>
+                @if (isTopBooked()) {
+                  <span class="inline-flex items-center gap-1 rounded-full bg-teal-50 border border-teal-200 px-2.5 py-0.5 text-xs font-semibold text-teal-700">
+                    ★ Top Booked Doctor
+                  </span>
+                }
+                <button type="button" class="inline-flex items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+                  <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg>
+                  Share Profile
+                </button>
+              </div>
+
+              <p class="mt-2 text-sm text-gray-600">{{ specialtyLine(d) }}</p>
+              @if (qualificationLine(d)) {
+                <p class="mt-1 text-sm text-gray-500">{{ qualificationLine(d) }}</p>
+              }
+              @if (d.role) {
+                <p class="mt-1 text-sm font-medium text-gray-700">{{ d.role }}</p>
+              }
+
+              <div class="mt-4 flex flex-wrap gap-6 text-sm">
+                <div>
+                  <span class="font-bold text-gray-900">{{ d.reviewCount | number }}</span>
+                  <span class="text-gray-500 ml-1">Reviews</span>
+                </div>
+                <div>
+                  <span class="font-bold text-gray-900">{{ d.yearsOfExperience ?? 0 }} Yrs</span>
+                  <span class="text-gray-500 ml-1">Experience</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Header CTAs -->
+            <div class="flex flex-col gap-2 shrink-0 lg:w-52">
+              <a
+                [routerLink]="['/auth/register']"
+                [queryParams]="{ intent: 'video', doctorId: d.id }"
+                class="inline-flex items-center justify-center rounded-lg bg-[#0B4F6C] px-4 py-3 text-sm font-semibold text-white hover:bg-[#093f56] transition-colors text-center"
+              >
+                Consult Online
+              </a>
+              <a
+                [routerLink]="['/auth/register']"
+                [queryParams]="{ intent: 'appointment', doctorId: d.id }"
+                class="inline-flex items-center justify-center rounded-lg bg-emerald-600 px-4 py-3 text-sm font-semibold text-white hover:bg-emerald-700 transition-colors text-center"
+              >
+                Visit In Clinic
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div class="flex flex-col lg:flex-row gap-8">
+        <!-- Left: Reviews -->
+        <div class="flex-1 min-w-0">
+          <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+            <!-- Reviews Summary -->
+            <div class="p-5 sm:p-6 border-b border-gray-100">
+              <div class="flex flex-wrap items-start justify-between gap-4">
+                <div>
+                  <h2 class="text-lg font-bold text-gray-900">{{ d.reviewCount | number }} Reviews</h2>
+                  <div class="flex items-center gap-1 mt-1">
+                    @for (star of starArray(d.averageRating); track $index) {
+                      <span class="text-amber-400 text-lg">{{ star ? '★' : '☆' }}</span>
+                    }
+                  </div>
+                </div>
+                <span class="rounded-lg bg-sky-50 border border-sky-200 px-3 py-1.5 text-sm font-semibold text-sky-800">
+                  {{ d.averageRating }}/5 Average rating based on {{ d.reviewCount | number }} reviews
+                </span>
+              </div>
+
+              <div class="mt-4 flex flex-wrap gap-6 text-sm text-gray-600">
+                <span><strong class="text-gray-900">Wait Time:</strong> {{ d.waitTimeMins }} mins</span>
+                <span><strong class="text-gray-900">Avg. Time to Patient:</strong> {{ d.avgTimeToPatientMins }} mins</span>
+              </div>
+
+              <!-- Rating Breakdown -->
+              <div class="mt-6 space-y-3">
+                <div>
+                  <div class="flex justify-between text-sm mb-1">
+                    <span class="text-gray-700">Patient Satisfaction</span>
+                    <span class="font-semibold text-gray-900">{{ d.ratingBreakdown.patientSatisfaction }}/5</span>
+                  </div>
+                  <div class="h-2 rounded-full bg-gray-100 overflow-hidden">
+                    <div class="h-full rounded-full bg-emerald-500 transition-all" [style.width.%]="ratingPercent(d.ratingBreakdown.patientSatisfaction)"></div>
+                  </div>
+                </div>
+                <div>
+                  <div class="flex justify-between text-sm mb-1">
+                    <span class="text-gray-700">Diagnosis</span>
+                    <span class="font-semibold text-gray-900">{{ d.ratingBreakdown.diagnosis }}/5</span>
+                  </div>
+                  <div class="h-2 rounded-full bg-gray-100 overflow-hidden">
+                    <div class="h-full rounded-full bg-emerald-500 transition-all" [style.width.%]="ratingPercent(d.ratingBreakdown.diagnosis)"></div>
+                  </div>
+                </div>
+                <div>
+                  <div class="flex justify-between text-sm mb-1">
+                    <span class="text-gray-700">Staff Behaviour</span>
+                    <span class="font-semibold text-gray-900">{{ d.ratingBreakdown.staffBehaviour }}/5</span>
+                  </div>
+                  <div class="h-2 rounded-full bg-gray-100 overflow-hidden">
+                    <div class="h-full rounded-full bg-emerald-500 transition-all" [style.width.%]="ratingPercent(d.ratingBreakdown.staffBehaviour)"></div>
+                  </div>
+                </div>
+                <div>
+                  <div class="flex justify-between text-sm mb-1">
+                    <span class="text-gray-700">Clinic Environment</span>
+                    <span class="font-semibold text-gray-900">{{ d.ratingBreakdown.clinicEnvironment }}/5</span>
+                  </div>
+                  <div class="h-2 rounded-full bg-gray-100 overflow-hidden">
+                    <div class="h-full rounded-full bg-emerald-500 transition-all" [style.width.%]="ratingPercent(d.ratingBreakdown.clinicEnvironment)"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Individual Reviews -->
+            <div class="divide-y divide-gray-100">
+              @for (review of d.reviews; track review.id) {
+                <div class="p-5 sm:p-6">
+                  <div class="flex gap-3">
+                    <div class="h-10 w-10 rounded-full bg-gray-200 text-gray-600 flex items-center justify-center text-sm font-bold shrink-0">
+                      {{ review.patientInitials }}
+                    </div>
+                    <div class="flex-1 min-w-0">
+                      <div class="flex flex-wrap items-center gap-2">
+                        <span class="font-semibold text-gray-900">{{ review.patientName }}</span>
+                        <span class="text-xs text-gray-400">{{ review.date }}</span>
+                      </div>
+                      <p class="mt-1 text-sm font-semibold text-emerald-700">{{ review.headline }}</p>
+                      <p class="mt-2 text-sm text-gray-600 leading-relaxed">{{ review.body }}</p>
+                      @if (review.tags.length) {
+                        <div class="mt-3 flex flex-wrap gap-2">
+                          @for (tag of review.tags; track tag) {
+                            <span class="rounded-full border border-emerald-300 bg-emerald-50 px-2.5 py-0.5 text-xs font-medium text-emerald-700">{{ tag }}</span>
+                          }
+                        </div>
+                      }
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+
+          @if (d.about) {
+            <div class="mt-6 bg-white rounded-xl border border-gray-200 shadow-sm p-5 sm:p-6">
+              <h2 class="text-lg font-bold text-gray-900 mb-3">About Doctor</h2>
+              <p class="text-sm text-gray-600 leading-relaxed">{{ d.about }}</p>
+            </div>
+          }
+        </div>
+
+        <!-- Right: Booking Sidebar -->
+        <div class="lg:w-[380px] shrink-0">
+          <div class="sticky top-20 bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+            <div class="p-5 border-b border-gray-100">
+              <h2 class="text-lg font-bold text-gray-900">Get Confirmed Appointment Online</h2>
+            </div>
+
+            <div class="p-5 space-y-6">
+              <!-- Step 1: Select Clinic -->
+              <div>
+                <p class="text-sm font-semibold text-gray-900 mb-3">
+                  <span class="inline-flex items-center justify-center h-5 w-5 rounded-full bg-[#0B4F6C] text-white text-xs mr-2">1</span>
+                  Select Hospital/Clinic
+                </p>
+                <div class="space-y-3">
+                  @for (option of d.consultationOptions; track option.id) {
+                    <button
+                      type="button"
+                      (click)="selectConsultation(option)"
+                      class="w-full text-left rounded-xl border-2 p-4 transition-colors"
+                      [class.border-teal-500]="selectedConsultationId() === option.id"
+                      [class.bg-teal-50/30]="selectedConsultationId() === option.id"
+                      [class.border-gray-200]="selectedConsultationId() !== option.id"
+                      [class.hover:border-gray-300]="selectedConsultationId() !== option.id"
+                    >
+                      <div class="flex justify-between items-start gap-2">
+                        <div>
+                          <p class="text-sm font-semibold text-gray-900">{{ option.name }}</p>
+                          @if (option.location) {
+                            <p class="text-xs text-gray-500 mt-0.5">{{ option.location }}</p>
+                          }
+                          <p class="text-xs text-gray-500 mt-1">{{ option.hours }}</p>
+                        </div>
+                        <div class="text-right shrink-0">
+                          <p class="text-sm font-bold text-gray-900">{{ formatFee(option.fee, option.currency) }}</p>
+                          <span
+                            class="inline-block mt-1 rounded px-1.5 py-0.5 text-[10px] font-semibold"
+                            [class.bg-emerald-50]="option.type === 'video'"
+                            [class.text-emerald-700]="option.type === 'video'"
+                            [class.border]="option.type === 'video'"
+                            [class.border-emerald-200]="option.type === 'video'"
+                            [class.bg-gray-100]="option.type !== 'video'"
+                            [class.text-gray-600]="option.type !== 'video'"
+                          >
+                            {{ option.status }}
+                          </span>
+                        </div>
+                      </div>
+                    </button>
+                  }
+                </div>
+              </div>
+
+              <!-- Step 2: Date & Time -->
+              <div>
+                <p class="text-sm font-semibold text-gray-900 mb-3">
+                  <span class="inline-flex items-center justify-center h-5 w-5 rounded-full bg-[#0B4F6C] text-white text-xs mr-2">2</span>
+                  Select Date &amp; Time
+                </p>
+
+                <div class="flex items-center justify-between mb-2">
+                  <p class="text-sm font-medium text-gray-700">{{ monthLabel() }}</p>
+                  <div class="flex gap-1">
+                    <button type="button" (click)="scrollDates('left')" class="p-1 rounded hover:bg-gray-100 text-gray-500">
+                      <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                    </button>
+                    <button type="button" (click)="scrollDates('right')" class="p-1 rounded hover:bg-gray-100 text-gray-500">
+                      <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                    </button>
+                  </div>
+                </div>
+
+                <div id="date-scroll" class="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+                  @for (dateOpt of dateOptions(); track dateOpt.day; let i = $index) {
+                    <button
+                      type="button"
+                      (click)="selectDate(i)"
+                      class="shrink-0 flex flex-col items-center rounded-lg border px-3 py-2 min-w-[52px] transition-colors"
+                      [class.bg-[#0B4F6C]]="selectedDateIndex() === i"
+                      [class.text-white]="selectedDateIndex() === i"
+                      [class.border-[#0B4F6C]]="selectedDateIndex() === i"
+                      [class.border-gray-200]="selectedDateIndex() !== i"
+                      [class.text-gray-700]="selectedDateIndex() !== i"
+                      [class.hover:border-gray-300]="selectedDateIndex() !== i"
+                    >
+                      <span class="text-[10px] font-medium">{{ dateOpt.label }}</span>
+                      <span class="text-sm font-bold">{{ dateOpt.day }}</span>
+                    </button>
+                  }
+                </div>
+
+                <div class="mt-3 grid grid-cols-3 gap-2">
+                  @for (slot of d.timeSlots; track slot) {
+                    <button
+                      type="button"
+                      (click)="selectTimeSlot(slot)"
+                      class="rounded-lg border px-2 py-2 text-xs font-medium transition-colors"
+                      [class.bg-[#0B4F6C]]="selectedTimeSlot() === slot"
+                      [class.text-white]="selectedTimeSlot() === slot"
+                      [class.border-[#0B4F6C]]="selectedTimeSlot() === slot"
+                      [class.border-gray-200]="selectedTimeSlot() !== slot"
+                      [class.text-gray-700]="selectedTimeSlot() !== slot"
+                      [class.hover:border-gray-300]="selectedTimeSlot() !== slot"
+                    >
+                      {{ slot }}
+                    </button>
+                  }
+                </div>
+              </div>
+
+              <!-- Booking Form -->
+              <div class="space-y-3">
+                <div class="flex rounded-lg border border-gray-300 overflow-hidden">
+                  <div class="flex items-center gap-1.5 bg-gray-50 border-r border-gray-300 px-3 py-2.5 text-sm text-gray-700 shrink-0">
+                    <span>🇵🇰</span>
+                    <span>+92</span>
+                  </div>
+                  <input
+                    type="tel"
+                    placeholder="Phone number"
+                    class="flex-1 px-3 py-2.5 text-sm outline-none"
+                    [(ngModel)]="patientPhone"
+                  />
+                </div>
+                <input
+                  type="text"
+                  placeholder="Add Patient Name"
+                  class="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-[#0B4F6C] focus:ring-1 focus:ring-[#0B4F6C]"
+                  [(ngModel)]="patientName"
+                />
+                <input
+                  type="text"
+                  placeholder="Add Promo Code"
+                  class="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-[#0B4F6C] focus:ring-1 focus:ring-[#0B4F6C]"
+                  [(ngModel)]="promoCode"
+                />
+              </div>
+
+              <a
+                [routerLink]="['/auth/register']"
+                [queryParams]="{
+                  intent: isVideoSelected() ? 'video' : 'appointment',
+                  doctorId: d.id,
+                  slot: selectedTimeSlot()
+                }"
+                class="block w-full rounded-lg bg-emerald-600 px-4 py-3.5 text-center text-sm font-semibold text-white hover:bg-emerald-700 transition-colors"
+              >
+                {{ bookingButtonLabel() }}
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  } @else {
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
+      <h1 class="text-2xl font-bold text-gray-900">Doctor not found</h1>
+      <p class="mt-2 text-gray-600">The doctor profile you are looking for does not exist.</p>
+      <a routerLink="/" class="inline-flex mt-4 text-brand-600 font-semibold hover:text-brand-700">Back to homepage</a>
+    </div>
+  }
+</div>

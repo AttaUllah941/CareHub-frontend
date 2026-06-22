@@ -19,9 +19,9 @@ export class ButtonComponent {
     const width = this.fullWidth() ? 'w-full' : '';
 
     const variants: Record<string, string> = {
-      primary: 'bg-teal-600 text-white hover:bg-teal-700 focus:ring-teal-500',
+      primary: 'bg-brand-600 text-white hover:bg-brand-700 focus:ring-brand-500',
       secondary: 'bg-gray-100 text-gray-900 hover:bg-gray-200 focus:ring-gray-400',
-      outline: 'border border-gray-300 text-gray-700 hover:bg-gray-50 focus:ring-teal-500',
+      outline: 'border border-gray-300 text-gray-700 hover:bg-gray-50 focus:ring-brand-500',
     };
 
     return `${base} ${width} ${variants[this.variant()]}`;

@@ -152,6 +152,7 @@ export interface DoctorSearchResult {
   currency?: string;
   profileImageUrl?: string;
   about?: string;
+  qualifications?: DoctorQualification[];
   specialtyIds: string[];
   specialties?: MedicalSpecialty[];
   languageIds: string[];

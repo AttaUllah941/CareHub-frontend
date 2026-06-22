@@ -24,13 +24,13 @@ export const initialAuthState: AuthState = {
 
 export const AUTH_FEATURE_KEY = 'auth';
 
-/** Role-based dashboard route mapping */
+/** Post-login landing until role portals are rebuilt in the new UI */
 export const ROLE_DASHBOARD_ROUTES: Record<UserRole, string> = {
-  [UserRole.SUPER_ADMIN]: '/admin/dashboard',
-  [UserRole.ADMIN]: '/admin/dashboard',
-  [UserRole.DOCTOR]: '/doctor/dashboard',
-  [UserRole.PATIENT]: '/patient/dashboard',
-  [UserRole.CLINIC_MANAGER]: '/clinic/dashboard',
-  [UserRole.PHARMACY]: '/pharmacy/dashboard',
-  [UserRole.LAB]: '/lab/dashboard',
+  [UserRole.SUPER_ADMIN]: '/',
+  [UserRole.ADMIN]: '/',
+  [UserRole.DOCTOR]: '/',
+  [UserRole.PATIENT]: '/',
+  [UserRole.CLINIC_MANAGER]: '/',
+  [UserRole.PHARMACY]: '/',
+  [UserRole.LAB]: '/',
 };

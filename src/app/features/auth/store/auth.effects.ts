@@ -122,7 +122,7 @@ export class AuthEffects {
         ofType(AuthActions.loginSuccess, AuthActions.registerSuccess),
         tap(({ response }) => {
           this.tokenStorage.setTokens(response.accessToken, response.refreshToken);
-          const dashboardRoute = ROLE_DASHBOARD_ROUTES[response.user.role] ?? '/dashboard';
+          const dashboardRoute = ROLE_DASHBOARD_ROUTES[response.user.role] ?? '/';
           this.router.navigate([dashboardRoute]);
         }),
       ),
