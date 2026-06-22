@@ -110,14 +110,14 @@ export const SERVICE_CARDS: ServiceCard[] = [
     title: 'Book Lab Test',
     subtitle: 'Home collection available',
     icon: '🧪',
-    link: '/auth/login',
+    link: '/labs/lahore',
     accent: 'bg-violet-50 border-violet-100',
   },
   {
     title: 'Medicines',
     subtitle: 'Order from verified pharmacies',
     icon: '💊',
-    link: '/auth/login',
+    link: '/medicines',
     accent: 'bg-amber-50 border-amber-100',
   },
   {
@@ -241,7 +241,5 @@ export const FOOTER_CITY_LINKS: FooterCityLinks[] = [
 ];
 
 export const NAV_LINKS = [
-  { label: 'Labs', href: '/auth/login' },
-  { label: 'Medicines', href: '/auth/login' },
-  { label: 'Health Hub', href: '/auth/register' },
+  { label: 'Medicines', href: '/medicines' },
 ];

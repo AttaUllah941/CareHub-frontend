@@ -296,10 +296,13 @@ function toDoctorResult(template: DummyDoctorTemplate, city: string): DoctorSear
     })),
     specialtyIds: [template.specialtySlugs[0]],
     specialties: [{ id: template.specialtySlugs[0], name: specialtyName, slug: template.specialtySlugs[0], isActive: true }],
-    languageIds: ['ur', 'en'],
+    languageIds: ['ur', 'en', ...(city === 'Lahore' || city === 'Karachi' ? ['pa'] : [])],
     languages: [
       { id: 'ur', name: 'Urdu', code: 'ur', isActive: true },
       { id: 'en', name: 'English', code: 'en', isActive: true },
+      ...(city === 'Lahore' || city === 'Karachi'
+        ? [{ id: 'pa', name: 'Punjabi', code: 'pa', isActive: true }]
+        : []),
     ],
     clinics: [{ id: `${template.id}-clinic`, name: template.clinic, city }],
     availableDays: [1, 2, 3, 4, 5],

@@ -1,0 +1,154 @@
+<div class="bg-gray-50 min-h-full">
+  @if (pharmacy(); as p) {
+    <div class="bg-white border-b border-gray-200">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <nav class="text-sm text-gray-500 mb-3">
+          <a routerLink="/" class="hover:text-brand-600">CareHub</a>
+          <span class="mx-2">&gt;</span>
+          <a routerLink="/medicines" class="hover:text-brand-600">Medicines</a>
+          <span class="mx-2">&gt;</span>
+          <a [routerLink]="['/medicines', citySlug()]" class="hover:text-brand-600">{{ cityName() }}</a>
+          <span class="mx-2">&gt;</span>
+          <span class="text-gray-800">{{ p.name }}</span>
+        </nav>
+
+        <div class="flex flex-col lg:flex-row gap-6">
+          <div class="lg:w-72 h-48 lg:h-56 rounded-2xl overflow-hidden shrink-0 border border-gray-200">
+            <img [src]="p.imageUrl" [alt]="p.name" class="h-full w-full object-cover" />
+          </div>
+          <div class="flex-1">
+            <div class="flex flex-wrap items-center gap-3">
+              <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">{{ p.name }}</h1>
+              @if (p.isHomeDelivery) {
+                <span class="rounded-full bg-amber-50 border border-amber-200 px-3 py-1 text-xs font-semibold text-amber-700">Home Delivery Available</span>
+              }
+            </div>
+            <p class="mt-2 text-amber-500 font-semibold">★ {{ p.rating }} · {{ p.medicineCount }} Medicines available</p>
+            <p class="mt-3 text-gray-600 leading-relaxed">{{ p.description }}</p>
+
+            <div class="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+              <div class="flex items-start gap-2">
+                <span class="text-gray-400">📍</span>
+                <div>
+                  <p class="font-medium text-gray-900">Address</p>
+                  <p class="text-gray-600">{{ p.address }}, {{ p.city }}</p>
+                </div>
+              </div>
+              <div class="flex items-start gap-2">
+                <span class="text-gray-400">📞</span>
+                <div>
+                  <p class="font-medium text-gray-900">Phone</p>
+                  <p class="text-gray-600">{{ p.phone }}</p>
+                </div>
+              </div>
+              <div class="flex items-start gap-2">
+                <span class="text-gray-400">✉️</span>
+                <div>
+                  <p class="font-medium text-gray-900">Email</p>
+                  <p class="text-gray-600">{{ p.email }}</p>
+                </div>
+              </div>
+              <div class="flex items-start gap-2">
+                <span class="text-gray-400">🕐</span>
+                <div>
+                  <p class="font-medium text-gray-900">Timings</p>
+                  <p class="text-gray-600">{{ p.timings }}</p>
+                </div>
+              </div>
+              @if (p.isHomeDelivery) {
+                <div class="flex items-start gap-2">
+                  <span class="text-gray-400">🚚</span>
+                  <div>
+                    <p class="font-medium text-gray-900">Home Delivery</p>
+                    <p class="text-gray-600">
+                      @if (p.deliveryTime) { {{ p.deliveryTime }} }
+                      @if (p.deliveryFee !== undefined) {
+                        · {{ p.deliveryFee === 0 ? 'Free delivery' : formatPrice(p.deliveryFee) + ' delivery fee' }}
+                      }
+                    </p>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <h2 class="text-xl font-bold text-gray-900 mb-1">Available Medicines at {{ p.name }}</h2>
+      <p class="text-sm text-gray-600 mb-6">Browse medicines, check stock and prices, and order online for delivery or pickup</p>
+
+      @if (p.medicines?.length) {
+        <div class="mb-6">
+          <div class="relative max-w-xl">
+            <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+              <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </span>
+            <input
+              type="text"
+              [ngModel]="medicineSearchQuery()"
+              (ngModelChange)="onMedicineSearchChange($event)"
+              placeholder="Search medicines by name..."
+              class="w-full rounded-lg border border-gray-300 bg-white py-2.5 pl-10 pr-10 text-sm focus:border-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-100"
+            />
+            @if (hasActiveSearch()) {
+              <button
+                type="button"
+                (click)="clearMedicineSearch()"
+                class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600"
+                aria-label="Clear search"
+              >
+                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            }
+          </div>
+          @if (hasActiveSearch()) {
+            <p class="mt-2 text-sm text-gray-500">
+              {{ filteredMedicines().length }} of {{ p.medicines!.length }} medicines match "{{ medicineSearchQuery().trim() }}"
+            </p>
+          }
+        </div>
+
+        @if (filteredMedicines().length) {
+          <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+            @for (medicine of paginatedMedicines(); track medicine.id) {
+              <app-public-medicine-card [medicine]="medicine" />
+            }
+          </div>
+
+          @if (totalMedicinePages() > 1) {
+            <div class="mt-8">
+              <app-pagination
+                [page]="currentPage()"
+                [totalPages]="totalMedicinePages()"
+                [total]="filteredMedicines().length"
+                (pageChange)="onPageChange($event)"
+              />
+            </div>
+          }
+        } @else {
+          <div class="bg-white rounded-xl border border-gray-200 p-10 text-center text-gray-600">
+            <p>No medicines found matching "{{ medicineSearchQuery().trim() }}".</p>
+            <button type="button" (click)="clearMedicineSearch()" class="mt-3 text-sm font-semibold text-brand-600 hover:text-brand-700">
+              Clear search
+            </button>
+          </div>
+        }
+      } @else {
+        <div class="bg-white rounded-xl border border-gray-200 p-10 text-center text-gray-600">
+          No medicines listed for this pharmacy yet.
+        </div>
+      }
+    </div>
+  } @else {
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
+      <h1 class="text-2xl font-bold text-gray-900">Pharmacy not found</h1>
+      <a routerLink="/medicines" class="inline-flex mt-4 text-brand-600 font-semibold hover:text-brand-700">Back to medicines</a>
+    </div>
+  }
+</div>

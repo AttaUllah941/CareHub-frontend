@@ -3,6 +3,8 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { AuthService } from '../../auth/services/auth.service';
 import { FIND_DOCTOR_SPECIALTIES, FOOTER_CITY_LINKS, NAV_LINKS } from '../data/home-content';
 import { HOSPITAL_CITIES } from '../data/dummy-hospitals.data';
+import { LAB_CITIES } from '../data/dummy-labs.data';
+import { SURGERY_CITIES } from '../data/dummy-surgery.data';
 
 @Component({
   selector: 'app-public-layout',
@@ -17,9 +19,13 @@ export class PublicLayoutComponent {
   protected readonly footerCityLinks = FOOTER_CITY_LINKS;
   protected readonly findDoctorSpecialties = FIND_DOCTOR_SPECIALTIES;
   protected readonly hospitalCities = HOSPITAL_CITIES;
+  protected readonly labCities = LAB_CITIES;
+  protected readonly surgeryCities = SURGERY_CITIES;
   protected readonly mobileMenuOpen = signal(false);
   protected readonly doctorsDropdownOpen = signal(false);
   protected readonly hospitalsDropdownOpen = signal(false);
+  protected readonly labsDropdownOpen = signal(false);
+  protected readonly surgeryDropdownOpen = signal(false);
 
   private readonly elementRef = inject(ElementRef);
 
@@ -40,17 +46,37 @@ export class PublicLayoutComponent {
 
   toggleDoctorsDropdown(): void {
     this.hospitalsDropdownOpen.set(false);
+    this.labsDropdownOpen.set(false);
+    this.surgeryDropdownOpen.set(false);
     this.doctorsDropdownOpen.update((open) => !open);
   }
 
   toggleHospitalsDropdown(): void {
     this.doctorsDropdownOpen.set(false);
+    this.labsDropdownOpen.set(false);
+    this.surgeryDropdownOpen.set(false);
     this.hospitalsDropdownOpen.update((open) => !open);
+  }
+
+  toggleLabsDropdown(): void {
+    this.doctorsDropdownOpen.set(false);
+    this.hospitalsDropdownOpen.set(false);
+    this.surgeryDropdownOpen.set(false);
+    this.labsDropdownOpen.update((open) => !open);
+  }
+
+  toggleSurgeryDropdown(): void {
+    this.doctorsDropdownOpen.set(false);
+    this.hospitalsDropdownOpen.set(false);
+    this.labsDropdownOpen.set(false);
+    this.surgeryDropdownOpen.update((open) => !open);
   }
 
   closeDropdowns(): void {
     this.doctorsDropdownOpen.set(false);
     this.hospitalsDropdownOpen.set(false);
+    this.labsDropdownOpen.set(false);
+    this.surgeryDropdownOpen.set(false);
   }
 
   closeDoctorsDropdown(): void {
@@ -59,5 +85,13 @@ export class PublicLayoutComponent {
 
   closeHospitalsDropdown(): void {
     this.hospitalsDropdownOpen.set(false);
+  }
+
+  closeLabsDropdown(): void {
+    this.labsDropdownOpen.set(false);
+  }
+
+  closeSurgeryDropdown(): void {
+    this.surgeryDropdownOpen.set(false);
   }
 }
