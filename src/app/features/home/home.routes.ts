@@ -68,6 +68,34 @@ export const HOME_ROUTES: Routes = [
           ),
       },
       {
+        path: 'medicines/cart',
+        loadComponent: () =>
+          import('./pages/medicine-cart-page/medicine-cart-page.component').then(
+            (m) => m.MedicineCartPageComponent,
+          ),
+      },
+      {
+        path: 'medicines/checkout',
+        loadComponent: () =>
+          import('./pages/medicine-checkout-page/medicine-checkout-page.component').then(
+            (m) => m.MedicineCheckoutPageComponent,
+          ),
+      },
+      {
+        path: 'medicines/orders/:orderId',
+        loadComponent: () =>
+          import('./pages/medicine-order-detail-page/medicine-order-detail-page.component').then(
+            (m) => m.MedicineOrderDetailPageComponent,
+          ),
+      },
+      {
+        path: 'medicines/orders',
+        loadComponent: () =>
+          import('./pages/medicine-orders-page/medicine-orders-page.component').then(
+            (m) => m.MedicineOrdersPageComponent,
+          ),
+      },
+      {
         path: 'medicines',
         loadComponent: () =>
           import('./pages/medicines-page/medicines-page.component').then(
