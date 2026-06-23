@@ -1,0 +1,86 @@
+@if (portal.currentProfile(); as profile) {
+  <h1 class="text-2xl font-bold text-gray-900 mb-6">Manage Profile</h1>
+
+  @if (saved()) {
+    <div class="mb-4 rounded-lg bg-emerald-50 border border-emerald-200 px-4 py-3 text-sm text-emerald-700">Profile saved successfully.</div>
+  }
+
+  <div class="rounded-2xl border border-gray-200 bg-white p-6 space-y-6 max-w-2xl">
+    <div class="flex items-center gap-4">
+      @if (profile.profilePhotoUrl) {
+        <img [src]="profile.profilePhotoUrl" alt="" class="h-20 w-20 rounded-full object-cover border-2 border-brand-100" />
+      } @else {
+        <div class="h-20 w-20 rounded-full bg-brand-100 flex items-center justify-center text-2xl font-bold text-brand-600">
+          {{ profile.fullName.charAt(0) }}
+        </div>
+      }
+      <div>
+        <p class="font-semibold text-gray-900">{{ profile.fullName }}</p>
+        <p class="text-sm text-gray-500">{{ profile.email }}</p>
+      </div>
+    </div>
+
+    <div class="grid sm:grid-cols-2 gap-4">
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+        <input type="text" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" [ngModel]="profile.fullName" (ngModelChange)="updateField('fullName', $event)" />
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+        <input type="tel" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" [ngModel]="profile.phone" (ngModelChange)="updateField('phone', $event)" />
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Specialization</label>
+        <select class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" [ngModel]="profile.specialization" (ngModelChange)="updateField('specialization', $event)">
+          @for (s of specialties; track s.slug) {
+            <option [value]="s.name">{{ s.name }}</option>
+          }
+        </select>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Years of Experience</label>
+        <input type="number" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" [ngModel]="profile.yearsOfExperience" (ngModelChange)="updateField('yearsOfExperience', $event)" />
+      </div>
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium text-gray-700 mb-1">Bio</label>
+      <textarea rows="3" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" [ngModel]="profile.bio" (ngModelChange)="updateField('bio', $event)"></textarea>
+    </div>
+
+    <div class="border-t border-gray-100 pt-4">
+      <h3 class="font-semibold text-gray-900 mb-3">Clinic Information</h3>
+      <div class="grid sm:grid-cols-2 gap-4">
+        <div class="sm:col-span-2">
+          <label class="block text-sm font-medium text-gray-700 mb-1">Clinic Name</label>
+          <input type="text" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" [ngModel]="profile.clinic.name" (ngModelChange)="updateField('clinic.name', $event)" />
+        </div>
+        <div class="sm:col-span-2">
+          <label class="block text-sm font-medium text-gray-700 mb-1">Address</label>
+          <input type="text" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" [ngModel]="profile.clinic.address" (ngModelChange)="updateField('clinic.address', $event)" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">City</label>
+          <input type="text" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" [ngModel]="profile.clinic.city" (ngModelChange)="updateField('clinic.city', $event)" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Clinic Phone</label>
+          <input type="tel" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" [ngModel]="profile.clinic.phone" (ngModelChange)="updateField('clinic.phone', $event)" />
+        </div>
+      </div>
+    </div>
+
+    <div class="grid sm:grid-cols-2 gap-4">
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">In-clinic Fee (PKR)</label>
+        <input type="number" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" [ngModel]="profile.consultationFee" (ngModelChange)="updateField('consultationFee', $event)" />
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Video Fee (PKR)</label>
+        <input type="number" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" [ngModel]="profile.videoConsultationFee" (ngModelChange)="updateField('videoConsultationFee', $event)" />
+      </div>
+    </div>
+
+    <button type="button" (click)="save()" class="rounded-lg bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-700">Save Changes</button>
+  </div>
+}

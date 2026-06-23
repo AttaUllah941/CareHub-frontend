@@ -12,6 +12,13 @@ export const HOME_ROUTES: Routes = [
           import('./pages/home-page/home-page.component').then((m) => m.HomePageComponent),
       },
       {
+        path: 'join-as-doctor',
+        loadComponent: () =>
+          import('./pages/doctor-register-page/doctor-register-page.component').then(
+            (m) => m.DoctorRegisterPageComponent,
+          ),
+      },
+      {
         path: 'find-doctors/:specialtySlug',
         loadComponent: () =>
           import('./pages/find-doctors-page/find-doctors-page.component').then(
