@@ -117,7 +117,7 @@
         @if (filteredMedicines().length) {
           <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
             @for (medicine of paginatedMedicines(); track medicine.id) {
-              <app-public-medicine-card [medicine]="medicine" />
+              <app-public-medicine-card [medicine]="medicine" [pharmacy]="p" />
             }
           </div>
 

@@ -1,6 +1,7 @@
 import { Component, ElementRef, HostListener, inject, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { AuthService } from '../../auth/services/auth.service';
+import { MedicineCartService } from '../services/medicine-cart.service';
 import { FIND_DOCTOR_SPECIALTIES, FOOTER_CITY_LINKS, NAV_LINKS } from '../data/home-content';
 import { HOSPITAL_CITIES } from '../data/dummy-hospitals.data';
 import { LAB_CITIES } from '../data/dummy-labs.data';
@@ -15,6 +16,7 @@ import { SURGERY_CITIES } from '../data/dummy-surgery.data';
 })
 export class PublicLayoutComponent {
   protected readonly authService = inject(AuthService);
+  protected readonly cartService = inject(MedicineCartService);
   protected readonly navLinks = NAV_LINKS;
   protected readonly footerCityLinks = FOOTER_CITY_LINKS;
   protected readonly findDoctorSpecialties = FIND_DOCTOR_SPECIALTIES;
