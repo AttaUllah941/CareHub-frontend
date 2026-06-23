@@ -102,7 +102,7 @@
       <p class="text-sm text-gray-600 mb-6">PMC verified surgeons and specialists available for consultation</p>
 
       @if (h.specialists?.length) {
-        <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 items-stretch">
+        <div class="space-y-5">
           @for (doctor of h.specialists; track doctor.id; let i = $index) {
             <app-public-doctor-listing-card [doctor]="doctor" [rank]="i" [city]="cityName()" />
           }
