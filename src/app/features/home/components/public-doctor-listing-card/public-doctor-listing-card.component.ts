@@ -1,20 +1,14 @@
-import { Component, computed, input } from '@angular/core';
+import { DecimalPipe } from '@angular/common';
+import { Component, input, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { DoctorSearchResult } from '../../../../core/models/doctor.model';
-
-const HEADER_THEMES = [
-  'from-rose-400 via-pink-500 to-rose-500',
-  'from-violet-500 via-purple-500 to-indigo-500',
-  'from-teal-400 via-cyan-500 to-teal-500',
-  'from-sky-500 via-blue-500 to-indigo-500',
-  'from-emerald-400 via-teal-500 to-green-500',
-  'from-amber-400 via-orange-500 to-rose-500',
-];
+import { VideoConsultationModalComponent } from '../video-consultation-modal/video-consultation-modal.component';
+import { ClinicAppointmentModalComponent } from '../clinic-appointment-modal/clinic-appointment-modal.component';
 
 @Component({
   selector: 'app-public-doctor-listing-card',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, DecimalPipe, VideoConsultationModalComponent, ClinicAppointmentModalComponent],
   templateUrl: './public-doctor-listing-card.component.html',
   styleUrl: './public-doctor-listing-card.component.scss',
 })
@@ -24,60 +18,70 @@ export class PublicDoctorListingCardComponent {
   readonly city = input('Lahore');
   readonly specialtySlug = input('');
 
-  readonly headerTheme = computed(() => HEADER_THEMES[this.rank() % HEADER_THEMES.length]);
+  readonly videoModalOpen = signal(false);
+  readonly appointmentModalOpen = signal(false);
+  readonly preselectedClinicId = signal<string | undefined>(undefined);
+
+  openVideoModal(): void {
+    this.videoModalOpen.set(true);
+  }
+
+  closeVideoModal(): void {
+    this.videoModalOpen.set(false);
+  }
+
+  openAppointmentModal(clinicId?: string): void {
+    this.preselectedClinicId.set(clinicId);
+    this.appointmentModalOpen.set(true);
+  }
+
+  closeAppointmentModal(): void {
+    this.appointmentModalOpen.set(false);
+    this.preselectedClinicId.set(undefined);
+  }
 
   doctorName(d: DoctorSearchResult): string {
     const title = d.title ? `${d.title} ` : 'Dr. ';
     return `${title}${d.user?.firstName ?? ''} ${d.user?.lastName ?? ''}`.trim();
   }
 
-  specialtyLabel(d: DoctorSearchResult): string {
-    const name = d.specialties?.[0]?.name;
-    if (!name) return 'General Physician';
-    if (/specialist|practitioner|surgeon|consultant|physician/i.test(name)) return name;
-    if (name.endsWith('ist') || name.endsWith('ian') || name.endsWith('logist')) return name;
-    return `${name} Specialist`;
+  specialtyLine(d: DoctorSearchResult): string {
+    const names = (d.specialties ?? []).map((s) => s.name);
+    if (names.length) return names.join(', ');
+    return 'General Physician';
   }
 
-  experienceBadge(d: DoctorSearchResult): string {
-    const years = d.yearsOfExperience ?? 0;
-    return `${years}+ Years`;
-  }
-
-  surgeriesCount(d: DoctorSearchResult): string {
-    const years = d.yearsOfExperience ?? 5;
-    const base = years * 140 + ((d.id?.charCodeAt(0) ?? 7) * 37) % 400;
-    const rounded = Math.floor(base / 100) * 100;
-    return `${Math.max(500, rounded)}+`;
-  }
-
-  successRate(d: DoctorSearchResult): number {
-    return Math.min(99, 92 + ((d.yearsOfExperience ?? 3) % 7));
-  }
-
-  expertiseTags(d: DoctorSearchResult): string[] {
-    if (!d.about) {
-      return (d.specialties ?? []).map((s) => s.name).slice(0, 3);
-    }
-
-    const parts = d.about
-      .split(/[,;]/)
-      .map((p) => p.trim())
-      .filter((p) => p.length > 2 && p.length < 40);
-
-    if (parts.length >= 2) return parts.slice(0, 3);
-    return (d.specialties ?? []).map((s) => s.name).slice(0, 3);
-  }
-
-  languageTags(d: DoctorSearchResult): string[] {
-    const langs = (d.languages ?? []).map((l) => l.name);
-    if (langs.length) return langs.slice(0, 3);
-    return ['English', 'Urdu'];
+  degreeLine(d: DoctorSearchResult): string {
+    const degrees = (d.qualifications ?? []).map((q) => q.degree);
+    if (degrees.length) return degrees.join(', ');
+    return '';
   }
 
   formatFee(d: DoctorSearchResult): string {
     if (d.consultationFee == null) return 'Contact for fee';
     return `Rs. ${d.consultationFee.toLocaleString('en-PK')}`;
+  }
+
+  reviewCount(d: DoctorSearchResult): number {
+    return ((d.id?.charCodeAt(0) ?? 7) * 137 + (d.yearsOfExperience ?? 5) * 41) % 4000 + 120;
+  }
+
+  rating(d: DoctorSearchResult): string {
+    const base = 4.5 + ((d.yearsOfExperience ?? 5) % 5) * 0.1;
+    return Math.min(4.9, base).toFixed(1);
+  }
+
+  waitTime(d: DoctorSearchResult): string {
+    const mins = 10 + ((d.id?.charCodeAt(1) ?? 3) % 4) * 5;
+    return `Under ${mins} Min`;
+  }
+
+  isPlatinumDoctor(): boolean {
+    return this.rank() < 2;
+  }
+
+  showDiscount(rank: number): boolean {
+    return rank % 2 === 0;
   }
 
   doctorProfileLink(): string[] {

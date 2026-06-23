@@ -1,0 +1,18 @@
+:host {
+  display: contents;
+}
+
+pre {
+  scrollbar-width: thin;
+  scrollbar-color: #334155 transparent;
+}
+
+pre::-webkit-scrollbar {
+  height: 6px;
+  width: 6px;
+}
+
+pre::-webkit-scrollbar-thumb {
+  background: #475569;
+  border-radius: 9999px;
+}
