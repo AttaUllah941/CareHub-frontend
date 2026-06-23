@@ -28,7 +28,7 @@ export const AUTH_FEATURE_KEY = 'auth';
 export const ROLE_DASHBOARD_ROUTES: Record<UserRole, string> = {
   [UserRole.SUPER_ADMIN]: '/',
   [UserRole.ADMIN]: '/',
-  [UserRole.DOCTOR]: '/',
+  [UserRole.DOCTOR]: '/doctor/dashboard',
   [UserRole.PATIENT]: '/',
   [UserRole.CLINIC_MANAGER]: '/',
   [UserRole.PHARMACY]: '/',

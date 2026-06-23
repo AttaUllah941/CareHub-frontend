@@ -13,6 +13,10 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'doctor',
+    loadChildren: () => import('./features/doctor/doctor.routes').then((m) => m.DOCTOR_ROUTES),
+  },
+  {
     path: '',
     loadChildren: () => import('./features/home/home.routes').then((m) => m.HOME_ROUTES),
   },

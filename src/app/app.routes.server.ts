@@ -62,6 +62,18 @@ export const serverRoutes: ServerRoute[] = [
     renderMode: RenderMode.Server,
   },
   {
+    path: 'join-as-doctor',
+    renderMode: RenderMode.Prerender,
+  },
+  {
+    path: 'doctor/login',
+    renderMode: RenderMode.Prerender,
+  },
+  {
+    path: 'doctor/**',
+    renderMode: RenderMode.Prerender,
+  },
+  {
     path: '**',
     renderMode: RenderMode.Prerender,
   },

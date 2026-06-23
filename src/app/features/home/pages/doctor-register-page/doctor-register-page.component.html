@@ -1,0 +1,265 @@
+<div class="bg-gradient-to-b from-brand-50/60 to-white min-h-[calc(100vh-72px)]">
+  <div class="max-w-3xl mx-auto px-4 sm:px-6 py-10">
+    @if (submitted()) {
+      <div class="rounded-2xl border border-emerald-200 bg-white p-8 text-center shadow-sm">
+        <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 text-3xl">✓</div>
+        <h1 class="text-2xl font-bold text-gray-900 mb-2">Application Submitted</h1>
+        <p class="text-gray-600 mb-6 max-w-md mx-auto">
+          Thank you, {{ fullName() }}. Your doctor registration has been sent for admin review.
+          You will receive an email once your application is approved.
+        </p>
+        <p class="text-sm text-gray-500 mb-6">Reference: <span class="font-mono font-semibold">{{ applicationId() }}</span></p>
+        <div class="rounded-xl bg-sky-50 border border-sky-100 p-4 text-left text-sm text-sky-900 mb-6">
+          <p class="font-semibold mb-1">Demo approved account</p>
+          <p>Email: <code class="bg-white px-1 rounded">dr.ahmad@carehub.demo</code></p>
+          <p>Password: <code class="bg-white px-1 rounded">Doctor@123</code></p>
+        </div>
+        <div class="flex flex-col sm:flex-row gap-3 justify-center">
+          <a routerLink="/" class="px-5 py-2.5 rounded-lg border border-gray-300 text-gray-700 font-semibold hover:bg-gray-50">Back to Home</a>
+          <a routerLink="/doctor/login" class="px-5 py-2.5 rounded-lg bg-brand-600 text-white font-semibold hover:bg-brand-700">Doctor Login</a>
+        </div>
+      </div>
+    } @else {
+      <div class="text-center mb-8">
+        <h1 class="text-3xl font-bold text-gray-900">Join CareHub as a Doctor</h1>
+        <p class="mt-2 text-gray-600">Register your practice and reach thousands of patients across Pakistan.</p>
+      </div>
+
+      <div class="flex items-center justify-between mb-8 gap-2">
+        @for (label of stepLabels; track label; let i = $index) {
+          <button
+            type="button"
+            (click)="goToStepNumber(i + 1)"
+            class="flex-1 text-center"
+          >
+            <div
+              class="mx-auto mb-1 flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold transition-colors"
+              [class]="step() > i + 1 ? 'bg-emerald-500 text-white' : step() === i + 1 ? 'bg-brand-600 text-white' : 'bg-gray-200 text-gray-500'"
+            >
+              @if (step() > i + 1) { ✓ } @else { {{ i + 1 }} }
+            </div>
+            <span class="text-xs font-medium text-gray-600 hidden sm:block">{{ label }}</span>
+          </button>
+        }
+      </div>
+
+      <div class="rounded-2xl border border-gray-200 bg-white p-6 sm:p-8 shadow-sm">
+        @if (submitError()) {
+          <div class="mb-4 rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">{{ submitError() }}</div>
+        }
+
+        @if (step() === 1) {
+          <h2 class="text-lg font-semibold text-gray-900 mb-6">Professional Details</h2>
+          <div class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Full Name *</label>
+              <input type="text" class="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-brand-500 focus:ring-1 focus:ring-brand-500" [ngModel]="fullName()" (ngModelChange)="fullName.set($event)" placeholder="Dr. Ahmad Hassan" />
+            </div>
+            <div class="grid sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Email *</label>
+                <input type="email" class="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-brand-500 focus:ring-1 focus:ring-brand-500" [ngModel]="email()" (ngModelChange)="email.set($event)" />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Phone *</label>
+                <input type="tel" class="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-brand-500 focus:ring-1 focus:ring-brand-500" [ngModel]="phone()" (ngModelChange)="phone.set($event)" placeholder="03001234567" />
+              </div>
+            </div>
+            <div class="grid sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Password *</label>
+                <input type="password" class="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-brand-500 focus:ring-1 focus:ring-brand-500" [ngModel]="password()" (ngModelChange)="password.set($event)" />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Confirm Password *</label>
+                <input type="password" class="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-brand-500 focus:ring-1 focus:ring-brand-500" [ngModel]="confirmPassword()" (ngModelChange)="confirmPassword.set($event)" />
+              </div>
+            </div>
+            <div class="grid sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Specialization *</label>
+                <select class="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-brand-500 focus:ring-1 focus:ring-brand-500" [ngModel]="specialization()" (ngModelChange)="specialization.set($event)">
+                  <option value="">Select specialty</option>
+                  @for (s of specialties; track s.slug) {
+                    <option [value]="s.name">{{ s.name }}</option>
+                  }
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Years of Experience *</label>
+                <input type="number" min="0" class="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-brand-500 focus:ring-1 focus:ring-brand-500" [ngModel]="yearsOfExperience()" (ngModelChange)="yearsOfExperience.set($event)" />
+              </div>
+            </div>
+
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <label class="text-sm font-medium text-gray-700">Qualifications *</label>
+                <button type="button" (click)="addQualification()" class="text-sm text-brand-600 font-semibold hover:text-brand-700">+ Add</button>
+              </div>
+              @for (q of qualifications(); track $index; let i = $index) {
+                <div class="grid sm:grid-cols-3 gap-2 mb-2">
+                  <input type="text" class="rounded-lg border border-gray-300 px-3 py-2 text-sm" placeholder="Degree" [ngModel]="q.degree" (ngModelChange)="updateQualification(i, 'degree', $event)" />
+                  <input type="text" class="rounded-lg border border-gray-300 px-3 py-2 text-sm" placeholder="Institution" [ngModel]="q.institution" (ngModelChange)="updateQualification(i, 'institution', $event)" />
+                  <div class="flex gap-2">
+                    <input type="number" class="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm" placeholder="Year" [ngModel]="q.year" (ngModelChange)="updateQualification(i, 'year', $event)" />
+                    @if (qualifications().length > 1) {
+                      <button type="button" (click)="removeQualification(i)" class="px-2 text-red-500 hover:bg-red-50 rounded-lg">×</button>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+        @if (step() === 2) {
+          <h2 class="text-lg font-semibold text-gray-900 mb-6">Clinic & Consultation Fees</h2>
+          <div class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Clinic / Hospital Name *</label>
+              <input type="text" class="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm" [ngModel]="clinicName()" (ngModelChange)="clinicName.set($event)" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Address *</label>
+              <input type="text" class="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm" [ngModel]="clinicAddress()" (ngModelChange)="clinicAddress.set($event)" />
+            </div>
+            <div class="grid sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">City *</label>
+                <input type="text" class="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm" [ngModel]="clinicCity()" (ngModelChange)="clinicCity.set($event)" />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Clinic Phone *</label>
+                <input type="tel" class="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm" [ngModel]="clinicPhone()" (ngModelChange)="clinicPhone.set($event)" />
+              </div>
+            </div>
+            <div class="grid sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">In-clinic Fee (PKR) *</label>
+                <input type="number" min="0" class="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm" [ngModel]="consultationFee()" (ngModelChange)="consultationFee.set($event)" />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Video Consultation Fee (PKR)</label>
+                <input type="number" min="0" class="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm" [ngModel]="videoConsultationFee()" (ngModelChange)="videoConsultationFee.set($event)" placeholder="Same as clinic if empty" />
+              </div>
+            </div>
+          </div>
+        }
+
+        @if (step() === 3) {
+          <h2 class="text-lg font-semibold text-gray-900 mb-6">Availability Schedule</h2>
+          <div class="rounded-xl bg-gray-50 p-4 mb-4">
+            <div class="grid sm:grid-cols-4 gap-3 items-end">
+              <div>
+                <label class="block text-xs font-medium text-gray-600 mb-1">Day</label>
+                <select class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" [ngModel]="selectedDay()" (ngModelChange)="selectedDay.set(+$event)">
+                  @for (d of dayOptions; track d.value) {
+                    <option [ngValue]="d.value">{{ d.label }}</option>
+                  }
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-gray-600 mb-1">From</label>
+                <select class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" [ngModel]="slotStart()" (ngModelChange)="slotStart.set($event)">
+                  @for (t of timeOptions; track t) { <option [value]="t">{{ t }}</option> }
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-gray-600 mb-1">To</label>
+                <select class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" [ngModel]="slotEnd()" (ngModelChange)="slotEnd.set($event)">
+                  @for (t of timeOptions; track t) { <option [value]="t">{{ t }}</option> }
+                </select>
+              </div>
+              <button type="button" (click)="addAvailabilitySlot()" class="rounded-lg bg-brand-600 text-white py-2 text-sm font-semibold hover:bg-brand-700">Add Slot</button>
+            </div>
+          </div>
+          @if (availability().length === 0) {
+            <p class="text-sm text-gray-500 text-center py-6">Add at least one weekly availability slot.</p>
+          } @else {
+            <div class="space-y-2">
+              @for (slot of availability(); track slot.day) {
+                <div class="flex items-center justify-between rounded-lg border border-gray-200 px-4 py-3">
+                  <span class="text-sm font-medium text-gray-800">{{ slot.dayLabel }}: {{ slot.startTime }} – {{ slot.endTime }}</span>
+                  <button type="button" (click)="removeSlot(slot.day)" class="text-sm text-red-600 hover:text-red-700">Remove</button>
+                </div>
+              }
+            </div>
+          }
+        }
+
+        @if (step() === 4) {
+          <h2 class="text-lg font-semibold text-gray-900 mb-6">Upload Documents</h2>
+          <div class="space-y-5">
+            <div class="rounded-xl border border-dashed border-gray-300 p-4">
+              <label class="block text-sm font-medium text-gray-700 mb-2">Medical License *</label>
+              <input type="file" accept="image/*,.pdf" class="text-sm text-gray-600" (change)="onLicenseFile($event)" />
+              @if (licenseFile(); as file) {
+                <p class="mt-2 text-xs text-emerald-600">✓ {{ file.name }} ({{ (file.size / 1024).toFixed(0) }} KB)</p>
+              }
+            </div>
+            <div class="rounded-xl border border-dashed border-gray-300 p-4">
+              <label class="block text-sm font-medium text-gray-700 mb-2">Certifications (optional)</label>
+              <input type="file" accept="image/*,.pdf" class="text-sm text-gray-600" (change)="onCertFile($event)" />
+              @if (certFile(); as file) {
+                <p class="mt-2 text-xs text-emerald-600">✓ {{ file.name }} ({{ (file.size / 1024).toFixed(0) }} KB)</p>
+              }
+            </div>
+            <div class="rounded-xl border border-dashed border-gray-300 p-4">
+              <label class="block text-sm font-medium text-gray-700 mb-2">Profile Photo *</label>
+              <input type="file" accept="image/*" class="text-sm text-gray-600" (change)="onPhotoFile($event)" />
+              @if (photoFile(); as file) {
+                <p class="mt-2 text-xs text-emerald-600">✓ {{ file.name }} ({{ (file.size / 1024).toFixed(0) }} KB)</p>
+              }
+            </div>
+            <div class="rounded-xl border border-dashed border-gray-300 p-4">
+              <label class="block text-sm font-medium text-gray-700 mb-2">Identity Verification (CNIC) *</label>
+              <input type="file" accept="image/*,.pdf" class="text-sm text-gray-600" (change)="onIdFile($event)" />
+              @if (idFile(); as file) {
+                <p class="mt-2 text-xs text-emerald-600">✓ {{ file.name }} ({{ (file.size / 1024).toFixed(0) }} KB)</p>
+              }
+            </div>
+          </div>
+        }
+
+        @if (step() === 5) {
+          <h2 class="text-lg font-semibold text-gray-900 mb-6">Review & Submit</h2>
+          <dl class="space-y-3 text-sm">
+            <div class="flex justify-between border-b border-gray-100 pb-2"><dt class="text-gray-500">Name</dt><dd class="font-medium text-gray-900">{{ fullName() }}</dd></div>
+            <div class="flex justify-between border-b border-gray-100 pb-2"><dt class="text-gray-500">Email</dt><dd class="font-medium text-gray-900">{{ email() }}</dd></div>
+            <div class="flex justify-between border-b border-gray-100 pb-2"><dt class="text-gray-500">Specialization</dt><dd class="font-medium text-gray-900">{{ specialization() }}</dd></div>
+            <div class="flex justify-between border-b border-gray-100 pb-2"><dt class="text-gray-500">Experience</dt><dd class="font-medium text-gray-900">{{ yearsOfExperience() }} years</dd></div>
+            <div class="flex justify-between border-b border-gray-100 pb-2"><dt class="text-gray-500">Clinic</dt><dd class="font-medium text-gray-900 text-right">{{ clinicName() }}, {{ clinicCity() }}</dd></div>
+            <div class="flex justify-between border-b border-gray-100 pb-2"><dt class="text-gray-500">Fees</dt><dd class="font-medium text-gray-900">Clinic Rs. {{ consultationFee() }} / Video Rs. {{ videoConsultationFee() ?? consultationFee() }}</dd></div>
+            <div class="flex justify-between border-b border-gray-100 pb-2"><dt class="text-gray-500">Availability</dt><dd class="font-medium text-gray-900 text-right">{{ availability().length }} day(s)</dd></div>
+            <div class="flex justify-between"><dt class="text-gray-500">Documents</dt><dd class="font-medium text-emerald-600">Uploaded</dd></div>
+          </dl>
+          <p class="mt-6 text-xs text-gray-500">By submitting, you confirm that all information is accurate and documents are valid. Your application will be reviewed by our admin team within 2–3 business days.</p>
+        }
+
+        <div class="flex justify-between mt-8 pt-6 border-t border-gray-100">
+          @if (step() > 1) {
+            <button type="button" (click)="prevStep()" class="px-5 py-2.5 rounded-lg border border-gray-300 text-gray-700 font-semibold hover:bg-gray-50">Back</button>
+          } @else {
+            <a routerLink="/" class="px-5 py-2.5 rounded-lg border border-gray-300 text-gray-700 font-semibold hover:bg-gray-50">Cancel</a>
+          }
+
+          @if (step() < 5) {
+            <button
+              type="button"
+              (click)="nextStep()"
+              [disabled]="(step() === 1 && !canProceedStep1()) || (step() === 2 && !canProceedStep2()) || (step() === 3 && !canProceedStep3()) || (step() === 4 && !canProceedStep4())"
+              class="px-5 py-2.5 rounded-lg bg-brand-600 text-white font-semibold hover:bg-brand-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            >Continue</button>
+          } @else {
+            <button
+              type="button"
+              (click)="submit()"
+              [disabled]="!canSubmit()"
+              class="px-5 py-2.5 rounded-lg bg-brand-600 text-white font-semibold hover:bg-brand-700 disabled:opacity-50"
+            >Submit Application</button>
+          }
+        </div>
+      </div>
+    }
+  </div>
+</div>

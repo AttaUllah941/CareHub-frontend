@@ -46,7 +46,7 @@
                     All Specialities →
                   </a>
                   <a
-                    routerLink="/auth/register"
+                    routerLink="/join-as-doctor"
                     (click)="closeDoctorsDropdown()"
                     class="text-sm text-gray-500 hover:text-gray-700"
                   >
@@ -165,6 +165,14 @@
             }
           </div>
 
+          <a
+            routerLink="/join-as-doctor"
+            routerLinkActive="text-brand-600"
+            class="px-3 py-2 text-sm font-medium text-gray-700 hover:text-brand-600 rounded-lg transition-colors"
+          >
+            Join as Doctor
+          </a>
+
           @for (link of navLinks; track link.label) {
             <a
               [routerLink]="link.href"
@@ -187,17 +195,26 @@
               </span>
             }
           </a>
-          @if (authService.isAuthenticated()) {
-            <span class="text-sm text-gray-600">Hello, {{ authService.user()?.firstName }}</span>
-            <a
-              routerLink="/"
-              class="inline-flex items-center justify-center px-4 py-2 text-sm font-semibold rounded-lg bg-brand-600 text-white hover:bg-brand-700 transition-colors"
-            >
-              Home
-            </a>
+          @if (authService.isAuthenticated() || doctorPortal.isLoggedIn()) {
+            @if (doctorPortal.isLoggedIn()) {
+              <a
+                routerLink="/doctor/dashboard"
+                class="inline-flex items-center justify-center px-4 py-2 text-sm font-semibold rounded-lg bg-brand-600 text-white hover:bg-brand-700 transition-colors"
+              >
+                Doctor Dashboard
+              </a>
+            } @else {
+              <span class="text-sm text-gray-600">Hello, {{ authService.user()?.firstName }}</span>
+              <a
+                routerLink="/"
+                class="inline-flex items-center justify-center px-4 py-2 text-sm font-semibold rounded-lg bg-brand-600 text-white hover:bg-brand-700 transition-colors"
+              >
+                Home
+              </a>
+            }
           } @else {
             <a
-              routerLink="/auth/register"
+              routerLink="/join-as-doctor"
               class="inline-flex items-center justify-center px-4 py-2 text-sm font-semibold rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors"
             >
               Join as Doctor
@@ -303,6 +320,14 @@
             }
           </div>
 
+          <a
+            routerLink="/join-as-doctor"
+            (click)="closeMobileMenu()"
+            class="block px-3 py-2 text-sm font-medium text-brand-600 hover:bg-brand-50 rounded-lg"
+          >
+            Join as Doctor
+          </a>
+
           @for (link of navLinks; track link.label) {
             <a
               [routerLink]="link.href"
@@ -313,7 +338,7 @@
             </a>
           }
           <div class="flex flex-col gap-2 pt-2 px-3">
-            <a routerLink="/auth/register" (click)="closeMobileMenu()" class="w-full text-center py-2 text-sm font-semibold border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">Join as Doctor</a>
+            <a routerLink="/join-as-doctor" (click)="closeMobileMenu()" class="w-full text-center py-2 text-sm font-semibold border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">Join as Doctor</a>
             <div class="flex gap-2">
               <a routerLink="/auth/login" (click)="closeMobileMenu()" class="flex-1 text-center py-2 text-sm font-semibold border border-brand-600 text-brand-600 rounded-lg">Login</a>
               <a routerLink="/auth/register" (click)="closeMobileMenu()" class="flex-1 text-center py-2 text-sm font-semibold bg-brand-600 text-white rounded-lg">Register</a>
