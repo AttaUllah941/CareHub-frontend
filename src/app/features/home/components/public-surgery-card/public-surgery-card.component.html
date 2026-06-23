@@ -21,11 +21,19 @@
       <p class="text-xs text-gray-500">Estimated Cost</p>
       <p class="text-lg font-bold text-brand-600">{{ formatPrice(surgery().priceFrom, surgery().priceTo) }}</p>
     </div>
-    <a
-      routerLink="/auth/login"
-      class="inline-flex items-center justify-center px-4 py-2 text-sm font-semibold rounded-lg bg-brand-600 text-white hover:bg-brand-700 transition-colors shrink-0"
+    <button
+      type="button"
+      (click)="openBookingModal()"
+      class="inline-flex items-center justify-center px-4 py-2 text-sm font-semibold rounded-lg bg-rose-600 text-white hover:bg-rose-700 transition-colors shrink-0"
     >
-      Book Consultation
-    </a>
+      Book Surgery
+    </button>
   </div>
 </div>
+
+<app-surgery-booking-modal
+  [open]="bookingModalOpen()"
+  [surgery]="surgery()"
+  [hospital]="hospital()"
+  (closed)="closeBookingModal()"
+/>

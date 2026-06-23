@@ -1,0 +1,510 @@
+@if (open()) {
+  <div
+    class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4"
+    data-backdrop="true"
+    (click)="onBackdropClick($event)"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="surgery-booking-title"
+  >
+    <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" data-backdrop="true"></div>
+
+    <div
+      class="relative w-full sm:max-w-2xl max-h-[95vh] sm:max-h-[90vh] overflow-hidden bg-white rounded-t-3xl sm:rounded-2xl shadow-2xl flex flex-col"
+      (click)="$event.stopPropagation()"
+    >
+      <!-- Header -->
+      <div class="shrink-0 bg-gradient-to-r from-[#0B4F6C] to-rose-700 px-5 sm:px-6 pt-5 pb-4 text-white">
+        <div class="flex items-start justify-between gap-4">
+          <div class="min-w-0 flex items-start gap-3">
+            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/15 backdrop-blur">
+              <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+              </svg>
+            </div>
+            <div class="min-w-0">
+              <h2 id="surgery-booking-title" class="text-lg font-bold">Book Surgery Consultation</h2>
+              <p class="mt-0.5 text-sm text-rose-100 line-clamp-1">{{ surgery().name }}</p>
+            </div>
+          </div>
+          <button
+            type="button"
+            (click)="close()"
+            class="shrink-0 rounded-xl p-2 text-white/70 hover:bg-white/15 hover:text-white transition-colors"
+            aria-label="Close"
+          >
+            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <div class="mt-4">
+          <div class="flex items-center justify-between text-xs text-rose-100 mb-1.5">
+            <span>Progress</span>
+            <span class="font-semibold text-white">{{ completionPercent() }}% complete</span>
+          </div>
+          <div class="h-1.5 rounded-full bg-white/25 overflow-hidden">
+            <div
+              class="h-full rounded-full bg-rose-200 transition-all duration-300 ease-out"
+              [style.width.%]="completionPercent()"
+            ></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Body -->
+      <div class="flex-1 overflow-y-auto px-5 sm:px-6 py-5 bg-slate-50/50">
+        <!-- Surgery & hospital summary -->
+        <div class="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
+          <div class="flex flex-wrap items-start justify-between gap-3">
+            <div class="min-w-0 flex-1">
+              <span class="inline-flex rounded-full bg-rose-50 border border-rose-200 px-2.5 py-0.5 text-[10px] font-semibold text-rose-700 uppercase tracking-wide">
+                {{ surgery().category }}
+              </span>
+              <h3 class="mt-2 text-base font-bold text-gray-900">{{ surgery().name }}</h3>
+              <p class="mt-1 text-sm text-gray-600 leading-relaxed">{{ surgery().description }}</p>
+              <div class="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500">
+                <span>⏱ {{ surgery().duration }}</span>
+                <span>💉 {{ surgery().anesthesiaType }}</span>
+                @if (surgery().hospitalStay) {
+                  <span>🏥 {{ surgery().hospitalStay }}</span>
+                }
+              </div>
+            </div>
+            <div class="text-right shrink-0">
+              <p class="text-xs text-gray-500">Estimated cost</p>
+              <p class="text-lg font-bold text-[#0B4F6C]">{{ formatPrice(surgery().priceFrom, surgery().priceTo) }}</p>
+            </div>
+          </div>
+
+          <div class="mt-4 pt-4 border-t border-gray-100">
+            <p class="text-xs font-semibold uppercase tracking-wide text-gray-400">Hospital</p>
+            <p class="mt-1 font-semibold text-gray-900">{{ hospital().name }}</p>
+            <p class="mt-1 text-sm text-gray-600">📍 {{ hospital().address }}, {{ hospital().city }}</p>
+            <div class="mt-2 flex flex-wrap gap-2 text-xs">
+              <span class="rounded-lg bg-gray-50 px-2.5 py-1 text-gray-600">📞 {{ hospital().phone }}</span>
+              <span class="rounded-lg bg-amber-50 px-2.5 py-1 text-amber-800">★ {{ hospital().rating }}</span>
+              @if (hospital().is24Hours) {
+                <span class="rounded-lg bg-emerald-50 px-2.5 py-1 text-emerald-700 font-medium">Open 24/7</span>
+              }
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 1: Surgeon -->
+        <section class="mt-5 rounded-2xl border border-gray-200 bg-white p-4 sm:p-5 shadow-sm">
+          <div class="flex items-center gap-3 mb-4">
+            <span
+              class="flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold shrink-0 transition-colors text-white"
+              [class.bg-emerald-500]="surgeonSelected()"
+              [class.bg-[#0B4F6C]]="!surgeonSelected()"
+            >
+              @if (surgeonSelected()) {
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+              } @else { 1 }
+            </span>
+            <div>
+              <h3 class="text-sm font-bold text-gray-900">Select surgeon</h3>
+              <p class="text-xs text-gray-500">Choose a specialist for your surgical consultation</p>
+            </div>
+          </div>
+
+          <div class="space-y-3">
+            @for (surgeon of surgeonOptions(); track surgeon.id) {
+              <button
+                type="button"
+                (click)="selectSurgeon(surgeon.id)"
+                class="w-full text-left rounded-xl border-2 p-4 transition-all"
+                [class.border-[#0B4F6C]]="selectedSurgeonId() === surgeon.id"
+                [class.bg-sky-50/60]="selectedSurgeonId() === surgeon.id"
+                [class.shadow-sm]="selectedSurgeonId() === surgeon.id"
+                [class.border-gray-200]="selectedSurgeonId() !== surgeon.id"
+                [class.hover:border-sky-300]="selectedSurgeonId() !== surgeon.id"
+                [class.bg-white]="selectedSurgeonId() !== surgeon.id"
+              >
+                <div class="flex items-center gap-3">
+                  @if (surgeon.profileImageUrl) {
+                    <img [src]="surgeon.profileImageUrl" [alt]="surgeon.name" class="h-12 w-12 rounded-full object-cover border-2 border-white shadow-sm shrink-0" />
+                  } @else {
+                    <div class="h-12 w-12 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center text-sm font-bold shrink-0">
+                      {{ surgeon.isAssigned ? 'HT' : surgeon.name.charAt(0) }}
+                    </div>
+                  }
+                  <div class="min-w-0 flex-1">
+                    <p class="text-sm font-semibold text-gray-900">{{ surgeon.name }}</p>
+                    <p class="text-xs text-gray-500">{{ surgeon.specialty }}</p>
+                    @if (surgeon.yearsOfExperience) {
+                      <p class="text-xs text-gray-400 mt-0.5">{{ surgeon.yearsOfExperience }} years experience</p>
+                    }
+                    @if (surgeon.isAssigned) {
+                      <p class="text-xs text-sky-600 mt-0.5">A specialist will be assigned after review</p>
+                    }
+                  </div>
+                </div>
+              </button>
+            }
+          </div>
+        </section>
+
+        <!-- Step 2: Consultation date & time -->
+        <section class="mt-4 rounded-2xl border border-gray-200 bg-white p-4 sm:p-5 shadow-sm">
+          <div class="flex items-center gap-3 mb-4">
+            <span
+              class="flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold shrink-0 transition-colors text-white"
+              [class.bg-emerald-500]="scheduleComplete()"
+              [class.bg-[#0B4F6C]]="!scheduleComplete()"
+            >
+              @if (scheduleComplete()) {
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+              } @else { 2 }
+            </span>
+            <div>
+              <h3 class="text-sm font-bold text-gray-900">Schedule consultation</h3>
+              <p class="text-xs text-gray-500">Pick a date and time for your pre-surgery consultation</p>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between mb-2">
+            <p class="text-sm font-medium text-gray-700">{{ monthLabel() }}</p>
+            <div class="flex gap-1">
+              <button type="button" (click)="scrollDates('left')" class="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500" aria-label="Scroll dates left">
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+              </button>
+              <button type="button" (click)="scrollDates('right')" class="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500" aria-label="Scroll dates right">
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <div #dateScroll class="flex gap-2 overflow-x-auto pb-2 scrollbar-hide -mx-1 px-1">
+            @for (dateOpt of dateOptions(); track dateOpt.day; let i = $index) {
+              <button
+                type="button"
+                (click)="selectDate(i)"
+                class="shrink-0 flex flex-col items-center rounded-xl border-2 px-3.5 py-2.5 min-w-[58px] transition-all"
+                [class.bg-[#0B4F6C]]="selectedDateIndex() === i"
+                [class.text-white]="selectedDateIndex() === i"
+                [class.border-[#0B4F6C]]="selectedDateIndex() === i"
+                [class.shadow-md]="selectedDateIndex() === i"
+                [class.border-gray-200]="selectedDateIndex() !== i"
+                [class.text-gray-700]="selectedDateIndex() !== i"
+                [class.hover:border-sky-300]="selectedDateIndex() !== i"
+                [class.bg-white]="selectedDateIndex() !== i"
+              >
+                <span class="text-[10px] font-medium uppercase">{{ dateOpt.label }}</span>
+                <span class="text-base font-bold leading-tight">{{ dateOpt.day }}</span>
+                @if (dateOpt.isToday) {
+                  <span class="text-[9px] font-semibold mt-0.5" [class.text-sky-200]="selectedDateIndex() === i" [class.text-emerald-600]="selectedDateIndex() !== i">Today</span>
+                }
+              </button>
+            }
+          </div>
+
+          <p class="mt-3 text-xs font-medium text-gray-500 mb-2">Available consultation slots</p>
+          <div class="grid grid-cols-3 sm:grid-cols-4 gap-2">
+            @for (slot of consultationSlots; track slot) {
+              <button
+                type="button"
+                (click)="selectTimeSlot(slot)"
+                class="rounded-xl border-2 px-2 py-2.5 text-xs font-semibold transition-all"
+                [class.bg-[#0B4F6C]]="selectedTimeSlot() === slot"
+                [class.text-white]="selectedTimeSlot() === slot"
+                [class.border-[#0B4F6C]]="selectedTimeSlot() === slot"
+                [class.shadow-sm]="selectedTimeSlot() === slot"
+                [class.border-gray-200]="selectedTimeSlot() !== slot"
+                [class.text-gray-700]="selectedTimeSlot() !== slot"
+                [class.bg-white]="selectedTimeSlot() !== slot"
+                [class.hover:border-sky-300]="selectedTimeSlot() !== slot"
+              >
+                {{ slot }}
+              </button>
+            }
+          </div>
+        </section>
+
+        <!-- Step 3: Pre-surgery requirements -->
+        <section class="mt-4 rounded-2xl border border-gray-200 bg-white p-4 sm:p-5 shadow-sm">
+          <div class="flex items-center gap-3 mb-4">
+            <span
+              class="flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold shrink-0 transition-colors text-white"
+              [class.bg-emerald-500]="requirementsAcknowledged()"
+              [class.bg-[#0B4F6C]]="!requirementsAcknowledged()"
+            >
+              @if (requirementsAcknowledged()) {
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+              } @else { 3 }
+            </span>
+            <div>
+              <h3 class="text-sm font-bold text-gray-900">Pre-surgery requirements</h3>
+              <p class="text-xs text-gray-500">Please review before submitting your request</p>
+            </div>
+          </div>
+
+          <ul class="space-y-2.5">
+            @for (req of preSurgeryRequirements(); track req) {
+              <li class="flex items-start gap-2.5 text-sm text-gray-700">
+                <span class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-amber-50 text-amber-600 text-xs">!</span>
+                <span>{{ req }}</span>
+              </li>
+            }
+          </ul>
+
+          <label class="mt-4 flex items-start gap-3 rounded-xl border p-3 cursor-pointer transition-colors"
+            [class.border-emerald-300]="requirementsAcknowledged()"
+            [class.bg-emerald-50/50]="requirementsAcknowledged()"
+            [class.border-gray-200]="!requirementsAcknowledged()"
+          >
+            <input
+              type="checkbox"
+              class="mt-0.5 h-4 w-4 rounded border-gray-300 text-[#0B4F6C] focus:ring-[#0B4F6C]"
+              [checked]="requirementsAcknowledged()"
+              (change)="requirementsAcknowledged.set($any($event.target).checked)"
+            />
+            <span class="text-sm text-gray-700">
+              I have read and understand the pre-surgery requirements listed above.
+            </span>
+          </label>
+
+          @if (showValidation() && !requirementsAcknowledged()) {
+            <p class="mt-2 text-xs text-red-600">Please acknowledge the pre-surgery requirements to continue.</p>
+          }
+        </section>
+
+        <!-- Step 4: Patient details -->
+        <section class="mt-4 rounded-2xl border border-gray-200 bg-white p-4 sm:p-5 shadow-sm">
+          <div class="flex items-center gap-3 mb-4">
+            <span
+              class="flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold shrink-0 transition-colors text-white"
+              [class.bg-emerald-500]="patientFormComplete()"
+              [class.bg-[#0B4F6C]]="!patientFormComplete()"
+            >
+              @if (patientFormComplete()) {
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+              } @else { 4 }
+            </span>
+            <div>
+              <h3 class="text-sm font-bold text-gray-900">Patient information</h3>
+              <p class="text-xs text-gray-500">Who is this surgery consultation for?</p>
+            </div>
+          </div>
+
+          <div class="space-y-4">
+            <div>
+              <label class="block text-xs font-semibold text-gray-700 mb-1.5" for="sg-patient-name">
+                Full name <span class="text-red-500">*</span>
+              </label>
+              <input
+                id="sg-patient-name"
+                type="text"
+                placeholder="e.g. Ahmed Khan"
+                class="w-full rounded-xl border px-3.5 py-2.5 text-sm outline-none bg-white"
+                [class.border-gray-300]="!showValidation() || patientNameValid()"
+                [class.border-red-400]="showValidation() && !patientNameValid()"
+                [ngModel]="patientName()"
+                (ngModelChange)="patientName.set($event)"
+              />
+              @if (showValidation() && !patientNameValid()) {
+                <p class="mt-1 text-xs text-red-600">Please enter at least 2 characters.</p>
+              }
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-semibold text-gray-700 mb-1.5" for="sg-patient-age">
+                  Age <span class="text-red-500">*</span>
+                </label>
+                <input
+                  id="sg-patient-age"
+                  type="number"
+                  placeholder="Years"
+                  min="1"
+                  max="120"
+                  class="w-full rounded-xl border px-3.5 py-2.5 text-sm outline-none bg-white"
+                  [class.border-gray-300]="!showValidation() || patientAgeValid()"
+                  [class.border-red-400]="showValidation() && !patientAgeValid()"
+                  [ngModel]="patientAge()"
+                  (ngModelChange)="patientAge.set($event)"
+                />
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-gray-700 mb-1.5" for="sg-patient-gender">Gender</label>
+                <select
+                  id="sg-patient-gender"
+                  class="w-full rounded-xl border border-gray-300 px-3.5 py-2.5 text-sm outline-none bg-white text-gray-700"
+                  [ngModel]="patientGender()"
+                  (ngModelChange)="patientGender.set($event)"
+                >
+                  <option value="">Select</option>
+                  <option value="male">Male</option>
+                  <option value="female">Female</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-gray-700 mb-1.5" for="sg-patient-phone">
+                Phone number <span class="text-red-500">*</span>
+              </label>
+              <div class="flex rounded-xl border overflow-hidden"
+                [class.border-gray-300]="!showValidation() || patientPhoneValid()"
+                [class.border-red-400]="showValidation() && !patientPhoneValid()"
+              >
+                <div class="flex items-center gap-1.5 bg-gray-50 border-r border-gray-200 px-3 py-2.5 text-sm text-gray-600 shrink-0">
+                  <span>🇵🇰</span>
+                  <span class="font-medium">+92</span>
+                </div>
+                <input
+                  id="sg-patient-phone"
+                  type="tel"
+                  placeholder="300 1234567"
+                  class="flex-1 px-3.5 py-2.5 text-sm outline-none bg-white"
+                  [ngModel]="patientPhone()"
+                  (ngModelChange)="patientPhone.set($event)"
+                />
+              </div>
+              @if (showValidation() && !patientPhoneValid()) {
+                <p class="mt-1 text-xs text-red-600">Enter a valid 10–11 digit number.</p>
+              }
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-gray-700 mb-1.5" for="sg-patient-email">Email <span class="text-gray-400 font-normal">(optional)</span></label>
+              <input
+                id="sg-patient-email"
+                type="email"
+                placeholder="you@email.com"
+                class="w-full rounded-xl border border-gray-300 px-3.5 py-2.5 text-sm outline-none bg-white"
+                [ngModel]="patientEmail()"
+                (ngModelChange)="patientEmail.set($event)"
+              />
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-gray-700 mb-1.5" for="sg-medical-history">
+                Medical history <span class="text-gray-400 font-normal">(optional)</span>
+              </label>
+              <textarea
+                id="sg-medical-history"
+                rows="2"
+                placeholder="Existing conditions, allergies, current medications..."
+                class="w-full rounded-xl border border-gray-300 px-3.5 py-2.5 text-sm outline-none resize-none bg-white"
+                [ngModel]="patientMedicalHistory()"
+                (ngModelChange)="patientMedicalHistory.set($event)"
+              ></textarea>
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-gray-700 mb-1.5" for="sg-patient-notes">
+                Additional notes <span class="text-gray-400 font-normal">(optional)</span>
+              </label>
+              <textarea
+                id="sg-patient-notes"
+                rows="2"
+                placeholder="Any questions or concerns for the surgeon..."
+                class="w-full rounded-xl border border-gray-300 px-3.5 py-2.5 text-sm outline-none resize-none bg-white"
+                [ngModel]="patientNotes()"
+                (ngModelChange)="patientNotes.set($event)"
+              ></textarea>
+            </div>
+          </div>
+        </section>
+
+        <!-- Step 5: Review -->
+        <section class="mt-4 rounded-2xl border-2 border-dashed p-4 sm:p-5 transition-colors"
+          [class.border-emerald-300]="canConfirm()"
+          [class.bg-emerald-50/40]="canConfirm()"
+          [class.border-sky-200]="!canConfirm()"
+          [class.bg-sky-50/30]="!canConfirm()"
+        >
+          <div class="flex items-center gap-3 mb-3">
+            <span class="flex h-8 w-8 items-center justify-center rounded-full bg-[#0B4F6C] text-white text-sm font-bold shrink-0">5</span>
+            <div>
+              <h3 class="text-sm font-bold text-gray-900">Review booking request</h3>
+              <p class="text-xs text-gray-500">Confirm all details before submitting</p>
+            </div>
+          </div>
+
+          <dl class="grid gap-2.5 text-sm">
+            <div class="flex justify-between gap-4 py-1.5 border-b border-gray-200/60">
+              <dt class="text-gray-500">Surgery</dt>
+              <dd class="font-medium text-gray-900 text-right">{{ surgery().name }}</dd>
+            </div>
+            <div class="flex justify-between gap-4 py-1.5 border-b border-gray-200/60">
+              <dt class="text-gray-500">Estimated cost</dt>
+              <dd class="font-bold text-[#0B4F6C] text-right">{{ formatPrice(surgery().priceFrom, surgery().priceTo) }}</dd>
+            </div>
+            <div class="flex justify-between gap-4 py-1.5 border-b border-gray-200/60">
+              <dt class="text-gray-500">Hospital</dt>
+              <dd class="font-medium text-gray-900 text-right">{{ hospital().name }}</dd>
+            </div>
+            @if (selectedSurgeon(); as surgeon) {
+              <div class="flex justify-between gap-4 py-1.5 border-b border-gray-200/60">
+                <dt class="text-gray-500">Surgeon</dt>
+                <dd class="font-medium text-gray-900 text-right">{{ surgeon.name }}</dd>
+              </div>
+            }
+            <div class="flex justify-between gap-4 py-1.5 border-b border-gray-200/60">
+              <dt class="text-gray-500">Consultation</dt>
+              <dd class="font-medium text-gray-900 text-right">
+                {{ formattedSelectedDate() || '—' }}
+                @if (selectedTimeSlot()) {
+                  <span class="text-gray-500"> · {{ selectedTimeSlot() }}</span>
+                }
+              </dd>
+            </div>
+            @if (patientName().trim()) {
+              <div class="flex justify-between gap-4 py-1.5">
+                <dt class="text-gray-500">Patient</dt>
+                <dd class="font-medium text-gray-900 text-right">
+                  {{ patientName() }}
+                  @if (patientAge()) {
+                    <span class="text-gray-500 font-normal"> · {{ patientAge() }} yrs</span>
+                  }
+                </dd>
+              </div>
+            }
+          </dl>
+        </section>
+      </div>
+
+      <!-- Footer -->
+      <div class="shrink-0 border-t border-gray-200 bg-white px-5 sm:px-6 py-4">
+        <p class="mb-3 text-xs text-center sm:text-left transition-colors"
+          [class.text-emerald-600]="canConfirm()"
+          [class.font-medium]="canConfirm()"
+          [class.text-gray-500]="!canConfirm()"
+        >
+          {{ footerHint() }}
+        </p>
+        <div class="flex flex-col-reverse sm:flex-row gap-3 sm:justify-end">
+          <button
+            type="button"
+            (click)="close()"
+            class="w-full sm:w-auto inline-flex items-center justify-center rounded-xl border border-gray-300 bg-white px-5 py-3 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            (click)="submitBooking()"
+            [disabled]="!canConfirm()"
+            class="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold text-white transition-all shadow-sm"
+            [class.bg-rose-600]="canConfirm()"
+            [class.hover:bg-rose-700]="canConfirm()"
+            [class.hover:shadow-md]="canConfirm()"
+            [class.bg-gray-300]="!canConfirm()"
+            [class.cursor-not-allowed]="!canConfirm()"
+            [class.text-gray-500]="!canConfirm()"
+          >
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Submit Booking Request
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+}

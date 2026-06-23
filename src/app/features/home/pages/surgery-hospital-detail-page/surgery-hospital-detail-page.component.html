@@ -69,7 +69,7 @@
       @if (h.surgeries?.length) {
         <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
           @for (surgery of h.surgeries; track surgery.id) {
-            <app-public-surgery-card [surgery]="surgery" />
+            <app-public-surgery-card [surgery]="surgery" [hospital]="h" />
           }
         </div>
         <p class="mt-6 text-xs text-gray-500">
