@@ -21,11 +21,19 @@
       <p class="text-xs text-gray-500">Price</p>
       <p class="text-lg font-bold text-brand-600">{{ formatPrice(test().price) }}</p>
     </div>
-    <a
-      routerLink="/auth/login"
+    <button
+      type="button"
+      (click)="openBookingModal()"
       class="inline-flex items-center justify-center px-4 py-2 text-sm font-semibold rounded-lg bg-brand-600 text-white hover:bg-brand-700 transition-colors shrink-0"
     >
       Book Test
-    </a>
+    </button>
   </div>
 </div>
+
+<app-lab-test-booking-modal
+  [open]="bookingModalOpen()"
+  [test]="test()"
+  [lab]="lab()"
+  (closed)="closeBookingModal()"
+/>

@@ -107,7 +107,7 @@
         @if (filteredTests().length) {
           <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
             @for (test of paginatedTests(); track test.id) {
-              <app-public-lab-test-card [test]="test" />
+              <app-public-lab-test-card [test]="test" [lab]="l" />
             }
           </div>
 
