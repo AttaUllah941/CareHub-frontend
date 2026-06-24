@@ -24,11 +24,12 @@ export const initialAuthState: AuthState = {
 
 export const AUTH_FEATURE_KEY = 'auth';
 
-/** Post-login landing until role portals are rebuilt in the new UI */
+/** Post-login landing routes per role */
 export const ROLE_DASHBOARD_ROUTES: Record<UserRole, string> = {
   [UserRole.SUPER_ADMIN]: '/',
   [UserRole.ADMIN]: '/',
-  [UserRole.DOCTOR]: '/doctor/dashboard',
+  /** Doctor portal uses separate login at /doctor/login after application approval */
+  [UserRole.DOCTOR]: '/doctor/login',
   [UserRole.PATIENT]: '/',
   [UserRole.CLINIC_MANAGER]: '/',
   [UserRole.PHARMACY]: '/',

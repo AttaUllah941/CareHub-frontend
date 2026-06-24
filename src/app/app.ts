@@ -6,7 +6,6 @@ import { AuthService } from './features/auth/services/auth.service';
   selector: 'app-root',
   imports: [RouterOutlet],
   templateUrl: './app.html',
-  styleUrl: './app.scss'
 })
 export class App implements OnInit {
   protected readonly title = signal('CareHub');

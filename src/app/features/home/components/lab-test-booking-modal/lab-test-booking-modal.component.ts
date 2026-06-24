@@ -15,14 +15,12 @@ import { isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { formatLabPrice, LabTest, PublicLab } from '../../data/dummy-labs.data';
 import { AuthService } from '../../../auth/services/auth.service';
+import { buildBookingDateOptions, BookingDateOption } from '../../utils/booking-date.util';
+import { logBookingPayloadInBrowser, setBodyScrollLocked } from '../../utils/browser.util';
+import { patientDefaultsFromUser } from '../../utils/patient-form.util';
 import { LabSampleCollectionType, LabTestBookingPayload } from './lab-test-booking-payload.model';
 
-interface DateOption {
-  label: string;
-  day: number;
-  date: Date;
-  isToday: boolean;
-}
+interface DateOption extends BookingDateOption {}
 
 const HOME_COLLECTION_SLOTS = ['08:00 AM', '09:00 AM', '10:00 AM', '11:00 AM', '12:00 PM', '02:00 PM'];
 const LAB_VISIT_SLOTS = ['08:00 AM', '09:00 AM', '10:00 AM', '11:00 AM', '12:00 PM', '02:00 PM', '03:00 PM', '04:00 PM'];
@@ -61,7 +59,7 @@ export class LabTestBookingModalComponent {
   readonly patientAddress = signal('');
   readonly patientNotes = signal('');
 
-  readonly dateOptions = signal<DateOption[]>(this.buildDateOptions());
+  readonly dateOptions = signal<DateOption[]>(buildBookingDateOptions());
 
   readonly homeCollectionAvailable = computed(() => this.lab().isHomeCollection);
 
@@ -149,7 +147,7 @@ export class LabTestBookingModalComponent {
       if (isOpen) {
         this.resetForm();
       }
-      this.setBodyScrollLocked(isOpen);
+      setBodyScrollLocked(this.isBrowser, isOpen);
     });
   }
 
@@ -160,22 +158,17 @@ export class LabTestBookingModalComponent {
     }
   }
 
-  private setBodyScrollLocked(locked: boolean): void {
-    if (!this.isBrowser) return;
-    document.body.style.overflow = locked ? 'hidden' : '';
-  }
-
   private resetForm(): void {
     this.showValidation.set(false);
     this.collectionType.set(this.lab().isHomeCollection ? '' : 'lab_visit');
     this.selectedDateIndex.set(0);
     this.selectedTimeSlot.set('');
-    this.dateOptions.set(this.buildDateOptions());
+    this.dateOptions.set(buildBookingDateOptions());
 
-    const user = this.auth.user();
-    this.patientName.set(user ? `${user.firstName} ${user.lastName}`.trim() : '');
-    this.patientPhone.set(user?.phone ?? '');
-    this.patientEmail.set(user?.email ?? '');
+    const defaults = patientDefaultsFromUser(this.auth.user());
+    this.patientName.set(defaults.name);
+    this.patientPhone.set(defaults.phone);
+    this.patientEmail.set(defaults.email);
     this.patientAge.set(null);
     this.patientGender.set('');
     this.patientAddress.set('');
@@ -184,25 +177,6 @@ export class LabTestBookingModalComponent {
     if (!this.lab().isHomeCollection) {
       this.selectedTimeSlot.set(LAB_VISIT_SLOTS[0]);
     }
-  }
-
-  private buildDateOptions(): DateOption[] {
-    const options: DateOption[] = [];
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    for (let i = 0; i < 14; i++) {
-      const date = new Date(today);
-      date.setDate(today.getDate() + i);
-      options.push({
-        label: date.toLocaleDateString('en-US', { weekday: 'short' }),
-        day: date.getDate(),
-        date,
-        isToday: i === 0,
-      });
-    }
-
-    return options;
   }
 
   private buildPayload(ref: string): LabTestBookingPayload {
@@ -300,29 +274,24 @@ export class LabTestBookingModalComponent {
     const ref = `LT-${Date.now().toString(36).toUpperCase()}`;
     const payload = this.buildPayload(ref);
 
-    this.logPayloadToConsole(payload);
+    logBookingPayloadInBrowser(
+      this.isBrowser,
+      '✅ Lab Test Booking — Form submitted (frontend payload)',
+      payload,
+      {
+        Test: payload.test.name,
+        Lab: payload.lab.name,
+        Collection: payload.collectionLabel,
+        Date: payload.appointment.dateFormatted,
+        Time: payload.appointment.timeSlot,
+        Patient: payload.patient.name,
+        Phone: payload.patient.phone,
+        Price: payload.test.priceFormatted,
+        Ref: payload.bookingRef,
+      },
+    );
     this.confirmed.emit(payload);
     this.close();
-  }
-
-  private logPayloadToConsole(payload: LabTestBookingPayload): void {
-    if (!this.isBrowser) return;
-
-    console.group('✅ Lab Test Booking — Form submitted (frontend payload)');
-    console.log('Full payload object:', payload);
-    console.log('JSON (ready for API):', JSON.stringify(payload, null, 2));
-    console.table({
-      Test: payload.test.name,
-      Lab: payload.lab.name,
-      Collection: payload.collectionLabel,
-      Date: payload.appointment.dateFormatted,
-      Time: payload.appointment.timeSlot,
-      Patient: payload.patient.name,
-      Phone: payload.patient.phone,
-      Price: payload.test.priceFormatted,
-      Ref: payload.bookingRef,
-    });
-    console.groupEnd();
   }
 
   onBackdropClick(event: MouseEvent): void {

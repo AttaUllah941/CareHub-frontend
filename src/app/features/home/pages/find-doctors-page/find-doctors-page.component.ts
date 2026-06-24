@@ -11,7 +11,7 @@ import {
   specialtyLabelFromSlug,
   specialtyPluralTitle,
 } from '../../data/home-content';
-import { getDemoDoctorsForListing } from '../../data/dummy-doctors.data';
+import { searchDummyDoctors } from '../../data/dummy-doctors.data';
 import { DoctorSearchResult, PaginationMeta } from '../../../../core/models/doctor.model';
 
 @Component({
@@ -104,7 +104,7 @@ export class FindDoctorsPageComponent implements OnInit {
   }
 
   private applyDemoDoctors(page: number): void {
-    const demo = getDemoDoctorsForListing({
+    const demo = searchDummyDoctors({
       specialtySlug: this.specialtySlug(),
       city: this.selectedCity(),
       name: this.searchName().trim() || undefined,

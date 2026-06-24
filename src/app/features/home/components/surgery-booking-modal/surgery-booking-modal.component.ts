@@ -20,14 +20,12 @@ import {
   SurgeryProcedure,
 } from '../../data/dummy-surgery.data';
 import { AuthService } from '../../../auth/services/auth.service';
+import { buildBookingDateOptions, BookingDateOption } from '../../utils/booking-date.util';
+import { logBookingPayloadInBrowser, setBodyScrollLocked } from '../../utils/browser.util';
+import { patientDefaultsFromUser } from '../../utils/patient-form.util';
 import { SurgeryBookingPayload } from './surgery-booking-payload.model';
 
-interface DateOption {
-  label: string;
-  day: number;
-  date: Date;
-  isToday: boolean;
-}
+interface DateOption extends BookingDateOption {}
 
 interface SurgeonOption {
   id: string;
@@ -75,7 +73,7 @@ export class SurgeryBookingModalComponent {
   readonly patientMedicalHistory = signal('');
   readonly patientNotes = signal('');
 
-  readonly dateOptions = signal<DateOption[]>(this.buildDateOptions());
+  readonly dateOptions = signal<DateOption[]>(buildBookingDateOptions());
   readonly consultationSlots = CONSULTATION_SLOTS;
 
   readonly surgeonOptions = computed(() => this.buildSurgeonOptions());
@@ -152,7 +150,7 @@ export class SurgeryBookingModalComponent {
       if (isOpen) {
         this.resetForm();
       }
-      this.setBodyScrollLocked(isOpen);
+      setBodyScrollLocked(this.isBrowser, isOpen);
     });
   }
 
@@ -163,25 +161,20 @@ export class SurgeryBookingModalComponent {
     }
   }
 
-  private setBodyScrollLocked(locked: boolean): void {
-    if (!this.isBrowser) return;
-    document.body.style.overflow = locked ? 'hidden' : '';
-  }
-
   private resetForm(): void {
     this.showValidation.set(false);
     this.requirementsAcknowledged.set(false);
     this.selectedDateIndex.set(0);
     this.selectedTimeSlot.set(CONSULTATION_SLOTS[0]);
-    this.dateOptions.set(this.buildDateOptions());
+    this.dateOptions.set(buildBookingDateOptions());
 
     const surgeons = this.buildSurgeonOptions();
     this.selectedSurgeonId.set(surgeons[0]?.id ?? '');
 
-    const user = this.auth.user();
-    this.patientName.set(user ? `${user.firstName} ${user.lastName}`.trim() : '');
-    this.patientPhone.set(user?.phone ?? '');
-    this.patientEmail.set(user?.email ?? '');
+    const defaults = patientDefaultsFromUser(this.auth.user());
+    this.patientName.set(defaults.name);
+    this.patientPhone.set(defaults.phone);
+    this.patientEmail.set(defaults.email);
     this.patientAge.set(null);
     this.patientGender.set('');
     this.patientMedicalHistory.set('');
@@ -244,25 +237,6 @@ export class SurgeryBookingModalComponent {
     base.push('Sign informed consent forms after the surgeon explains risks, benefits, and alternatives.');
 
     return base;
-  }
-
-  private buildDateOptions(): DateOption[] {
-    const options: DateOption[] = [];
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    for (let i = 0; i < 14; i++) {
-      const date = new Date(today);
-      date.setDate(today.getDate() + i);
-      options.push({
-        label: date.toLocaleDateString('en-US', { weekday: 'short' }),
-        day: date.getDate(),
-        date,
-        isToday: i === 0,
-      });
-    }
-
-    return options;
   }
 
   private buildPayload(ref: string): SurgeryBookingPayload {
@@ -366,28 +340,23 @@ export class SurgeryBookingModalComponent {
     const ref = `SG-${Date.now().toString(36).toUpperCase()}`;
     const payload = this.buildPayload(ref);
 
-    this.logPayloadToConsole(payload);
+    logBookingPayloadInBrowser(
+      this.isBrowser,
+      '✅ Surgery Booking Request — Form submitted (frontend payload)',
+      payload,
+      {
+        Surgery: payload.surgery.name,
+        Hospital: payload.hospital.name,
+        Surgeon: payload.surgeon.name,
+        Consultation: `${payload.consultation.dateFormatted} · ${payload.consultation.timeSlot}`,
+        Patient: payload.patient.name,
+        Phone: payload.patient.phone,
+        Cost: payload.surgery.estimatedCostFormatted,
+        Ref: payload.bookingRef,
+      },
+    );
     this.confirmed.emit(payload);
     this.close();
-  }
-
-  private logPayloadToConsole(payload: SurgeryBookingPayload): void {
-    if (!this.isBrowser) return;
-
-    console.group('✅ Surgery Booking Request — Form submitted (frontend payload)');
-    console.log('Full payload object:', payload);
-    console.log('JSON (ready for API):', JSON.stringify(payload, null, 2));
-    console.table({
-      Surgery: payload.surgery.name,
-      Hospital: payload.hospital.name,
-      Surgeon: payload.surgeon.name,
-      Consultation: `${payload.consultation.dateFormatted} · ${payload.consultation.timeSlot}`,
-      Patient: payload.patient.name,
-      Phone: payload.patient.phone,
-      Cost: payload.surgery.estimatedCostFormatted,
-      Ref: payload.bookingRef,
-    });
-    console.groupEnd();
   }
 
   onBackdropClick(event: MouseEvent): void {

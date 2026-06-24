@@ -18,14 +18,12 @@ import { DoctorConsultationOption, DoctorDetailProfile } from '../../../../core/
 import { getDummyDoctorById } from '../../data/dummy-doctors.data';
 import { PublicDoctorApiService } from '../../services/public-doctor-api.service';
 import { AuthService } from '../../../auth/services/auth.service';
+import { buildBookingDateOptions, BookingDateOption } from '../../utils/booking-date.util';
+import { logBookingPayloadInBrowser, setBodyScrollLocked } from '../../utils/browser.util';
+import { patientDefaultsFromUser } from '../../utils/patient-form.util';
 import { ClinicAppointmentPayload } from './clinic-appointment-payload.model';
 
-interface DateOption {
-  label: string;
-  day: number;
-  date: Date;
-  isToday: boolean;
-}
+interface DateOption extends BookingDateOption {}
 
 interface ClinicLocationOption {
   id: string;
@@ -84,7 +82,7 @@ export class ClinicAppointmentModalComponent {
   readonly patientEmail = signal('');
   readonly patientNotes = signal('');
 
-  readonly dateOptions = signal<DateOption[]>(this.buildDateOptions());
+  readonly dateOptions = signal<DateOption[]>(buildBookingDateOptions());
 
   readonly clinicOptions = computed(() => this.buildClinicOptions());
 
@@ -157,7 +155,7 @@ export class ClinicAppointmentModalComponent {
         this.loadDoctorProfile();
       }
 
-      this.setBodyScrollLocked(isOpen);
+      setBodyScrollLocked(this.isBrowser, isOpen);
     });
   }
 
@@ -168,22 +166,17 @@ export class ClinicAppointmentModalComponent {
     }
   }
 
-  private setBodyScrollLocked(locked: boolean): void {
-    if (!this.isBrowser) return;
-    document.body.style.overflow = locked ? 'hidden' : '';
-  }
-
   private resetForm(): void {
     this.showValidation.set(false);
     this.selectedClinicId.set('');
     this.selectedDateIndex.set(0);
     this.selectedTimeSlot.set('');
-    this.dateOptions.set(this.buildDateOptions());
+    this.dateOptions.set(buildBookingDateOptions());
 
-    const user = this.auth.user();
-    this.patientName.set(user ? `${user.firstName} ${user.lastName}`.trim() : '');
-    this.patientPhone.set(user?.phone ?? '');
-    this.patientEmail.set(user?.email ?? '');
+    const defaults = patientDefaultsFromUser(this.auth.user());
+    this.patientName.set(defaults.name);
+    this.patientPhone.set(defaults.phone);
+    this.patientEmail.set(defaults.email);
     this.patientAge.set(null);
     this.patientGender.set('');
     this.patientNotes.set('');
@@ -280,25 +273,6 @@ export class ClinicAppointmentModalComponent {
     };
   }
 
-  private buildDateOptions(): DateOption[] {
-    const options: DateOption[] = [];
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    for (let i = 0; i < 14; i++) {
-      const date = new Date(today);
-      date.setDate(today.getDate() + i);
-      options.push({
-        label: date.toLocaleDateString('en-US', { weekday: 'short' }),
-        day: date.getDate(),
-        date,
-        isToday: i === 0,
-      });
-    }
-
-    return options;
-  }
-
   private buildPayload(ref: string): ClinicAppointmentPayload {
     const d = this.doctor();
     const clinic = this.selectedClinic()!;
@@ -391,30 +365,25 @@ export class ClinicAppointmentModalComponent {
     const ref = `IC-${Date.now().toString(36).toUpperCase()}`;
     const payload = this.buildPayload(ref);
 
-    this.logPayloadToConsole(payload);
+    logBookingPayloadInBrowser(
+      this.isBrowser,
+      '✅ In-Clinic Appointment — Form submitted (frontend payload)',
+      payload,
+      {
+        Doctor: payload.doctor.name,
+        Clinic: payload.clinic.name,
+        Location: payload.clinic.location,
+        Date: payload.appointment.dateFormatted,
+        Time: payload.appointment.timeSlot,
+        Patient: payload.patient.name,
+        Age: payload.patient.age,
+        Phone: payload.patient.phone,
+        Fee: payload.clinic.feeFormatted,
+        Ref: payload.bookingRef,
+      },
+    );
     this.confirmed.emit(payload);
     this.close();
-  }
-
-  private logPayloadToConsole(payload: ClinicAppointmentPayload): void {
-    if (!this.isBrowser) return;
-
-    console.group('✅ In-Clinic Appointment — Form submitted (frontend payload)');
-    console.log('Full payload object:', payload);
-    console.log('JSON (ready for API):', JSON.stringify(payload, null, 2));
-    console.table({
-      Doctor: payload.doctor.name,
-      Clinic: payload.clinic.name,
-      Location: payload.clinic.location,
-      Date: payload.appointment.dateFormatted,
-      Time: payload.appointment.timeSlot,
-      Patient: payload.patient.name,
-      Age: payload.patient.age,
-      Phone: payload.patient.phone,
-      Fee: payload.clinic.feeFormatted,
-      Ref: payload.bookingRef,
-    });
-    console.groupEnd();
   }
 
   onBackdropClick(event: MouseEvent): void {

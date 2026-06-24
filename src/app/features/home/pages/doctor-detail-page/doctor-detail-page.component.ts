@@ -13,13 +13,9 @@ import {
   DoctorConsultationOption,
   DoctorDetailProfile,
 } from '../../../../core/models/doctor-profile.model';
+import { buildBookingDateOptions, BookingDateOption } from '../../utils/booking-date.util';
 
-interface DateOption {
-  label: string;
-  day: number;
-  date: Date;
-  isToday: boolean;
-}
+interface DateOption extends BookingDateOption {}
 
 @Component({
   selector: 'app-doctor-detail-page',
@@ -44,7 +40,7 @@ export class DoctorDetailPageComponent {
   patientName = '';
   promoCode = '';
 
-  readonly dateOptions = signal<DateOption[]>(this.buildDateOptions());
+  readonly dateOptions = signal<DateOption[]>(buildBookingDateOptions());
 
   readonly breadcrumbSpecialty = computed(() => {
     const d = this.doctor();
@@ -131,25 +127,6 @@ export class DoctorDetailPageComponent {
     if (d.timeSlots.length) {
       this.selectedTimeSlot.set(d.timeSlots[0]);
     }
-  }
-
-  private buildDateOptions(): DateOption[] {
-    const options: DateOption[] = [];
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    for (let i = 0; i < 14; i++) {
-      const date = new Date(today);
-      date.setDate(today.getDate() + i);
-      options.push({
-        label: date.toLocaleDateString('en-US', { weekday: 'short' }),
-        day: date.getDate(),
-        date,
-        isToday: i === 0,
-      });
-    }
-
-    return options;
   }
 
   doctorName(d: DoctorDetailProfile): string {
