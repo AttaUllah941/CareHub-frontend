@@ -165,14 +165,6 @@
             }
           </div>
 
-          <a
-            routerLink="/join-as-doctor"
-            routerLinkActive="text-brand-600"
-            class="px-3 py-2 text-sm font-medium text-gray-700 hover:text-brand-600 rounded-lg transition-colors"
-          >
-            Join as Doctor
-          </a>
-
           @for (link of navLinks; track link.label) {
             <a
               [routerLink]="link.href"
@@ -319,14 +311,6 @@
               </a>
             }
           </div>
-
-          <a
-            routerLink="/join-as-doctor"
-            (click)="closeMobileMenu()"
-            class="block px-3 py-2 text-sm font-medium text-brand-600 hover:bg-brand-50 rounded-lg"
-          >
-            Join as Doctor
-          </a>
 
           @for (link of navLinks; track link.label) {
             <a
