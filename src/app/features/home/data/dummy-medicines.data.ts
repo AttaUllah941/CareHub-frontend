@@ -325,7 +325,7 @@ const PHARMACY_MEDICINES: PharmacyMedicine[] = [
   },
 ];
 
-export const ALL_MEDICINE_IDS = PHARMACY_MEDICINES.map((m) => m.id);
+const ALL_MEDICINE_IDS = PHARMACY_MEDICINES.map((m) => m.id);
 
 const DUMMY_PHARMACIES: Omit<PublicPharmacy, 'medicines' | 'medicineCount'>[] = [
   {

@@ -503,7 +503,7 @@ export function getSurgeryCityName(citySlug: string): string {
   return SURGERY_CITIES.find((c) => c.slug === citySlug)?.name ?? citySlug;
 }
 
-export function formatSurgeryPrice(price: number): string {
+function formatSurgeryPrice(price: number): string {
   return `Rs. ${price.toLocaleString('en-PK')}`;
 }
 

@@ -369,7 +369,7 @@ const LAB_TESTS: LabTest[] = [
   },
 ];
 
-export const ALL_LAB_TEST_IDS = LAB_TESTS.map((test) => test.id);
+const ALL_LAB_TEST_IDS = LAB_TESTS.map((test) => test.id);
 
 const DUMMY_LABS: Omit<PublicLab, 'tests' | 'testCount'>[] = [
   {

@@ -363,14 +363,6 @@ export function searchDummyDoctors(params: DummyDoctorSearchParams): {
   };
 }
 
-/** Always returns demo doctors for the public listing page */
-export function getDemoDoctorsForListing(params: DummyDoctorSearchParams): {
-  doctors: DoctorSearchResult[];
-  pagination: { page: number; limit: number; total: number; totalPages: number };
-} {
-  return searchDummyDoctors(params);
-}
-
 export function getDummyDoctorsByIds(ids: string[], city: string, hospitalName?: string): DoctorSearchResult[] {
   return DUMMY_TEMPLATES.filter((t) => ids.includes(t.id)).map((t) => {
     const doctor = toDoctorResult(t, city);
@@ -503,8 +495,4 @@ export function getDummyDoctorById(id: string, city = 'Lahore'): DoctorDetailPro
     consultationOptions: buildConsultationOptions(template, city),
     timeSlots: DEFAULT_TIME_SLOTS,
   };
-}
-
-export function findDummyDoctorTemplate(id: string): DummyDoctorTemplate | undefined {
-  return DUMMY_TEMPLATES.find((t) => t.id === id);
 }

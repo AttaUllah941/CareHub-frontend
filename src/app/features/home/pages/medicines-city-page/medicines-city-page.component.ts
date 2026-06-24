@@ -1,8 +1,8 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import {
-  getMedicineCityName,
+import { citySlugFromParamMap } from '../../utils/city-route.util';
+import {  getMedicineCityName,
   getPharmaciesByCitySlug,
   PublicPharmacy,
 } from '../../data/dummy-medicines.data';
@@ -25,7 +25,7 @@ export class MedicinesCityPageComponent {
 
   constructor() {
     this.route.paramMap.pipe(takeUntilDestroyed()).subscribe((params) => {
-      const slug = params.get('citySlug') ?? 'lahore';
+      const slug = citySlugFromParamMap(params);
       this.citySlug.set(slug);
       this.pharmacies.set(getPharmaciesByCitySlug(slug));
     });

@@ -1,6 +1,7 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { citySlugFromParamMap } from '../../utils/city-route.util';
 import { getHospitalCityName, getHospitalsByCitySlug, PublicHospital } from '../../data/dummy-hospitals.data';
 
 @Component({
@@ -21,7 +22,7 @@ export class HospitalsCityPageComponent {
 
   constructor() {
     this.route.paramMap.pipe(takeUntilDestroyed()).subscribe((params) => {
-      const slug = params.get('citySlug') ?? 'lahore';
+      const slug = citySlugFromParamMap(params);
       this.citySlug.set(slug);
       this.hospitals.set(getHospitalsByCitySlug(slug));
     });
