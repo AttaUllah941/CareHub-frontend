@@ -14,7 +14,8 @@ export const routes: Routes = [
   },
   {
     path: 'doctor',
-    loadChildren: () => import('./features/doctor/doctor.routes').then((m) => m.DOCTOR_ROUTES),
+    loadChildren: () =>
+      import('./features/doctor-portal/doctor.routes').then((m) => m.DOCTOR_ROUTES),
   },
   {
     path: '',
