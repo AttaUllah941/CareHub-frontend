@@ -14,13 +14,15 @@ import {
   DoctorDetailProfile,
 } from '../../../../core/models/doctor-profile.model';
 import { buildBookingDateOptions, BookingDateOption } from '../../../appointments/utils/booking-date.util';
+import { VideoConsultationModalComponent } from '../../../appointments/components/video-consultation-modal/video-consultation-modal.component';
+import { ClinicAppointmentModalComponent } from '../../../appointments/components/clinic-appointment-modal/clinic-appointment-modal.component';
 
 interface DateOption extends BookingDateOption {}
 
 @Component({
   selector: 'app-doctor-detail-page',
   standalone: true,
-  imports: [RouterLink, FormsModule, DecimalPipe],
+  imports: [RouterLink, FormsModule, DecimalPipe, VideoConsultationModalComponent, ClinicAppointmentModalComponent],
   templateUrl: './doctor-detail-page.component.html',
   styleUrl: './doctor-detail-page.component.scss',
 })
@@ -41,6 +43,9 @@ export class DoctorDetailPageComponent {
   promoCode = '';
 
   readonly dateOptions = signal<DateOption[]>(buildBookingDateOptions());
+
+  readonly videoModalOpen = signal(false);
+  readonly appointmentModalOpen = signal(false);
 
   readonly breadcrumbSpecialty = computed(() => {
     const d = this.doctor();
@@ -194,5 +199,21 @@ export class DoctorDetailPageComponent {
     if (el) {
       el.scrollBy({ left: direction === 'left' ? -200 : 200, behavior: 'smooth' });
     }
+  }
+
+  openVideoModal(): void {
+    this.videoModalOpen.set(true);
+  }
+
+  closeVideoModal(): void {
+    this.videoModalOpen.set(false);
+  }
+
+  openAppointmentModal(): void {
+    this.appointmentModalOpen.set(true);
+  }
+
+  closeAppointmentModal(): void {
+    this.appointmentModalOpen.set(false);
   }
 }
