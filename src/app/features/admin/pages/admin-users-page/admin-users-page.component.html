@@ -1,0 +1,78 @@
+<h1 class="text-2xl font-bold text-gray-900 mb-6">Users</h1>
+
+<div class="flex flex-wrap gap-3 mb-6">
+  <input
+    type="search"
+    [ngModel]="search()"
+    (ngModelChange)="search.set($event)"
+    (keyup.enter)="loadUsers()"
+    placeholder="Search name, email, phone…"
+    class="rounded-xl border border-gray-300 px-4 py-2 text-sm min-w-[220px]"
+  />
+  <select
+    [ngModel]="roleFilter()"
+    (ngModelChange)="roleFilter.set($event); loadUsers()"
+    class="rounded-xl border border-gray-300 px-4 py-2 text-sm"
+  >
+    <option value="">All roles</option>
+    @for (role of roles; track role) {
+      <option [value]="role">{{ role }}</option>
+    }
+  </select>
+  <button type="button" (click)="loadUsers()" class="rounded-xl bg-brand-600 text-white px-4 py-2 text-sm font-semibold hover:bg-brand-700">
+    Search
+  </button>
+</div>
+
+@if (error()) {
+  <div class="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{{ error() }}</div>
+}
+
+@if (loading()) {
+  <p class="text-gray-500">Loading users…</p>
+} @else {
+  <div class="overflow-x-auto rounded-2xl border border-gray-200 bg-white shadow-sm">
+    <table class="min-w-full text-sm">
+      <thead class="bg-gray-50 text-left text-xs font-semibold uppercase text-gray-500">
+        <tr>
+          <th class="px-4 py-3">User</th>
+          <th class="px-4 py-3">Role</th>
+          <th class="px-4 py-3">Status</th>
+          <th class="px-4 py-3">Joined</th>
+          <th class="px-4 py-3"></th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-100">
+        @for (user of users(); track user.id) {
+          <tr>
+            <td class="px-4 py-3">
+              <p class="font-medium text-gray-900">{{ user.firstName }} {{ user.lastName }}</p>
+              <p class="text-xs text-gray-500">{{ user.email }}</p>
+            </td>
+            <td class="px-4 py-3">{{ user.role }}</td>
+            <td class="px-4 py-3">
+              <span class="rounded-full px-2 py-0.5 text-xs font-semibold" [class]="user.isActive ? 'bg-emerald-50 text-emerald-700' : 'bg-gray-100 text-gray-600'">
+                {{ user.isActive ? 'Active' : 'Inactive' }}
+              </span>
+            </td>
+            <td class="px-4 py-3 text-gray-500">{{ user.createdAt | date: 'mediumDate' }}</td>
+            <td class="px-4 py-3 text-right">
+              <button
+                type="button"
+                (click)="toggleActive(user)"
+                [disabled]="actionId() === user.id"
+                class="text-sm font-semibold text-brand-600 hover:text-brand-700 disabled:opacity-60"
+              >
+                {{ user.isActive ? 'Deactivate' : 'Activate' }}
+              </button>
+            </td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="5" class="px-4 py-10 text-center text-gray-500">No users found.</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+}

@@ -13,10 +13,14 @@ import {
 } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { formatLabPrice, LabTest, PublicLab } from '../../../labs/data/dummy-labs.data';
+import { LabTest, PublicLab } from '../../../../core/models/lab.model';
+import { ApiErrorService } from '../../../../core/services/api-error.service';
+import { NotificationService } from '../../../../core/services/notification.service';
+import { LabsApiService } from '../../../labs/services/labs-api.service';
+import { formatLabPrice } from '../../../marketplace/utils/marketplace-display.util';
 import { AuthService } from '../../../auth/services/auth.service';
 import { buildBookingDateOptions, BookingDateOption } from '../../utils/booking-date.util';
-import { logBookingPayloadInBrowser, setBodyScrollLocked } from '../../utils/browser.util';
+import { setBodyScrollLocked } from '../../utils/browser.util';
 import { patientDefaultsFromUser } from '../../utils/patient-form.util';
 import { LabSampleCollectionType, LabTestBookingPayload } from './lab-test-booking-payload.model';
 
@@ -34,8 +38,13 @@ const LAB_VISIT_SLOTS = ['08:00 AM', '09:00 AM', '10:00 AM', '11:00 AM', '12:00 
 })
 export class LabTestBookingModalComponent {
   private readonly auth = inject(AuthService);
+  private readonly labsApi = inject(LabsApiService);
+  private readonly apiErrorService = inject(ApiErrorService);
+  private readonly notifications = inject(NotificationService);
   private readonly platformId = inject(PLATFORM_ID);
   private readonly isBrowser = isPlatformBrowser(this.platformId);
+
+  readonly submitting = signal(false);
 
   readonly open = input(false);
   readonly test = input.required<LabTest>();
@@ -133,13 +142,7 @@ export class LabTestBookingModalComponent {
     return 'Complete the form to enable confirmation.';
   });
 
-  readonly labTimingsLabel = computed(() => {
-    const t = this.lab().timings;
-    let label = `Mon–Fri: ${t.weekdays}`;
-    if (t.saturday) label += ` · Sat: ${t.saturday}`;
-    if (t.sunday) label += ` · Sun: ${t.sunday}`;
-    return label;
-  });
+  readonly labTimingsLabel = computed(() => this.lab().timings ?? 'Mon–Sat: 8:00 AM – 8:00 PM');
 
   constructor() {
     effect(() => {
@@ -191,26 +194,26 @@ export class LabTestBookingModalComponent {
       collectionLabel: type === 'home_sample' ? 'Home Sample Collection' : 'Lab Visit Sample Collection',
       test: {
         id: test.id,
-        slug: test.slug,
+        slug: test.slug ?? test.id,
         name: test.name,
-        description: test.description,
-        category: test.category,
+        description: test.description ?? '',
+        category: test.category ?? 'General',
         price: test.price,
         priceFormatted: formatLabPrice(test.price),
-        sampleType: test.sampleType,
-        turnaroundTime: test.turnaroundTime,
+        sampleType: test.sampleType ?? 'Blood',
+        turnaroundTime: test.turnaroundTime ?? '24 hours',
         preparation: test.preparation,
       },
       lab: {
         id: lab.id,
         slug: lab.slug,
         name: lab.name,
-        address: lab.address,
+        address: lab.address ?? '—',
         city: lab.city,
-        phone: lab.phone,
-        email: lab.email,
+        phone: lab.phone ?? '—',
+        email: lab.email ?? '—',
         timings: this.labTimingsLabel(),
-        isHomeCollection: lab.isHomeCollection,
+        isHomeCollection: lab.isHomeCollection ?? false,
       },
       appointment: {
         date: dateIso,
@@ -269,29 +272,46 @@ export class LabTestBookingModalComponent {
 
   confirmBooking(): void {
     this.showValidation.set(true);
-    if (!this.canConfirm()) return;
+    if (!this.canConfirm() || this.submitting()) return;
 
-    const ref = `LT-${Date.now().toString(36).toUpperCase()}`;
-    const payload = this.buildPayload(ref);
+    const selectedDate = this.selectedDate();
+    if (!selectedDate) return;
 
-    logBookingPayloadInBrowser(
-      this.isBrowser,
-      '✅ Lab Test Booking — Form submitted (frontend payload)',
-      payload,
-      {
-        Test: payload.test.name,
-        Lab: payload.lab.name,
-        Collection: payload.collectionLabel,
-        Date: payload.appointment.dateFormatted,
-        Time: payload.appointment.timeSlot,
-        Patient: payload.patient.name,
-        Phone: payload.patient.phone,
-        Price: payload.test.priceFormatted,
-        Ref: payload.bookingRef,
-      },
-    );
-    this.confirmed.emit(payload);
-    this.close();
+    const collectionType = this.collectionType();
+    if (!collectionType) return;
+
+    const scheduledDate = selectedDate.date.toISOString().slice(0, 10);
+
+    this.submitting.set(true);
+
+    this.labsApi
+      .createBooking({
+        labId: this.lab().id,
+        testIds: [this.test().id],
+        scheduledDate,
+        scheduledSlot: this.selectedTimeSlot(),
+        collectionType: collectionType === 'home_sample' ? 'home_sample' : 'lab_visit',
+        patient: {
+          name: this.patientName().trim(),
+          phone: this.patientPhone().trim(),
+          email: this.patientEmail().trim() || undefined,
+          address: this.patientAddress().trim() || undefined,
+        },
+      })
+      .subscribe({
+        next: (res) => {
+          const ref = res.data.booking.bookingRef ?? res.data.booking.id;
+          const payload = this.buildPayload(ref);
+          this.notifications.showSuccess(`Lab test booked. Reference: ${ref}`);
+          this.confirmed.emit(payload);
+          this.submitting.set(false);
+          this.close();
+        },
+        error: (err) => {
+          this.notifications.showError(this.apiErrorService.getMessage(err));
+          this.submitting.set(false);
+        },
+      });
   }
 
   onBackdropClick(event: MouseEvent): void {

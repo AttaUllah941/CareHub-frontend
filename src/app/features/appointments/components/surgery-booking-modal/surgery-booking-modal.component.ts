@@ -13,15 +13,15 @@ import {
 } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { SurgeryHospitalView, SurgeryProcedure } from '../../../../core/models/surgery.model';
 import { DoctorSearchResult } from '../../../../core/models/doctor.model';
-import {
-  formatSurgeryPriceRange,
-  SurgeryHospital,
-  SurgeryProcedure,
-} from '../../../surgeries/data/dummy-surgery.data';
+import { ApiErrorService } from '../../../../core/services/api-error.service';
+import { NotificationService } from '../../../../core/services/notification.service';
+import { formatSurgeryPriceRange } from '../../../marketplace/utils/marketplace-display.util';
+import { SurgeriesApiService } from '../../../surgeries/services/surgeries-api.service';
 import { AuthService } from '../../../auth/services/auth.service';
 import { buildBookingDateOptions, BookingDateOption } from '../../utils/booking-date.util';
-import { logBookingPayloadInBrowser, setBodyScrollLocked } from '../../utils/browser.util';
+import { setBodyScrollLocked } from '../../utils/browser.util';
 import { patientDefaultsFromUser } from '../../utils/patient-form.util';
 import { SurgeryBookingPayload } from './surgery-booking-payload.model';
 
@@ -47,12 +47,17 @@ const CONSULTATION_SLOTS = ['10:00 AM', '11:00 AM', '12:00 PM', '02:00 PM', '03:
 })
 export class SurgeryBookingModalComponent {
   private readonly auth = inject(AuthService);
+  private readonly surgeriesApi = inject(SurgeriesApiService);
+  private readonly apiErrorService = inject(ApiErrorService);
+  private readonly notifications = inject(NotificationService);
   private readonly platformId = inject(PLATFORM_ID);
   private readonly isBrowser = isPlatformBrowser(this.platformId);
 
+  readonly submitting = signal(false);
+
   readonly open = input(false);
   readonly surgery = input.required<SurgeryProcedure>();
-  readonly hospital = input.required<SurgeryHospital>();
+  readonly hospital = input.required<SurgeryHospitalView>();
 
   readonly closed = output<void>();
   readonly confirmed = output<SurgeryBookingPayload>();
@@ -193,7 +198,7 @@ export class SurgeryBookingModalComponent {
       {
         id: 'assigned-surgeon',
         name: 'Hospital Surgical Team',
-        specialty: surgeryCategory,
+        specialty: surgeryCategory ?? 'General',
         isAssigned: true,
       },
     ];
@@ -202,7 +207,7 @@ export class SurgeryBookingModalComponent {
   private toSurgeonOption(d: DoctorSearchResult): SurgeonOption {
     const title = d.title ? `${d.title} ` : 'Dr. ';
     const name = `${title}${d.user?.firstName ?? ''} ${d.user?.lastName ?? ''}`.trim();
-    const specialty = (d.specialties ?? []).map((s) => s.name).join(', ') || this.surgery().category;
+    const specialty = (d.specialties ?? []).map((s) => s.name).join(', ') || this.surgery().category || 'General';
 
     return {
       id: d.id,
@@ -215,16 +220,17 @@ export class SurgeryBookingModalComponent {
 
   private buildPreSurgeryRequirements(): string[] {
     const s = this.surgery();
+    const anesthesia = (s.anesthesiaType ?? 'General').toLowerCase();
     const base = [
       'Bring all previous medical records, imaging reports, and current prescriptions to the consultation.',
       'Inform the surgeon about any allergies, chronic conditions, or ongoing medications.',
       'Arrange a companion for hospital admission and discharge if an overnight stay is required.',
     ];
 
-    if (s.anesthesiaType.toLowerCase().includes('general')) {
+    if (anesthesia.includes('general')) {
       base.unshift('Fast for 8–12 hours before surgery as advised by the anesthesiologist.');
       base.push('Complete pre-operative blood tests, ECG, and chest X-ray if requested.');
-    } else if (s.anesthesiaType.toLowerCase().includes('local')) {
+    } else if (anesthesia.includes('local')) {
       base.unshift('Eat a light meal unless otherwise instructed; fasting may not be required.');
     } else {
       base.unshift('Follow fasting instructions provided during your pre-surgery assessment.');
@@ -252,13 +258,13 @@ export class SurgeryBookingModalComponent {
         id: surgery.id,
         slug: surgery.slug,
         name: surgery.name,
-        description: surgery.description,
-        category: surgery.category,
+        description: surgery.description ?? '',
+        category: surgery.category ?? 'General',
         estimatedCostFrom: surgery.priceFrom,
         estimatedCostTo: surgery.priceTo,
         estimatedCostFormatted: formatSurgeryPriceRange(surgery.priceFrom, surgery.priceTo),
-        duration: surgery.duration,
-        anesthesiaType: surgery.anesthesiaType,
+        duration: surgery.duration ?? '—',
+        anesthesiaType: surgery.anesthesiaType ?? 'General',
         hospitalStay: surgery.hospitalStay,
       },
       hospital: {
@@ -335,28 +341,59 @@ export class SurgeryBookingModalComponent {
 
   submitBooking(): void {
     this.showValidation.set(true);
-    if (!this.canConfirm()) return;
+    if (!this.canConfirm() || this.submitting()) return;
 
-    const ref = `SG-${Date.now().toString(36).toUpperCase()}`;
-    const payload = this.buildPayload(ref);
+    this.submitting.set(true);
 
-    logBookingPayloadInBrowser(
-      this.isBrowser,
-      '✅ Surgery Booking Request — Form submitted (frontend payload)',
-      payload,
-      {
-        Surgery: payload.surgery.name,
-        Hospital: payload.hospital.name,
-        Surgeon: payload.surgeon.name,
-        Consultation: `${payload.consultation.dateFormatted} · ${payload.consultation.timeSlot}`,
-        Patient: payload.patient.name,
-        Phone: payload.patient.phone,
-        Cost: payload.surgery.estimatedCostFormatted,
-        Ref: payload.bookingRef,
-      },
-    );
-    this.confirmed.emit(payload);
-    this.close();
+    const notes = this.buildConsultationNotes();
+
+    this.surgeriesApi
+      .createConsultationRequest({
+        procedureId: this.surgery().id,
+        hospitalId: this.hospital().id,
+        patient: {
+          name: this.patientName().trim(),
+          phone: this.patientPhone().trim(),
+          email: this.patientEmail().trim() || undefined,
+          notes: notes || undefined,
+        },
+      })
+      .subscribe({
+        next: (res) => {
+          const ref = res.data.consultationRequest.id;
+          const payload = this.buildPayload(ref);
+          this.notifications.showSuccess('Surgery consultation request submitted successfully.');
+          this.confirmed.emit(payload);
+          this.submitting.set(false);
+          this.close();
+        },
+        error: (err) => {
+          this.notifications.showError(this.apiErrorService.getMessage(err));
+          this.submitting.set(false);
+        },
+      });
+  }
+
+  private buildConsultationNotes(): string {
+    const parts: string[] = [];
+    const surgeon = this.selectedSurgeon();
+    const date = this.formattedSelectedDate();
+    const slot = this.selectedTimeSlot();
+
+    if (surgeon) parts.push(`Preferred surgeon: ${surgeon.name}`);
+    if (date && slot) parts.push(`Preferred consultation: ${date} · ${slot}`);
+
+    const age = this.patientAge();
+    if (age != null) parts.push(`Age: ${age}`);
+    if (this.patientGender().trim()) parts.push(`Gender: ${this.patientGender().trim()}`);
+
+    const history = this.patientMedicalHistory().trim();
+    if (history) parts.push(`Medical history: ${history}`);
+
+    const notes = this.patientNotes().trim();
+    if (notes) parts.push(notes);
+
+    return parts.join('\n');
   }
 
   onBackdropClick(event: MouseEvent): void {

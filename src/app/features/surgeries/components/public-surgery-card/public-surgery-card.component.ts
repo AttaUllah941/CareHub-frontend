@@ -1,5 +1,6 @@
 import { Component, input, signal } from '@angular/core';
-import { formatSurgeryPriceRange, SurgeryHospital, SurgeryProcedure } from '../../data/dummy-surgery.data';
+import { SurgeryHospitalView, SurgeryProcedure } from '../../../../core/models/surgery.model';
+import { formatSurgeryPriceRange } from '../../../marketplace/utils/marketplace-display.util';
 import { SurgeryBookingModalComponent } from '../../../appointments/components/surgery-booking-modal/surgery-booking-modal.component';
 
 @Component({
@@ -11,7 +12,7 @@ import { SurgeryBookingModalComponent } from '../../../appointments/components/s
 })
 export class PublicSurgeryCardComponent {
   readonly surgery = input.required<SurgeryProcedure>();
-  readonly hospital = input.required<SurgeryHospital>();
+  readonly hospital = input.required<SurgeryHospitalView>();
 
   readonly bookingModalOpen = signal(false);
 

@@ -1,30 +1,29 @@
-import { Component, ElementRef, HostListener, inject, signal } from '@angular/core';
+import { Component, ElementRef, HostListener, inject, OnInit, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { NotificationBellComponent } from '../../core/components/notification-bell/notification-bell.component';
+import { UserRole } from '../../core/models/auth.model';
 import { AuthService } from '../../features/auth/services/auth.service';
-import { DoctorPortalService } from '../../features/doctor-portal/services/doctor-portal.service';
+import { ReferenceDataService } from '../../core/services/reference-data.service';
 import { MedicineCartService } from '../../features/medicines/services/medicine-cart.service';
-import { FIND_DOCTOR_SPECIALTIES, FOOTER_CITY_LINKS, NAV_LINKS } from '../../features/home/data/home-content';
-import { HOSPITAL_CITIES } from '../../features/hospitals/data/dummy-hospitals.data';
-import { LAB_CITIES } from '../../features/labs/data/dummy-labs.data';
-import { SURGERY_CITIES } from '../../features/surgeries/data/dummy-surgery.data';
+import { FOOTER_CITY_LINKS, NAV_LINKS, PAKISTAN_CITIES } from '../../features/home/data/home-content';
 
 @Component({
   selector: 'app-public-layout',
   standalone: true,
-  imports: [RouterOutlet, RouterLink, RouterLinkActive],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, NotificationBellComponent],
   templateUrl: './public-layout.component.html',
   styleUrl: './public-layout.component.scss',
 })
-export class PublicLayoutComponent {
+export class PublicLayoutComponent implements OnInit {
   protected readonly authService = inject(AuthService);
+  protected readonly referenceData = inject(ReferenceDataService);
+  protected readonly UserRole = UserRole;
   protected readonly cartService = inject(MedicineCartService);
-  protected readonly doctorPortal = inject(DoctorPortalService);
   protected readonly navLinks = NAV_LINKS;
   protected readonly footerCityLinks = FOOTER_CITY_LINKS;
-  protected readonly findDoctorSpecialties = FIND_DOCTOR_SPECIALTIES;
-  protected readonly hospitalCities = HOSPITAL_CITIES;
-  protected readonly labCities = LAB_CITIES;
-  protected readonly surgeryCities = SURGERY_CITIES;
+  protected readonly hospitalCities = PAKISTAN_CITIES;
+  protected readonly labCities = PAKISTAN_CITIES;
+  protected readonly surgeryCities = PAKISTAN_CITIES;
   protected readonly mobileMenuOpen = signal(false);
   protected readonly doctorsDropdownOpen = signal(false);
   protected readonly hospitalsDropdownOpen = signal(false);
@@ -32,6 +31,10 @@ export class PublicLayoutComponent {
   protected readonly surgeryDropdownOpen = signal(false);
 
   private readonly elementRef = inject(ElementRef);
+
+  ngOnInit(): void {
+    this.referenceData.loadSpecialties();
+  }
 
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {

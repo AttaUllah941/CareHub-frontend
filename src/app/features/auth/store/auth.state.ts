@@ -28,8 +28,7 @@ export const AUTH_FEATURE_KEY = 'auth';
 export const ROLE_DASHBOARD_ROUTES: Record<UserRole, string> = {
   [UserRole.SUPER_ADMIN]: '/',
   [UserRole.ADMIN]: '/',
-  /** Doctor portal uses separate login at /doctor/login after application approval */
-  [UserRole.DOCTOR]: '/doctor/login',
+  [UserRole.DOCTOR]: '/doctor/dashboard',
   [UserRole.PATIENT]: '/',
   [UserRole.CLINIC_MANAGER]: '/',
   [UserRole.PHARMACY]: '/',

@@ -37,10 +37,16 @@ export const AuthActions = createActionGroup({
     'Change Password Failure': props<{ error: string }>(),
 
     'Load Profile': emptyProps(),
-    'Load Profile Success': props<{ user: User }>(),
+    'Load Profile Success': props<{
+      user: User;
+      accessToken: string;
+      refreshToken: string;
+    }>(),
     'Load Profile Failure': props<{ error: string }>(),
 
     'Init Session': emptyProps(),
+    'Session Tokens Refreshed': props<{ accessToken: string; refreshToken: string }>(),
+    'Session Expired': emptyProps(),
     'Clear Error': emptyProps(),
     'Clear Success Message': emptyProps(),
   },

@@ -1,6 +1,7 @@
 import { DatePipe } from '@angular/common';
 import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { ApiErrorService } from '../../../../core/services/api-error.service';
 import { DoctorPortalService } from '../../services/doctor-portal.service';
 
 @Component({
@@ -12,6 +13,7 @@ import { DoctorPortalService } from '../../services/doctor-portal.service';
 })
 export class DoctorPrescriptionsPageComponent {
   readonly portal = inject(DoctorPortalService);
+  private readonly apiErrorService = inject(ApiErrorService);
 
   readonly showForm = signal(false);
   readonly patientId = signal('');
@@ -22,6 +24,8 @@ export class DoctorPrescriptionsPageComponent {
   readonly medicines = signal<{ name: string; dosage: string; duration: string }[]>([]);
   readonly notes = signal('');
   readonly created = signal(false);
+  readonly submitting = signal(false);
+  readonly submitError = signal<string | null>(null);
 
   addMedicine(): void {
     if (!this.medName().trim()) return;
@@ -36,13 +40,27 @@ export class DoctorPrescriptionsPageComponent {
 
   submitPrescription(): void {
     if (!this.patientId() || !this.diagnosis().trim() || this.medicines().length === 0) return;
-    this.portal.createPrescription(this.patientId(), this.diagnosis(), this.medicines(), this.notes());
-    this.showForm.set(false);
-    this.patientId.set('');
-    this.diagnosis.set('');
-    this.medicines.set([]);
-    this.notes.set('');
-    this.created.set(true);
-    setTimeout(() => this.created.set(false), 3000);
+
+    this.submitting.set(true);
+    this.submitError.set(null);
+
+    this.portal
+      .createPrescription(this.patientId(), this.diagnosis(), this.medicines(), this.notes())
+      .subscribe({
+        next: () => {
+          this.showForm.set(false);
+          this.patientId.set('');
+          this.diagnosis.set('');
+          this.medicines.set([]);
+          this.notes.set('');
+          this.created.set(true);
+          this.submitting.set(false);
+          setTimeout(() => this.created.set(false), 3000);
+        },
+        error: (err) => {
+          this.submitError.set(this.apiErrorService.getMessage(err));
+          this.submitting.set(false);
+        },
+      });
   }
 }

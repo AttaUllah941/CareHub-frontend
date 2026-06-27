@@ -65,9 +65,9 @@
       <h2 class="text-xl font-bold text-gray-900 mb-1">Doctors at {{ h.name }}</h2>
       <p class="text-sm text-gray-600 mb-6">Book video consultation or in-clinic appointment with PMC verified doctors</p>
 
-      @if (h.doctors?.length) {
+      @if (doctors().length) {
         <div class="space-y-5">
-          @for (doctor of h.doctors; track doctor.id; let i = $index) {
+          @for (doctor of doctors(); track doctor.id; let i = $index) {
             <app-public-doctor-listing-card [doctor]="doctor" [rank]="i" [city]="cityName()" />
           }
         </div>

@@ -26,7 +26,7 @@
               <div class="absolute left-0 top-full mt-2 w-[640px] rounded-2xl border border-gray-200 bg-white shadow-xl shadow-gray-200/60 p-5 z-50">
                 <p class="text-xs font-semibold uppercase tracking-wide text-gray-500 mb-3">Browse by Specialty</p>
                 <div class="grid grid-cols-2 gap-1 max-h-[360px] overflow-y-auto">
-                  @for (specialty of findDoctorSpecialties; track specialty.slug) {
+                  @for (specialty of referenceData.specialtyChips(); track specialty.slug) {
                     <a
                       [routerLink]="['/find-doctors', specialty.slug]"
                       (click)="closeDoctorsDropdown()"
@@ -177,6 +177,7 @@
         </nav>
 
         <div class="hidden lg:flex items-center gap-3">
+          <app-notification-bell />
           <a routerLink="/medicines/cart" class="relative inline-flex items-center justify-center p-2 rounded-lg text-gray-600 hover:bg-gray-100 hover:text-brand-600 transition-colors" aria-label="Shopping cart">
             <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
@@ -187,8 +188,15 @@
               </span>
             }
           </a>
-          @if (authService.isAuthenticated() || doctorPortal.isLoggedIn()) {
-            @if (doctorPortal.isLoggedIn()) {
+          @if (authService.isAuthenticated()) {
+            @if (authService.hasRole(UserRole.ADMIN, UserRole.SUPER_ADMIN)) {
+              <a
+                routerLink="/admin/dashboard"
+                class="inline-flex items-center justify-center px-4 py-2 text-sm font-semibold rounded-lg bg-brand-600 text-white hover:bg-brand-700 transition-colors"
+              >
+                Admin
+              </a>
+            } @else if (authService.hasRole(UserRole.DOCTOR)) {
               <a
                 routerLink="/doctor/dashboard"
                 class="inline-flex items-center justify-center px-4 py-2 text-sm font-semibold rounded-lg bg-brand-600 text-white hover:bg-brand-700 transition-colors"
@@ -196,13 +204,16 @@
                 Doctor Dashboard
               </a>
             } @else {
+              <a routerLink="/my-appointments" class="text-sm font-semibold text-brand-600 hover:text-brand-700">My Appointments</a>
+              <a routerLink="/my-prescriptions" class="text-sm font-semibold text-brand-600 hover:text-brand-700">My Prescriptions</a>
               <span class="text-sm text-gray-600">Hello, {{ authService.user()?.firstName }}</span>
-              <a
-                routerLink="/"
-                class="inline-flex items-center justify-center px-4 py-2 text-sm font-semibold rounded-lg bg-brand-600 text-white hover:bg-brand-700 transition-colors"
+              <button
+                type="button"
+                (click)="authService.logout()"
+                class="inline-flex items-center justify-center px-4 py-2 text-sm font-semibold rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors"
               >
-                Home
-              </a>
+                Sign out
+              </button>
             }
           } @else {
             <a
@@ -262,7 +273,7 @@
         <nav class="lg:hidden pb-4 border-t border-gray-100 pt-3 space-y-1">
           <p class="px-3 pt-2 pb-1 text-xs font-semibold uppercase tracking-wide text-gray-400">Find Doctors</p>
           <div class="grid grid-cols-2 gap-1 px-2 pb-3">
-            @for (specialty of findDoctorSpecialties; track specialty.slug) {
+            @for (specialty of referenceData.specialtyChips(); track specialty.slug) {
               <a
                 [routerLink]="['/find-doctors', specialty.slug]"
                 (click)="closeMobileMenu()"
@@ -322,11 +333,23 @@
             </a>
           }
           <div class="flex flex-col gap-2 pt-2 px-3">
-            <a routerLink="/join-as-doctor" (click)="closeMobileMenu()" class="w-full text-center py-2 text-sm font-semibold border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">Join as Doctor</a>
-            <div class="flex gap-2">
-              <a routerLink="/auth/login" (click)="closeMobileMenu()" class="flex-1 text-center py-2 text-sm font-semibold border border-brand-600 text-brand-600 rounded-lg">Login</a>
-              <a routerLink="/auth/register" (click)="closeMobileMenu()" class="flex-1 text-center py-2 text-sm font-semibold bg-brand-600 text-white rounded-lg">Register</a>
-            </div>
+            @if (authService.isAuthenticated()) {
+              @if (authService.hasRole(UserRole.ADMIN, UserRole.SUPER_ADMIN)) {
+                <a routerLink="/admin/dashboard" (click)="closeMobileMenu()" class="w-full text-center py-2 text-sm font-semibold bg-brand-600 text-white rounded-lg">Admin</a>
+              } @else if (authService.hasRole(UserRole.DOCTOR)) {
+                <a routerLink="/doctor/dashboard" (click)="closeMobileMenu()" class="w-full text-center py-2 text-sm font-semibold bg-brand-600 text-white rounded-lg">Doctor Dashboard</a>
+              } @else {
+                <a routerLink="/my-appointments" (click)="closeMobileMenu()" class="w-full text-center py-2 text-sm font-semibold text-brand-600 border border-brand-200 rounded-lg">My Appointments</a>
+                <a routerLink="/my-prescriptions" (click)="closeMobileMenu()" class="w-full text-center py-2 text-sm font-semibold text-brand-600 border border-brand-200 rounded-lg">My Prescriptions</a>
+                <button type="button" (click)="authService.logout(); closeMobileMenu()" class="w-full text-center py-2 text-sm font-semibold border border-gray-300 text-gray-700 rounded-lg">Sign out</button>
+              }
+            } @else {
+              <a routerLink="/join-as-doctor" (click)="closeMobileMenu()" class="w-full text-center py-2 text-sm font-semibold border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">Join as Doctor</a>
+              <div class="flex gap-2">
+                <a routerLink="/auth/login" (click)="closeMobileMenu()" class="flex-1 text-center py-2 text-sm font-semibold border border-brand-600 text-brand-600 rounded-lg">Login</a>
+                <a routerLink="/auth/register" (click)="closeMobileMenu()" class="flex-1 text-center py-2 text-sm font-semibold bg-brand-600 text-white rounded-lg">Register</a>
+              </div>
+            }
           </div>
         </nav>
       }

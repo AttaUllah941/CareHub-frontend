@@ -163,7 +163,12 @@
 
             <!-- Individual Reviews -->
             <div class="divide-y divide-gray-100">
-              @for (review of d.reviews; track review.id) {
+              @if (reviewsLoading()) {
+                <div class="p-6 text-center text-sm text-gray-500">Loading reviews...</div>
+              } @else if (reviews().length === 0) {
+                <div class="p-6 text-center text-sm text-gray-500">No patient reviews yet.</div>
+              } @else {
+                @for (review of reviews(); track review.id) {
                 <div class="p-5 sm:p-6">
                   <div class="flex gap-3">
                     <div class="h-10 w-10 rounded-full bg-gray-200 text-gray-600 flex items-center justify-center text-sm font-bold shrink-0">
@@ -186,8 +191,49 @@
                     </div>
                   </div>
                 </div>
+                }
               }
             </div>
+
+            @if (authService.isAuthenticated() && authService.hasRole(UserRole.PATIENT)) {
+              <div class="border-t border-gray-100 p-5 sm:p-6 bg-gray-50">
+                @if (!showReviewForm()) {
+                  <button type="button" (click)="showReviewForm.set(true)" class="text-sm font-semibold text-brand-600 hover:text-brand-700">
+                    Write a review
+                  </button>
+                  <p class="text-xs text-gray-500 mt-1">Requires a completed consultation with this doctor.</p>
+                } @else {
+                  <h3 class="font-semibold text-gray-900 mb-3">Write a review</h3>
+                  <div class="space-y-3 max-w-lg">
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-1">Rating</label>
+                      <select class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" [ngModel]="reviewRating()" (ngModelChange)="reviewRating.set(+$event)">
+                        @for (r of [5, 4, 3, 2, 1]; track r) {
+                          <option [ngValue]="r">{{ r }} star{{ r === 1 ? '' : 's' }}</option>
+                        }
+                      </select>
+                    </div>
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-1">Headline</label>
+                      <input type="text" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" [ngModel]="reviewHeadline()" (ngModelChange)="reviewHeadline.set($event)" placeholder="Summarize your experience" />
+                    </div>
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-1">Review</label>
+                      <textarea rows="3" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" [ngModel]="reviewBody()" (ngModelChange)="reviewBody.set($event)" placeholder="Share details about your visit (min 10 characters)"></textarea>
+                    </div>
+                    @if (reviewError()) {
+                      <p class="text-sm text-red-600">{{ reviewError() }}</p>
+                    }
+                    <div class="flex gap-2">
+                      <button type="button" (click)="submitReview()" [disabled]="!canSubmitReview() || reviewSubmitting()" class="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700 disabled:opacity-60">
+                        {{ reviewSubmitting() ? 'Submitting…' : 'Submit review' }}
+                      </button>
+                      <button type="button" (click)="showReviewForm.set(false)" class="rounded-lg border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50">Cancel</button>
+                    </div>
+                  </div>
+                }
+              </div>
+            }
           </div>
 
           @if (d.about) {

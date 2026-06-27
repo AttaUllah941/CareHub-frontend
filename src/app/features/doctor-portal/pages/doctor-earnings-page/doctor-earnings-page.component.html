@@ -1,5 +1,10 @@
 <h1 class="text-2xl font-bold text-gray-900 mb-6">Earnings</h1>
 
+@if (portal.loading()) {
+  <p class="text-sm text-gray-500">Loading earnings…</p>
+} @else if (portal.loadError()) {
+  <div class="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{{ portal.loadError() }}</div>
+} @else {
 @let earnings = portal.earnings();
 
 <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
@@ -54,3 +59,4 @@
     </div>
   }
 </div>
+}

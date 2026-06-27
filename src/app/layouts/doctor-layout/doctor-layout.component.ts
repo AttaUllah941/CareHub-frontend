@@ -1,7 +1,8 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { AuthService } from '../../features/auth/services/auth.service';
+import { UserRole } from '../../core/models/auth.model';
 import { DoctorPortalService } from '../../features/doctor-portal/services/doctor-portal.service';
-
 interface NavItem {
   label: string;
   path: string;
@@ -15,8 +16,10 @@ interface NavItem {
   templateUrl: './doctor-layout.component.html',
   styleUrl: './doctor-layout.component.scss',
 })
-export class DoctorLayoutComponent {
-  readonly portal = inject(DoctorPortalService);
+export class DoctorLayoutComponent implements OnInit {
+  readonly authService = inject(AuthService);
+  private readonly portal = inject(DoctorPortalService);
+  protected readonly UserRole = UserRole;
   private readonly router = inject(Router);
 
   readonly navItems: NavItem[] = [
@@ -30,8 +33,11 @@ export class DoctorLayoutComponent {
     { label: 'Earnings', path: '/doctor/earnings', icon: '💰' },
   ];
 
+  ngOnInit(): void {
+    this.portal.loadPortalData();
+  }
+
   logout(): void {
-    this.portal.logout();
-    this.router.navigate(['/doctor/login']);
+    this.authService.logout();
   }
 }

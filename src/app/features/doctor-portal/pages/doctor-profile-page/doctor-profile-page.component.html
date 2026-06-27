@@ -1,4 +1,6 @@
-@if (portal.currentProfile(); as profile) {
+@if (portal.loading()) {
+  <p class="text-sm text-gray-500">Loading profile…</p>
+} @else if (draft(); as profile) {
   <h1 class="text-2xl font-bold text-gray-900 mb-6">Manage Profile</h1>
 
   @if (saved()) {
@@ -23,16 +25,16 @@
     <div class="grid sm:grid-cols-2 gap-4">
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
-        <input type="text" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" [ngModel]="profile.fullName" (ngModelChange)="updateField('fullName', $event)" />
+        <input type="text" class="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm" [ngModel]="profile.fullName" readonly />
       </div>
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-1">Phone</label>
-        <input type="tel" class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" [ngModel]="profile.phone" (ngModelChange)="updateField('phone', $event)" />
+        <input type="tel" class="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm" [ngModel]="profile.phone" readonly />
       </div>
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-1">Specialization</label>
         <select class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" [ngModel]="profile.specialization" (ngModelChange)="updateField('specialization', $event)">
-          @for (s of specialties; track s.slug) {
+          @for (s of referenceData.specialtyChips(); track s.slug) {
             <option [value]="s.name">{{ s.name }}</option>
           }
         </select>
@@ -81,6 +83,10 @@
       </div>
     </div>
 
-    <button type="button" (click)="save()" class="rounded-lg bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-700">Save Changes</button>
+    <button type="button" (click)="save()" [disabled]="portal.saving()" class="rounded-lg bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-700 disabled:opacity-60">
+      {{ portal.saving() ? 'Saving…' : 'Save Changes' }}
+    </button>
   </div>
+} @else if (portal.loadError()) {
+  <p class="text-sm text-red-600">{{ portal.loadError() }}</p>
 }

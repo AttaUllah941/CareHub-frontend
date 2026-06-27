@@ -15,11 +15,16 @@ import { isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DoctorSearchResult } from '../../../../core/models/doctor.model';
 import { DoctorConsultationOption, DoctorDetailProfile } from '../../../../core/models/doctor-profile.model';
-import { getDummyDoctorById } from '../../../doctors/data/dummy-doctors.data';
+import { buildBookingProfileFromListing } from '../../../doctors/utils/doctor-booking-profile.util';
 import { PublicDoctorApiService } from '../../../doctors/services/public-doctor-api.service';
 import { AuthService } from '../../../auth/services/auth.service';
+import { ApiErrorService } from '../../../../core/services/api-error.service';
+import { NotificationService } from '../../../../core/services/notification.service';
+import { CreateAppointmentRequest } from '../../../../core/models/appointment.model';
+import { AppointmentsApiService } from '../../services/appointments-api.service';
 import { buildBookingDateOptions, BookingDateOption } from '../../utils/booking-date.util';
-import { logBookingPayloadInBrowser, setBodyScrollLocked } from '../../utils/browser.util';
+import { combineDateAndTimeSlot } from '../../utils/appointment-schedule.util';
+import { setBodyScrollLocked } from '../../utils/browser.util';
 import { patientDefaultsFromUser } from '../../utils/patient-form.util';
 import { ClinicAppointmentPayload } from './clinic-appointment-payload.model';
 
@@ -54,7 +59,10 @@ const DEFAULT_TIME_SLOTS = [
 })
 export class ClinicAppointmentModalComponent {
   private readonly publicDoctorApi = inject(PublicDoctorApiService);
+  private readonly appointmentsApi = inject(AppointmentsApiService);
   private readonly auth = inject(AuthService);
+  private readonly apiErrorService = inject(ApiErrorService);
+  private readonly notifications = inject(NotificationService);
   private readonly platformId = inject(PLATFORM_ID);
   private readonly isBrowser = isPlatformBrowser(this.platformId);
 
@@ -70,6 +78,8 @@ export class ClinicAppointmentModalComponent {
 
   readonly profile = signal<DoctorDetailProfile | null>(null);
   readonly loading = signal(false);
+  readonly submitting = signal(false);
+  readonly bookingError = signal<string | null>(null);
   readonly selectedClinicId = signal('');
   readonly selectedDateIndex = signal(0);
   readonly selectedTimeSlot = signal('');
@@ -118,12 +128,23 @@ export class ClinicAppointmentModalComponent {
 
   readonly patientPhoneValid = computed(() => /^[0-9]{10,11}$/.test(this.patientPhone().replace(/\D/g, '')));
 
+  readonly isGuestBooking = computed(() => !this.auth.isAuthenticated());
+
+  readonly patientEmailValid = computed(() => {
+    if (!this.isGuestBooking()) return true;
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.patientEmail().trim());
+  });
+
   readonly patientFormComplete = computed(
-    () => this.patientNameValid() && this.patientAgeValid() && this.patientPhoneValid(),
+    () =>
+      this.patientNameValid() &&
+      this.patientAgeValid() &&
+      this.patientPhoneValid() &&
+      this.patientEmailValid(),
   );
 
   readonly canConfirm = computed(
-    () => this.clinicSelected() && this.scheduleComplete() && this.patientFormComplete(),
+    () => this.clinicSelected() && this.scheduleComplete() && this.patientFormComplete() && !this.submitting(),
   );
 
   readonly completionPercent = computed(() => {
@@ -143,6 +164,7 @@ export class ClinicAppointmentModalComponent {
     if (!this.patientNameValid()) return 'Enter the patient\'s full name (at least 2 characters).';
     if (!this.patientAgeValid()) return 'Enter a valid age between 1 and 120.';
     if (!this.patientPhoneValid()) return 'Enter a valid phone number (10–11 digits).';
+    if (!this.patientEmailValid()) return 'Enter a valid email address for booking confirmation.';
     return 'Complete the form to enable confirmation.';
   });
 
@@ -168,6 +190,8 @@ export class ClinicAppointmentModalComponent {
 
   private resetForm(): void {
     this.showValidation.set(false);
+    this.bookingError.set(null);
+    this.submitting.set(false);
     this.selectedClinicId.set('');
     this.selectedDateIndex.set(0);
     this.selectedTimeSlot.set('');
@@ -193,25 +217,15 @@ export class ClinicAppointmentModalComponent {
         if (profile) {
           this.applyProfile(profile);
         } else {
-          this.applyDemoProfile(d.id);
+          this.applyProfile(buildBookingProfileFromListing(d, this.city()));
         }
         this.loading.set(false);
       },
       error: () => {
-        this.applyDemoProfile(d.id);
+        this.applyProfile(buildBookingProfileFromListing(d, this.city()));
         this.loading.set(false);
       },
     });
-  }
-
-  private applyDemoProfile(id: string): void {
-    const demo = getDummyDoctorById(id, this.city());
-    if (demo) {
-      this.applyProfile(demo);
-    } else {
-      this.initClinicSelection();
-      this.selectedTimeSlot.set(DEFAULT_TIME_SLOTS[0]);
-    }
   }
 
   private applyProfile(profile: DoctorDetailProfile): void {
@@ -360,30 +374,46 @@ export class ClinicAppointmentModalComponent {
 
   confirmAppointment(): void {
     this.showValidation.set(true);
-    if (!this.canConfirm()) return;
+    this.bookingError.set(null);
+    if (!this.clinicSelected() || !this.scheduleComplete() || !this.patientFormComplete() || this.submitting()) {
+      return;
+    }
 
-    const ref = `IC-${Date.now().toString(36).toUpperCase()}`;
-    const payload = this.buildPayload(ref);
+    const selectedDate = this.selectedDate();
+    if (!selectedDate) return;
 
-    logBookingPayloadInBrowser(
-      this.isBrowser,
-      '✅ In-Clinic Appointment — Form submitted (frontend payload)',
-      payload,
-      {
-        Doctor: payload.doctor.name,
-        Clinic: payload.clinic.name,
-        Location: payload.clinic.location,
-        Date: payload.appointment.dateFormatted,
-        Time: payload.appointment.timeSlot,
-        Patient: payload.patient.name,
-        Age: payload.patient.age,
-        Phone: payload.patient.phone,
-        Fee: payload.clinic.feeFormatted,
-        Ref: payload.bookingRef,
+    const request: CreateAppointmentRequest = {
+      doctorId: this.doctor().id,
+      scheduledAt: combineDateAndTimeSlot(selectedDate.date, this.selectedTimeSlot()),
+      consultationType: 'clinic',
+    };
+
+    if (this.isGuestBooking()) {
+      request.patientName = this.patientName().trim();
+      request.patientEmail = this.patientEmail().trim();
+      request.patientPhone = this.patientPhone().trim();
+    } else if (this.patientPhone().trim()) {
+      request.patientPhone = this.patientPhone().trim();
+    }
+
+    this.submitting.set(true);
+
+    this.appointmentsApi.create(request).subscribe({
+      next: (res) => {
+        const appointment = res.data.appointment;
+        const ref = appointment.bookingRef ?? appointment.id;
+        this.notifications.showSuccess(`Clinic appointment booked. Reference: ${ref}`);
+        this.confirmed.emit(this.buildPayload(ref));
+        this.submitting.set(false);
+        this.close();
       },
-    );
-    this.confirmed.emit(payload);
-    this.close();
+      error: (err) => {
+        const message = this.apiErrorService.getMessage(err);
+        this.bookingError.set(message);
+        this.notifications.showError(message);
+        this.submitting.set(false);
+      },
+    });
   }
 
   onBackdropClick(event: MouseEvent): void {

@@ -12,13 +12,23 @@ import { AuthEffects } from './features/auth/store/auth.effects';
 import { AUTH_FEATURE_KEY } from './features/auth/store/auth.state';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
 import { errorInterceptor } from './core/interceptors/error.interceptor';
+import { loadingInterceptor } from './core/interceptors/loading.interceptor';
+import { apiErrorInterceptor } from './core/interceptors/api-error.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes),
     provideClientHydration(withEventReplay()),
-    provideHttpClient(withFetch(), withInterceptors([authInterceptor, errorInterceptor])),
+    provideHttpClient(
+      withFetch(),
+      withInterceptors([
+        authInterceptor,
+        loadingInterceptor,
+        errorInterceptor,
+        apiErrorInterceptor,
+      ]),
+    ),
     provideStore({
       [AUTH_FEATURE_KEY]: authReducer,
     }),

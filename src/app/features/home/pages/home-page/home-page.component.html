@@ -46,7 +46,7 @@
               class="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-800 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100"
             >
               <option value="">All Specialities</option>
-              @for (s of specialties; track s.slug) {
+              @for (s of referenceData.specialtyChips(); track s.slug) {
                 <option [value]="s.slug">{{ s.name }}</option>
               }
             </select>
@@ -86,8 +86,13 @@
     </div>
 
     <!-- Specialty chips -->
+    @if (referenceData.specialtiesLoadingState()) {
+      <p class="mt-10 text-center text-sm text-gray-500">Loading specialties…</p>
+    } @else if (referenceData.specialtiesErrorState()) {
+      <p class="mt-10 text-center text-sm text-red-600">{{ referenceData.specialtiesErrorState() }}</p>
+    } @else {
     <div class="mt-10 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 max-w-6xl mx-auto">
-      @for (specialty of specialties; track specialty.slug) {
+      @for (specialty of referenceData.specialtyChips(); track specialty.slug) {
         <button
           type="button"
           (click)="browseSpecialty(specialty.slug)"
@@ -95,12 +100,13 @@
         >
           <span class="text-2xl">{{ specialty.icon }}</span>
           <p class="mt-2 font-semibold text-gray-900 group-hover:text-brand-600">{{ specialty.name }}</p>
-          @if (specialty.urdu) {
-            <p class="text-xs text-gray-500 mt-0.5 leading-relaxed">{{ specialty.urdu }}</p>
+          @if (specialty.description) {
+            <p class="text-xs text-gray-500 mt-0.5 leading-relaxed line-clamp-2">{{ specialty.description }}</p>
           }
         </button>
       }
     </div>
+    }
   </div>
 </section>
 

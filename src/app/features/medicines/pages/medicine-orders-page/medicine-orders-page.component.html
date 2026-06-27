@@ -8,9 +8,20 @@
 
     <h1 class="text-2xl font-bold text-gray-900 mb-6">Order History</h1>
 
-    @if (cart.orderHistory().length) {
+    @if (loading()) {
+      <div class="bg-white rounded-2xl border border-gray-200 p-12 text-center text-gray-600">
+        Loading your orders…
+      </div>
+    } @else if (error()) {
+      <div class="bg-white rounded-2xl border border-red-200 p-8 text-center">
+        <p class="text-red-700">{{ error() }}</p>
+        <button type="button" (click)="loadOrders()" class="mt-4 text-sm font-semibold text-brand-600 hover:text-brand-700">
+          Try again
+        </button>
+      </div>
+    } @else if (orders().length) {
       <div class="space-y-4">
-        @for (order of cart.orderHistory(); track order.id) {
+        @for (order of orders(); track order.id) {
           <article class="bg-white rounded-2xl border border-gray-200 p-5 shadow-sm">
             <div class="flex flex-wrap items-start justify-between gap-3">
               <div>
@@ -23,25 +34,16 @@
             </div>
 
             <p class="mt-3 text-sm text-gray-600">
-              {{ order.items.length }} item(s) · {{ order.checkout.deliveryType === 'home_delivery' ? 'Home delivery' : 'Store pickup' }}
-              · Est. {{ order.estimatedDelivery }}
+              {{ itemCount(order) }} item(s) · {{ order.deliveryType === 'home_delivery' ? 'Home delivery' : 'Store pickup' }}
             </p>
 
-            <div class="mt-3 flex flex-wrap gap-2 text-sm">
-              @for (item of order.items.slice(0, 3); track item.cartLineId) {
-                <span class="rounded-lg bg-gray-50 px-2 py-1 text-gray-700">{{ item.medicine.name }} ×{{ item.quantity }}</span>
-              }
-              @if (order.items.length > 3) {
-                <span class="text-gray-400">+{{ order.items.length - 3 }} more</span>
-              }
-            </div>
+            @if (itemPreview(order)) {
+              <p class="mt-2 text-sm text-gray-700">{{ itemPreview(order) }}</p>
+            }
 
             <div class="mt-4 flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-gray-100">
-              <p class="font-bold text-gray-900">{{ cart.formatPrice(order.total) }}</p>
-              <div class="flex flex-wrap gap-2">
-                <button type="button" (click)="reorder(order.id)" class="text-sm font-semibold text-brand-600 hover:text-brand-700">Reorder</button>
-                <a [routerLink]="['/medicines/orders', order.id]" class="text-sm font-semibold text-white bg-brand-600 hover:bg-brand-700 px-3 py-1.5 rounded-lg">Track order</a>
-              </div>
+              <p class="font-bold text-gray-900">{{ formatPrice(order.totalAmount) }}</p>
+              <a [routerLink]="['/medicines/orders', order.id]" class="text-sm font-semibold text-white bg-brand-600 hover:bg-brand-700 px-3 py-1.5 rounded-lg">View order</a>
             </div>
           </article>
         }

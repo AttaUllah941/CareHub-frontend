@@ -21,7 +21,7 @@ export class RegisterPageComponent implements OnInit {
     email: ['', [Validators.required, Validators.email]],
     phone: ['', [Validators.required, Validators.pattern(/^\+?[1-9]\d{7,14}$/)]],
     password: ['', [Validators.required, Validators.minLength(8)]],
-    role: [UserRole.PATIENT, Validators.required],
+    role: [{ value: UserRole.PATIENT, disabled: true }, Validators.required],
   });
 
   ngOnInit(): void {
@@ -33,6 +33,9 @@ export class RegisterPageComponent implements OnInit {
       this.registerForm.markAllAsTouched();
       return;
     }
-    this.authService.register(this.registerForm.getRawValue());
+    this.authService.register({
+      ...this.registerForm.getRawValue(),
+      role: UserRole.PATIENT,
+    });
   }
 }
