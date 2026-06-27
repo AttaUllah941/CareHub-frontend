@@ -18,6 +18,10 @@ export const routes: Routes = [
       import('./features/doctor-portal/doctor.routes').then((m) => m.DOCTOR_ROUTES),
   },
   {
+    path: 'admin',
+    loadChildren: () => import('./features/admin/admin.routes').then((m) => m.ADMIN_ROUTES),
+  },
+  {
     path: '',
     loadChildren: () => import('./features/home/home.routes').then((m) => m.HOME_ROUTES),
   },

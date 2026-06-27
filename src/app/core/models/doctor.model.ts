@@ -159,6 +159,8 @@ export interface DoctorSearchResult {
   languages?: Language[];
   clinics?: DoctorSearchClinic[];
   availableDays?: number[];
+  averageRating?: number;
+  reviewCount?: number;
 }
 
 export interface DoctorSearchQuery {

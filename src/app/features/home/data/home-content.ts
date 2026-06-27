@@ -3,13 +3,6 @@ export interface CityOption {
   slug: string;
 }
 
-export interface SpecialtyChip {
-  name: string;
-  urdu?: string;
-  slug: string;
-  icon: string;
-}
-
 export interface ServiceCard {
   title: string;
   subtitle: string;
@@ -49,47 +42,6 @@ export const PAKISTAN_CITIES: CityOption[] = [
   { name: 'Faisalabad', slug: 'faisalabad' },
   { name: 'Sargodha', slug: 'sargodha' },
 ];
-
-export const POPULAR_SPECIALTIES: SpecialtyChip[] = [
-  { name: 'Dermatologist', urdu: 'ماہر امراض جلد', slug: 'dermatologist', icon: '🩺' },
-  { name: 'Gynecologist', urdu: 'ماہر امراض نسواں', slug: 'gynecologist', icon: '👩‍⚕️' },
-  { name: 'Urologist', urdu: 'نظامِ اخراج کے ماہر ڈاکٹر', slug: 'urologist', icon: '🏥' },
-  { name: 'Gastroenterologist', urdu: 'معدہ کے ماہر ڈاکٹر', slug: 'gastroenterologist', icon: '💊' },
-  { name: 'General Practitioner', urdu: 'جنرل ڈاکٹر', slug: 'general-practitioner', icon: '🩹' },
-  { name: 'Psychiatrist', urdu: 'ماہر نفسیات', slug: 'psychiatrist', icon: '🧠' },
-  { name: 'Pediatrician', urdu: 'بچوں کے ماہر ڈاکٹر', slug: 'pediatrician', icon: '👶' },
-  { name: 'Nutritionist', slug: 'nutritionist', icon: '🥗' },
-];
-
-/** Full list for Find Doctors nav dropdown */
-export const FIND_DOCTOR_SPECIALTIES: SpecialtyChip[] = [
-  ...POPULAR_SPECIALTIES,
-  { name: 'Cardiologist', slug: 'cardiologist', icon: '❤️' },
-  { name: 'Neurologist', slug: 'neurologist', icon: '🧬' },
-  { name: 'Orthopedic Surgeon', slug: 'orthopedic-surgeon', icon: '🦴' },
-  { name: 'Pulmonologist', slug: 'pulmonologist', icon: '🫁' },
-  { name: 'Ophthalmologist', slug: 'ophthalmologist', icon: '👁️' },
-  { name: 'ENT Specialist', slug: 'ent', icon: '👂' },
-  { name: 'General Physician', slug: 'general-physician', icon: '⚕️' },
-  { name: 'Psychologist', slug: 'psychologist', icon: '🧘' },
-];
-
-export function specialtyLabelFromSlug(slug: string): string {
-  const found = FIND_DOCTOR_SPECIALTIES.find((s) => s.slug === slug);
-  if (found) return found.name;
-  return slug
-    .split('-')
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(' ');
-}
-
-export function specialtyPluralTitle(slug: string): string {
-  const label = specialtyLabelFromSlug(slug);
-  if (label.endsWith('ist')) return label.replace(/ist$/, 'ists');
-  if (label.endsWith('ian')) return label.replace(/ian$/, 'ians');
-  if (label.endsWith('logist')) return `${label}s`;
-  return `${label}s`;
-}
 
 export const SERVICE_CARDS: ServiceCard[] = [
   {

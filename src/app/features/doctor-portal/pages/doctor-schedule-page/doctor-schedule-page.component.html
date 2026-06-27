@@ -1,5 +1,10 @@
 <h1 class="text-2xl font-bold text-gray-900 mb-6">Availability Schedule</h1>
 
+@if (portal.loading()) {
+  <p class="text-sm text-gray-500">Loading schedule…</p>
+} @else if (portal.loadError()) {
+  <div class="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{{ portal.loadError() }}</div>
+} @else {
 @if (saved()) {
   <div class="mb-4 rounded-lg bg-emerald-50 border border-emerald-200 px-4 py-3 text-sm text-emerald-700">Schedule updated.</div>
 }
@@ -27,7 +32,9 @@
         @for (t of timeOptions; track t) { <option [value]="t">{{ t }}</option> }
       </select>
     </div>
-    <button type="button" (click)="addSlot()" class="rounded-lg bg-brand-600 py-2 text-sm font-semibold text-white hover:bg-brand-700">Save Slot</button>
+    <button type="button" (click)="addSlot()" [disabled]="portal.saving()" class="rounded-lg bg-brand-600 py-2 text-sm font-semibold text-white hover:bg-brand-700 disabled:opacity-60">
+      {{ portal.saving() ? 'Saving…' : 'Save Slot' }}
+    </button>
   </div>
 </div>
 
@@ -46,3 +53,4 @@
     </div>
   }
 </div>
+}

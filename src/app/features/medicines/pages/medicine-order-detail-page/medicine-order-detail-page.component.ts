@@ -1,9 +1,11 @@
-import { DatePipe } from '@angular/common';
-import { Component, computed, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import { DatePipe, isPlatformBrowser } from '@angular/common';
+import { Component, inject, PLATFORM_ID, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { OrderStatus } from '../../models/medicine-cart.model';
-import { MedicineCartService } from '../../services/medicine-cart.service';
+import { MedicineOrder } from '../../../../core/models/medicine.model';
+import { ApiErrorService } from '../../../../core/services/api-error.service';
+import { formatMedicinePrice } from '../../../marketplace/utils/marketplace-display.util';
+import { MedicinesApiService } from '../../services/medicines-api.service';
 
 @Component({
   selector: 'app-medicine-order-detail-page',
@@ -12,38 +14,53 @@ import { MedicineCartService } from '../../services/medicine-cart.service';
   templateUrl: './medicine-order-detail-page.component.html',
   styleUrl: './medicine-order-detail-page.component.scss',
 })
-export class MedicineOrderDetailPageComponent implements OnInit, OnDestroy {
+export class MedicineOrderDetailPageComponent {
   private readonly route = inject(ActivatedRoute);
-  readonly cart = inject(MedicineCartService);
+  private readonly medicinesApi = inject(MedicinesApiService);
+  private readonly apiErrorService = inject(ApiErrorService);
+  private readonly platformId = inject(PLATFORM_ID);
+  private readonly isBrowser = isPlatformBrowser(this.platformId);
 
   readonly orderId = signal('');
-  readonly order = computed(() => this.cart.orderHistory().find((o) => o.id === this.orderId()));
-
-  private trackingTimer: ReturnType<typeof setInterval> | null = null;
+  readonly order = signal<MedicineOrder | null>(null);
+  readonly loading = signal(false);
+  readonly error = signal<string | null>(null);
 
   constructor() {
     this.route.paramMap.pipe(takeUntilDestroyed()).subscribe((params) => {
-      this.orderId.set(params.get('orderId') ?? '');
+      const id = params.get('orderId') ?? '';
+      this.orderId.set(id);
+      if (id && this.isBrowser) {
+        this.loadOrder(id);
+      } else if (!id) {
+        this.order.set(null);
+      }
     });
   }
 
-  ngOnInit(): void {
-    this.trackingTimer = setInterval(() => {
-      const order = this.cart.getOrder(this.orderId());
-      if (!order) return;
-      const terminal: OrderStatus[] = ['delivered', 'picked_up', 'cancelled'];
-      if (!terminal.includes(order.status)) {
-        this.cart.advanceOrderStatus(order.id);
-      }
-    }, 12000);
+  loadOrder(id: string): void {
+    this.loading.set(true);
+    this.error.set(null);
+
+    this.medicinesApi.getOrderById(id).subscribe({
+      next: (res) => {
+        this.order.set(res.data.order);
+        this.loading.set(false);
+      },
+      error: (err) => {
+        this.error.set(this.apiErrorService.getMessage(err));
+        this.order.set(null);
+        this.loading.set(false);
+      },
+    });
   }
 
-  ngOnDestroy(): void {
-    if (this.trackingTimer) clearInterval(this.trackingTimer);
+  formatPrice(amount: number): string {
+    return formatMedicinePrice(amount);
   }
 
-  statusLabel(status: OrderStatus): string {
-    const labels: Record<OrderStatus, string> = {
+  statusLabel(status: string): string {
+    const labels: Record<string, string> = {
       placed: 'Order placed',
       confirmed: 'Order confirmed',
       preparing: 'Preparing your order',
@@ -53,23 +70,10 @@ export class MedicineOrderDetailPageComponent implements OnInit, OnDestroy {
       picked_up: 'Picked up',
       cancelled: 'Cancelled',
     };
-    return labels[status];
+    return labels[status] ?? status;
   }
 
-  isStepComplete(step: OrderStatus, current: OrderStatus): boolean {
-    const homeFlow: OrderStatus[] = ['placed', 'confirmed', 'preparing', 'out_for_delivery', 'delivered'];
-    const pickupFlow: OrderStatus[] = ['placed', 'confirmed', 'preparing', 'ready_for_pickup', 'picked_up'];
-    const o = this.order();
-    const flow = o?.checkout.deliveryType === 'home_delivery' ? homeFlow : pickupFlow;
-    return flow.indexOf(step) <= flow.indexOf(current);
-  }
-
-  reorder(): void {
-    const id = this.orderId();
-    if (id) this.cart.reorder(id);
-  }
-
-  pharmacyPhone(): string {
-    return this.order()?.items[0]?.pharmacy.phone ?? '';
+  lineTotal(unitPrice: number, quantity: number): number {
+    return unitPrice * quantity;
   }
 }

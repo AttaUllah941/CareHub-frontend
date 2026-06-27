@@ -6,12 +6,9 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { PublicDoctorApiService } from '../../services/public-doctor-api.service';
 import { PublicDoctorListingCardComponent } from '../../components/public-doctor-listing-card/public-doctor-listing-card.component';
 import { PaginationComponent } from '../../../../shared/components/pagination/pagination.component';
-import {
-  PAKISTAN_CITIES,
-  specialtyLabelFromSlug,
-  specialtyPluralTitle,
-} from '../../../home/data/home-content';
-import { searchDummyDoctors } from '../../data/dummy-doctors.data';
+import { PAKISTAN_CITIES } from '../../../home/data/home-content';
+import { ReferenceDataService } from '../../../../core/services/reference-data.service';
+import { ApiErrorService } from '../../../../core/services/api-error.service';
 import { DoctorSearchResult, PaginationMeta } from '../../../../core/models/doctor.model';
 
 @Component({
@@ -25,6 +22,8 @@ export class FindDoctorsPageComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly publicDoctorApi = inject(PublicDoctorApiService);
+  private readonly referenceData = inject(ReferenceDataService);
+  private readonly apiErrorService = inject(ApiErrorService);
 
   readonly cities = PAKISTAN_CITIES;
   readonly specialtySlug = signal('');
@@ -40,17 +39,19 @@ export class FindDoctorsPageComponent implements OnInit {
 
   readonly pageTitle = computed(() => {
     const total = this.pagination().total;
-    const specialty = specialtyPluralTitle(this.specialtySlug());
+    const specialty = this.referenceData.getSpecialtyPluralTitle(this.specialtySlug());
     const city = this.selectedCity();
     const countLabel = total > 0 ? `${total.toLocaleString()} ` : '';
     return `${countLabel}Best ${specialty} In ${city} | Top Specialists`;
   });
 
-  readonly breadcrumbSpecialty = computed(() => specialtyLabelFromSlug(this.specialtySlug()));
+  readonly breadcrumbSpecialty = computed(() =>
+    this.referenceData.getSpecialtyName(this.specialtySlug()),
+  );
 
   constructor() {
     this.route.paramMap.pipe(takeUntilDestroyed()).subscribe((params) => {
-      const slug = params.get('specialtySlug') ?? 'dermatologist';
+      const slug = params.get('specialtySlug') ?? 'dermatology';
       this.specialtySlug.set(slug);
       this.loadDoctors(1);
     });
@@ -62,6 +63,7 @@ export class FindDoctorsPageComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.referenceData.loadSpecialties();
     const city = this.route.snapshot.queryParamMap.get('city');
     if (city) this.selectedCity.set(city);
   }
@@ -75,7 +77,7 @@ export class FindDoctorsPageComponent implements OnInit {
       limit: 10,
       specialtySlug: this.specialtySlug(),
       city: this.selectedCity(),
-      sortBy: 'yearsOfExperience',
+      sortBy: this.activeFilters().includes('Top Reviewed') ? 'averageRating' : 'yearsOfExperience',
       sortOrder: 'desc',
     };
 
@@ -87,34 +89,17 @@ export class FindDoctorsPageComponent implements OnInit {
 
     this.publicDoctorApi.searchDoctors(query).subscribe({
       next: (res) => {
-        const apiDoctors = res.data.doctors;
-        if (apiDoctors.length > 0) {
-          this.doctors.set(apiDoctors);
-          this.pagination.set(res.data.pagination);
-        } else {
-          this.applyDemoDoctors(page);
-        }
+        this.doctors.set(res.data.doctors);
+        this.pagination.set(res.data.pagination);
         this.loading.set(false);
       },
-      error: () => {
-        this.applyDemoDoctors(page);
+      error: (err) => {
+        this.doctors.set([]);
+        this.pagination.set({ page: 1, limit: 10, total: 0, totalPages: 0 });
+        this.error.set(this.apiErrorService.getMessage(err));
         this.loading.set(false);
       },
     });
-  }
-
-  private applyDemoDoctors(page: number): void {
-    const demo = searchDummyDoctors({
-      specialtySlug: this.specialtySlug(),
-      city: this.selectedCity(),
-      name: this.searchName().trim() || undefined,
-      maxFee: this.maxFee() || undefined,
-      page,
-      limit: 10,
-    });
-    this.doctors.set(demo.doctors);
-    this.pagination.set(demo.pagination);
-    this.error.set(null);
   }
 
   onSearch(): void {

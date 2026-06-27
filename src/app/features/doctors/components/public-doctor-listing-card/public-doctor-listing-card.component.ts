@@ -63,12 +63,12 @@ export class PublicDoctorListingCardComponent {
   }
 
   reviewCount(d: DoctorSearchResult): number {
-    return ((d.id?.charCodeAt(0) ?? 7) * 137 + (d.yearsOfExperience ?? 5) * 41) % 4000 + 120;
+    return d.reviewCount ?? 0;
   }
 
   rating(d: DoctorSearchResult): string {
-    const base = 4.5 + ((d.yearsOfExperience ?? 5) % 5) * 0.1;
-    return Math.min(4.9, base).toFixed(1);
+    const value = d.averageRating ?? 0;
+    return value > 0 ? value.toFixed(1) : '—';
   }
 
   waitTime(d: DoctorSearchResult): string {

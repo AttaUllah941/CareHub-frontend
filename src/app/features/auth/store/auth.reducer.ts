@@ -62,14 +62,25 @@ export const authReducer = createReducer(
 
   on(AuthActions.logoutSuccess, () => initialAuthState),
 
-  on(AuthActions.loadProfileSuccess, (state, { user }) => ({
+  on(AuthActions.loadProfileSuccess, (state, { user, accessToken, refreshToken }) => ({
     ...state,
     user,
+    accessToken,
+    refreshToken,
     isAuthenticated: true,
     loading: false,
   })),
 
   on(AuthActions.loadProfileFailure, () => initialAuthState),
+
+  on(AuthActions.sessionTokensRefreshed, (state, { accessToken, refreshToken }) => ({
+    ...state,
+    accessToken,
+    refreshToken,
+    isAuthenticated: true,
+  })),
+
+  on(AuthActions.sessionExpired, () => initialAuthState),
 
   on(AuthActions.initSession, (state) => ({ ...state, loading: true })),
 

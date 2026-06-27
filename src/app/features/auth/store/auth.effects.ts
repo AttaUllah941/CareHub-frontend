@@ -13,6 +13,7 @@ import {
 } from '../../../core/models/auth.model';
 import { AuthActions } from './auth.actions';
 import { ROLE_DASHBOARD_ROUTES } from './auth.state';
+import { isSafeInternalReturnUrl } from '../../../core/utils/auth-navigation.util';
 
 @Injectable()
 export class AuthEffects {
@@ -122,6 +123,13 @@ export class AuthEffects {
         ofType(AuthActions.loginSuccess, AuthActions.registerSuccess),
         tap(({ response }) => {
           this.tokenStorage.setTokens(response.accessToken, response.refreshToken);
+
+          const returnUrl = this.router.parseUrl(this.router.url).queryParams['returnUrl'];
+          if (isSafeInternalReturnUrl(returnUrl)) {
+            this.router.navigateByUrl(returnUrl);
+            return;
+          }
+
           const dashboardRoute = ROLE_DASHBOARD_ROUTES[response.user.role] ?? '/';
           this.router.navigate([dashboardRoute]);
         }),
@@ -182,7 +190,13 @@ export class AuthEffects {
           return of(AuthActions.loadProfileFailure({ error: 'No token' }));
         }
         return this.authApi.getProfile().pipe(
-          map((res) => AuthActions.loadProfileSuccess({ user: res.data.user })),
+          map((res) =>
+            AuthActions.loadProfileSuccess({
+              user: res.data.user,
+              accessToken: this.tokenStorage.getAccessToken() ?? '',
+              refreshToken: this.tokenStorage.getRefreshToken() ?? '',
+            }),
+          ),
           catchError((err) =>
             of(AuthActions.loadProfileFailure({ error: err.error?.message ?? 'Session expired' })),
           ),
@@ -194,7 +208,7 @@ export class AuthEffects {
   sessionExpired$ = createEffect(
     () =>
       this.actions$.pipe(
-        ofType(AuthActions.loadProfileFailure),
+        ofType(AuthActions.loadProfileFailure, AuthActions.sessionExpired),
         tap(() => this.tokenStorage.clearTokens()),
       ),
     { dispatch: false },

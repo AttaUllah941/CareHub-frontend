@@ -1,14 +1,5 @@
 import { DoctorSearchResult } from './doctor.model';
-
-export interface DoctorReview {
-  id: string;
-  patientInitials: string;
-  patientName: string;
-  date: string;
-  headline: string;
-  body: string;
-  tags: string[];
-}
+import { DoctorReview } from './review.model';
 
 export interface DoctorRatingBreakdown {
   patientSatisfaction: number;

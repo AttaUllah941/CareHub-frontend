@@ -1,9 +1,7 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '../../../environments/environment';
+import { ApiClientService } from '../api/api-client.service';
 import {
-  ApiResponse,
   AuthResponse,
   ChangePasswordRequest,
   ForgotPasswordRequest,
@@ -14,6 +12,7 @@ import {
   ResetPasswordRequest,
   User,
 } from '../models/auth.model';
+import { ApiResponse } from '../models/api.model';
 
 /** Public auth endpoints that must not receive Authorization headers */
 export const PUBLIC_AUTH_PATHS = [
@@ -29,47 +28,38 @@ export const PUBLIC_AUTH_PATHS = [
  */
 @Injectable({ providedIn: 'root' })
 export class AuthApiService {
-  private readonly http = inject(HttpClient);
-  private readonly baseUrl = `${environment.apiUrl}/auth`;
+  private readonly api = inject(ApiClientService);
+  private readonly basePath = '/auth';
 
   register(payload: RegisterRequest): Observable<ApiResponse<AuthResponse>> {
-    return this.http.post<ApiResponse<AuthResponse>>(`${this.baseUrl}/register`, payload);
+    return this.api.post<AuthResponse>(`${this.basePath}/register`, payload);
   }
 
   login(payload: LoginRequest): Observable<ApiResponse<AuthResponse>> {
-    return this.http.post<ApiResponse<AuthResponse>>(`${this.baseUrl}/login`, payload);
+    return this.api.post<AuthResponse>(`${this.basePath}/login`, payload);
   }
 
   refreshToken(refreshToken: string): Observable<ApiResponse<AuthResponse>> {
-    return this.http.post<ApiResponse<AuthResponse>>(`${this.baseUrl}/refresh`, { refreshToken });
+    return this.api.post<AuthResponse>(`${this.basePath}/refresh`, { refreshToken });
   }
 
   logout(): Observable<ApiResponse<MessageResponse>> {
-    return this.http.post<ApiResponse<MessageResponse>>(`${this.baseUrl}/logout`, {});
+    return this.api.post<MessageResponse>(`${this.basePath}/logout`, {});
   }
 
   getProfile(): Observable<ApiResponse<{ user: User }>> {
-    return this.http.get<ApiResponse<{ user: User }>>(`${this.baseUrl}/me`);
+    return this.api.get<{ user: User }>(`${this.basePath}/me`);
   }
 
   forgotPassword(payload: ForgotPasswordRequest): Observable<ApiResponse<ForgotPasswordResponse>> {
-    return this.http.post<ApiResponse<ForgotPasswordResponse>>(
-      `${this.baseUrl}/forgot-password`,
-      payload,
-    );
+    return this.api.post<ForgotPasswordResponse>(`${this.basePath}/forgot-password`, payload);
   }
 
   resetPassword(payload: ResetPasswordRequest): Observable<ApiResponse<MessageResponse>> {
-    return this.http.post<ApiResponse<MessageResponse>>(
-      `${this.baseUrl}/reset-password`,
-      payload,
-    );
+    return this.api.post<MessageResponse>(`${this.basePath}/reset-password`, payload);
   }
 
   changePassword(payload: ChangePasswordRequest): Observable<ApiResponse<MessageResponse>> {
-    return this.http.post<ApiResponse<MessageResponse>>(
-      `${this.baseUrl}/change-password`,
-      payload,
-    );
+    return this.api.post<MessageResponse>(`${this.basePath}/change-password`, payload);
   }
 }

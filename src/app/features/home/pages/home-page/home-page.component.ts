@@ -1,15 +1,15 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import {
   DISEASES,
   PAKISTAN_CITIES,
-  POPULAR_SPECIALTIES,
   SERVICE_CARDS,
   SYMPTOMS,
   TESTIMONIALS,
   TRUST_BADGES,
 } from '../../data/home-content';
+import { ReferenceDataService } from '../../../../core/services/reference-data.service';
 
 @Component({
   selector: 'app-home-page',
@@ -18,9 +18,11 @@ import {
   templateUrl: './home-page.component.html',
   styleUrl: './home-page.component.scss',
 })
-export class HomePageComponent {
+export class HomePageComponent implements OnInit {
+  protected readonly referenceData = inject(ReferenceDataService);
+  private readonly router = inject(Router);
+
   protected readonly cities = PAKISTAN_CITIES;
-  protected readonly specialties = POPULAR_SPECIALTIES;
   protected readonly serviceCards = SERVICE_CARDS;
   protected readonly symptoms = SYMPTOMS;
   protected readonly diseases = DISEASES;
@@ -31,7 +33,9 @@ export class HomePageComponent {
   searchSpecialty = '';
   searchQuery = '';
 
-  constructor(private readonly router: Router) {}
+  ngOnInit(): void {
+    this.referenceData.loadSpecialties();
+  }
 
   selectCity(city: string): void {
     this.selectedCity.set(city);
@@ -44,7 +48,7 @@ export class HomePageComponent {
   }
 
   searchDoctors(): void {
-    const slug = this.searchSpecialty || 'general-practitioner';
+    const slug = this.searchSpecialty || this.referenceData.specialtyChips()[0]?.slug || 'general-medicine';
     this.router.navigate(['/find-doctors', slug], {
       queryParams: {
         city: this.selectedCity(),

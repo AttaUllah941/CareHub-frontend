@@ -4,15 +4,17 @@ import { FormsModule } from '@angular/forms';
 import { DecimalPipe } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { PublicDoctorApiService } from '../../services/public-doctor-api.service';
-import { getDummyDoctorById } from '../../data/dummy-doctors.data';
-import {
-  FIND_DOCTOR_SPECIALTIES,
-  specialtyLabelFromSlug,
-} from '../../../home/data/home-content';
+import { DoctorReviewsApiService } from '../../services/doctor-reviews-api.service';
+import { ReferenceDataService } from '../../../../core/services/reference-data.service';
+import { ApiErrorService } from '../../../../core/services/api-error.service';
+import { NotificationService } from '../../../../core/services/notification.service';
+import { AuthService } from '../../../auth/services/auth.service';
+import { UserRole } from '../../../../core/models/auth.model';
 import {
   DoctorConsultationOption,
   DoctorDetailProfile,
 } from '../../../../core/models/doctor-profile.model';
+import { DoctorReview } from '../../../../core/models/review.model';
 import { buildBookingDateOptions, BookingDateOption } from '../../../appointments/utils/booking-date.util';
 import { VideoConsultationModalComponent } from '../../../appointments/components/video-consultation-modal/video-consultation-modal.component';
 import { ClinicAppointmentModalComponent } from '../../../appointments/components/clinic-appointment-modal/clinic-appointment-modal.component';
@@ -29,9 +31,24 @@ interface DateOption extends BookingDateOption {}
 export class DoctorDetailPageComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly publicDoctorApi = inject(PublicDoctorApiService);
+  private readonly reviewsApi = inject(DoctorReviewsApiService);
+  private readonly referenceData = inject(ReferenceDataService);
+  private readonly apiErrorService = inject(ApiErrorService);
+  private readonly notifications = inject(NotificationService);
+  protected readonly authService = inject(AuthService);
+  protected readonly UserRole = UserRole;
 
   readonly doctor = signal<DoctorDetailProfile | null>(null);
+  readonly reviews = signal<DoctorReview[]>([]);
+  readonly reviewsLoading = signal(false);
+  readonly reviewSubmitting = signal(false);
+  readonly reviewError = signal<string | null>(null);
+  readonly showReviewForm = signal(false);
+  readonly reviewRating = signal(5);
+  readonly reviewHeadline = signal('');
+  readonly reviewBody = signal('');
   readonly loading = signal(true);
+  readonly error = signal<string | null>(null);
   readonly city = signal('Lahore');
   readonly specialtySlug = signal('');
 
@@ -50,12 +67,7 @@ export class DoctorDetailPageComponent {
   readonly breadcrumbSpecialty = computed(() => {
     const d = this.doctor();
     const slug = this.specialtySlug() || d?.specialties?.[0]?.slug || '';
-    return specialtyLabelFromSlug(slug);
-  });
-
-  readonly specialtyUrdu = computed(() => {
-    const slug = this.specialtySlug() || this.doctor()?.specialties?.[0]?.slug || '';
-    return FIND_DOCTOR_SPECIALTIES.find((s) => s.slug === slug)?.urdu ?? '';
+    return this.referenceData.getSpecialtyName(slug);
   });
 
   readonly selectedConsultation = computed(() => {
@@ -88,35 +100,47 @@ export class DoctorDetailPageComponent {
   private loadDoctor(id: string): void {
     if (!id) {
       this.doctor.set(null);
+      this.reviews.set([]);
       this.loading.set(false);
       return;
     }
 
     this.loading.set(true);
+    this.error.set(null);
+    this.reviews.set([]);
 
     this.publicDoctorApi.getDoctorById(id).subscribe({
       next: (res) => {
         const profile = res.data?.doctor;
         if (profile) {
           this.applyDoctor(profile);
+          this.loadReviews(id);
         } else {
-          this.applyDemoDoctor(id);
+          this.doctor.set(null);
         }
         this.loading.set(false);
       },
-      error: () => {
-        this.applyDemoDoctor(id);
+      error: (err) => {
+        this.doctor.set(null);
+        this.error.set(this.apiErrorService.getMessage(err));
         this.loading.set(false);
       },
     });
   }
 
-  private applyDemoDoctor(id: string): void {
-    const demo = getDummyDoctorById(id, this.city());
-    this.doctor.set(demo);
-    if (demo) {
-      this.initSelections(demo);
-    }
+  private loadReviews(doctorId: string): void {
+    this.reviewsLoading.set(true);
+
+    this.reviewsApi.listByDoctor(doctorId, { page: 1, limit: 20, sortBy: 'date', sortOrder: 'desc' }).subscribe({
+      next: (res) => {
+        this.reviews.set(res.data.reviews);
+        this.reviewsLoading.set(false);
+      },
+      error: () => {
+        this.reviews.set([]);
+        this.reviewsLoading.set(false);
+      },
+    });
   }
 
   private applyDoctor(profile: DoctorDetailProfile): void {
@@ -144,9 +168,9 @@ export class DoctorDetailPageComponent {
   }
 
   specialtyLine(d: DoctorDetailProfile): string {
-    const name = d.specialties?.[0]?.name ?? 'General Physician';
-    const urdu = this.specialtyUrdu();
-    return urdu ? `${name} - ${urdu}` : name;
+    const slug = this.specialtySlug() || d.specialties?.[0]?.slug;
+    if (slug) return this.referenceData.getSpecialtyName(slug);
+    return d.specialties?.[0]?.name ?? 'General Physician';
   }
 
   formatFee(fee: number, currency = 'PKR'): string {
@@ -215,5 +239,44 @@ export class DoctorDetailPageComponent {
 
   closeAppointmentModal(): void {
     this.appointmentModalOpen.set(false);
+  }
+
+  canSubmitReview(): boolean {
+    return (
+      this.authService.isAuthenticated() &&
+      this.authService.hasRole(UserRole.PATIENT) &&
+      this.reviewHeadline().trim().length >= 3 &&
+      this.reviewBody().trim().length >= 10
+    );
+  }
+
+  submitReview(): void {
+    const doctor = this.doctor();
+    if (!doctor || !this.canSubmitReview() || this.reviewSubmitting()) return;
+
+    this.reviewSubmitting.set(true);
+    this.reviewError.set(null);
+
+    this.reviewsApi
+      .create(doctor.id, {
+        rating: this.reviewRating(),
+        headline: this.reviewHeadline().trim(),
+        body: this.reviewBody().trim(),
+      })
+      .subscribe({
+        next: () => {
+          this.notifications.showSuccess('Thank you for your review.');
+          this.reviewHeadline.set('');
+          this.reviewBody.set('');
+          this.reviewRating.set(5);
+          this.showReviewForm.set(false);
+          this.reviewSubmitting.set(false);
+          this.loadReviews(doctor.id);
+        },
+        error: (err) => {
+          this.reviewError.set(this.apiErrorService.getMessage(err));
+          this.reviewSubmitting.set(false);
+        },
+      });
   }
 }

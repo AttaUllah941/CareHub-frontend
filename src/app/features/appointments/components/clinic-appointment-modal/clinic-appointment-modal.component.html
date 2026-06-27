@@ -438,7 +438,7 @@
             <button
               type="button"
               (click)="confirmAppointment()"
-              [disabled]="!canConfirm()"
+              [disabled]="!canConfirm() || submitting()"
               class="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold text-white transition-all shadow-sm"
               [class.bg-orange-500]="canConfirm()"
               [class.hover:bg-orange-600]="canConfirm()"
@@ -450,7 +450,7 @@
               <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
-              Confirm Appointment
+              {{ submitting() ? 'Booking...' : 'Confirm Appointment' }}
             </button>
           </div>
         </div>

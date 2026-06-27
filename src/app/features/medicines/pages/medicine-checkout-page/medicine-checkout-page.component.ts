@@ -1,12 +1,17 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { forkJoin, of } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
+import { ApiErrorService } from '../../../../core/services/api-error.service';
+import { NotificationService } from '../../../../core/services/notification.service';
+import { UploadsApiService } from '../../../../core/services/uploads-api.service';
 import {
-  CheckoutFormData,
   DeliveryType,
   PaymentMethod,
   PrescriptionUpload,
 } from '../../models/medicine-cart.model';
+import { MedicinesApiService } from '../../services/medicines-api.service';
 import { MedicineCartService } from '../../services/medicine-cart.service';
 
 const DELIVERY_SLOTS = ['10:00 AM – 12:00 PM', '12:00 PM – 02:00 PM', '02:00 PM – 05:00 PM', '05:00 PM – 08:00 PM'];
@@ -20,6 +25,10 @@ const DELIVERY_SLOTS = ['10:00 AM – 12:00 PM', '12:00 PM – 02:00 PM', '02:00
 })
 export class MedicineCheckoutPageComponent {
   private readonly router = inject(Router);
+  private readonly medicinesApi = inject(MedicinesApiService);
+  private readonly apiErrorService = inject(ApiErrorService);
+  private readonly uploadsApi = inject(UploadsApiService);
+  private readonly notifications = inject(NotificationService);
   readonly cart = inject(MedicineCartService);
 
   readonly deliverySlots = DELIVERY_SLOTS;
@@ -37,7 +46,9 @@ export class MedicineCheckoutPageComponent {
   readonly patientPhone = signal('');
   readonly notes = signal('');
   readonly prescriptions = signal<PrescriptionUpload[]>([]);
+  private readonly prescriptionFiles = new Map<string, File>();
   readonly showValidation = signal(false);
+  readonly submitting = signal(false);
 
   readonly pricing = computed(() => this.cart.applyCoupon(this.couponCode(), this.deliveryType()));
 
@@ -75,6 +86,7 @@ export class MedicineCheckoutPageComponent {
     const file = input.files?.[0];
     if (!file) return;
 
+    this.prescriptionFiles.set(medicineId, file);
     const upload: PrescriptionUpload = {
       medicineId,
       fileName: file.name,
@@ -106,24 +118,79 @@ export class MedicineCheckoutPageComponent {
   placeOrder(): void {
     this.showValidation.set(true);
     this.applyCouponPreview();
-    if (!this.canSubmit()) return;
+    if (!this.canSubmit() || this.submitting()) return;
 
-    const checkout: CheckoutFormData = {
-      deliveryType: this.deliveryType(),
-      addressId: this.useCustomAddress() ? '' : this.addressId(),
-      customAddress: this.useCustomAddress() ? this.customAddress().trim() : '',
-      customPhone: this.useCustomAddress() ? this.customPhone().trim() : '',
-      scheduledDate: this.scheduledDate(),
-      scheduledTimeSlot: this.scheduledTimeSlot(),
-      paymentMethod: this.paymentMethod(),
-      couponCode: this.couponCode().trim().toUpperCase(),
-      patientName: this.patientName().trim(),
-      patientPhone: this.patientPhone().trim(),
-      notes: this.notes().trim(),
-      prescriptions: this.prescriptions(),
-    };
+    const address = this.resolveDeliveryAddress();
+    if (!address) {
+      this.notifications.showError('Please provide a valid delivery address.');
+      return;
+    }
 
-    const order = this.cart.placeOrder(checkout);
-    this.router.navigate(['/medicines/orders', order.id]);
+    this.submitting.set(true);
+
+    const rxItems = this.cart.prescriptionMedicines();
+    const uploadRequests =
+      rxItems.length === 0
+        ? of([] as string[])
+        : forkJoin(
+            rxItems.map((item) => {
+              const file = this.prescriptionFiles.get(item.medicine.id);
+              if (!file) {
+                throw new Error(`Missing prescription file for ${item.medicine.name}`);
+              }
+              return this.uploadsApi.uploadFile(file);
+            }),
+          ).pipe(switchMap((results) => of(results.map((r) => r.url))));
+
+    uploadRequests
+      .pipe(
+        switchMap((prescriptionUrls) =>
+          this.medicinesApi.createOrder({
+            items: this.cart.cartItems().map((item) => ({
+              medicineId: item.medicine.id,
+              pharmacyId: item.pharmacy.id,
+              quantity: item.quantity,
+              unitPrice: item.medicine.price,
+            })),
+            deliveryType: this.deliveryType(),
+            address,
+            paymentMethod: this.paymentMethod(),
+            couponCode: this.couponCode().trim().toUpperCase() || undefined,
+            prescriptionUrls: prescriptionUrls.length ? prescriptionUrls : undefined,
+          }),
+        ),
+      )
+      .subscribe({
+        next: (res) => {
+          const order = res.data.order;
+          this.cart.clearCart();
+          this.prescriptionFiles.clear();
+          this.notifications.showSuccess(`Order placed. Reference: ${order.orderRef}`);
+          this.submitting.set(false);
+          this.router.navigate(['/medicines/orders', order.id]);
+        },
+        error: (err) => {
+          const message =
+            err instanceof Error ? err.message : this.apiErrorService.getMessage(err);
+          this.notifications.showError(message);
+          this.submitting.set(false);
+        },
+      });
+  }
+
+  private resolveDeliveryAddress(): string {
+    if (this.deliveryType() === 'store_pickup') {
+      const pharmacy = this.cart.cartItems()[0]?.pharmacy;
+      return pharmacy ? `Store pickup — ${pharmacy.name}, ${pharmacy.address}, ${pharmacy.city}` : 'Store pickup';
+    }
+
+    if (this.useCustomAddress()) {
+      const addr = this.customAddress().trim();
+      const phone = this.customPhone().trim();
+      return phone ? `${addr} (Phone: ${phone})` : addr;
+    }
+
+    const saved = this.cart.addresses().find((a) => a.id === this.addressId());
+    return saved ? `${saved.fullAddress}, ${saved.city} (Phone: ${saved.phone})` : '';
   }
 }

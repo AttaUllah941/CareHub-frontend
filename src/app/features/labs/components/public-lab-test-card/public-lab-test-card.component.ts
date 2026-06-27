@@ -1,5 +1,6 @@
 import { Component, input, signal } from '@angular/core';
-import { formatLabPrice, LabTest, PublicLab } from '../../data/dummy-labs.data';
+import { LabTest, PublicLab } from '../../../../core/models/lab.model';
+import { formatLabPrice } from '../../../marketplace/utils/marketplace-display.util';
 import { LabTestBookingModalComponent } from '../../../appointments/components/lab-test-booking-modal/lab-test-booking-modal.component';
 
 @Component({

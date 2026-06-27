@@ -1,7 +1,7 @@
     <form [formGroup]="form()" (ngSubmit)="submitted.emit()" class="space-y-5">
       <div class="text-center mb-6">
         <h2 class="text-2xl font-bold text-gray-900">Create account</h2>
-        <p class="mt-1 text-sm text-gray-500">Join CareHub healthcare marketplace</p>
+        <p class="mt-1 text-sm text-gray-500">Join CareHub as a patient</p>
       </div>
 
       <app-alert [message]="error()" />
@@ -13,21 +13,6 @@
 
       <app-input label="Email" type="email" formControlName="email" [required]="true" />
       <app-input label="Phone" type="tel" placeholder="+923001234567" formControlName="phone" [required]="true" />
-
-      <div class="space-y-1">
-        <label class="block text-sm font-medium text-gray-700">
-          I am a <span class="text-red-500">*</span>
-        </label>
-        <select
-          formControlName="role"
-          class="block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
-        >
-          <option [value]="UserRole.PATIENT">Patient</option>
-          <option [value]="UserRole.DOCTOR">Doctor</option>
-          <option [value]="UserRole.CLINIC_MANAGER">Clinic Manager</option>
-        </select>
-      </div>
-
       <app-input label="Password" type="password" formControlName="password" [required]="true" />
 
       <app-button type="submit" [loading]="loading()" [fullWidth]="true">
@@ -35,8 +20,8 @@
       </app-button>
 
       <p class="text-center text-sm text-gray-500 mt-4">
-        Registering as a doctor?
-        <a routerLink="/join-as-doctor" class="font-medium text-brand-600 hover:text-brand-500">Complete doctor onboarding</a>
+        Are you a doctor?
+        <a routerLink="/join-as-doctor" class="font-medium text-brand-600 hover:text-brand-500">Apply via doctor onboarding</a>
       </p>
 
       <p class="text-center text-sm text-gray-500">
@@ -46,4 +31,3 @@
         </a>
       </p>
     </form>
-  

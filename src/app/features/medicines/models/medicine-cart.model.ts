@@ -1,4 +1,4 @@
-import { PharmacyMedicine } from '../data/dummy-medicines.data';
+import { PharmacyMedicine } from '../../../core/models/medicine.model';
 
 export interface CartPharmacyInfo {
   id: string;

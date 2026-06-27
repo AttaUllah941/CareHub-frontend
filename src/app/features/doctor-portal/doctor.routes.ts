@@ -1,14 +1,11 @@
 import { Routes } from '@angular/router';
-import { doctorGuestGuard, doctorPortalGuard } from './guards/doctor-portal.guard';
+import { doctorPortalGuard } from '../../core/guards/role.guard';
 
 export const DOCTOR_ROUTES: Routes = [
   {
     path: 'login',
-    canActivate: [doctorGuestGuard],
-    loadComponent: () =>
-      import('./pages/doctor-login-page/doctor-login-page.component').then(
-        (m) => m.DoctorLoginPageComponent,
-      ),
+    redirectTo: '/auth/login',
+    pathMatch: 'full',
   },
   {
     path: '',

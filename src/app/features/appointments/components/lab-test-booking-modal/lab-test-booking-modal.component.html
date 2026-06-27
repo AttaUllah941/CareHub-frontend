@@ -481,7 +481,7 @@
           <button
             type="button"
             (click)="confirmBooking()"
-            [disabled]="!canConfirm()"
+            [disabled]="!canConfirm() || submitting()"
             class="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold text-white transition-all shadow-sm"
             [class.bg-[#0B4F6C]]="canConfirm()"
             [class.hover:bg-[#093f56]]="canConfirm()"

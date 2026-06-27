@@ -76,6 +76,7 @@ export interface DoctorPortalProfile {
 export interface DoctorAppointment {
   id: string;
   doctorId: string;
+  patientId: string | null;
   patientName: string;
   patientPhone: string;
   patientAge: number;
@@ -104,7 +105,8 @@ export interface DoctorPatientRecord {
 export interface DoctorPrescription {
   id: string;
   doctorId: string;
-  patientId: string;
+  doctorName?: string;
+  patientId: string | null;
   patientName: string;
   diagnosis: string;
   medicines: { name: string; dosage: string; duration: string }[];

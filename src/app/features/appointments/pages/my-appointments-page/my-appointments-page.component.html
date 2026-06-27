@@ -1,0 +1,77 @@
+<div class="max-w-3xl mx-auto px-4 sm:px-6 py-10">
+  <h1 class="text-2xl font-bold text-gray-900 mb-2">My Appointments</h1>
+  <p class="text-sm text-gray-600 mb-6">View and manage your doctor appointments.</p>
+
+  <div class="flex flex-wrap gap-2 mb-6">
+    @for (f of ['all', 'pending', 'confirmed', 'completed', 'cancelled', 'rejected']; track f) {
+      <button
+        type="button"
+        (click)="setFilter(f)"
+        class="rounded-full px-4 py-1.5 text-sm font-medium transition-colors"
+        [class]="filter() === f ? 'bg-brand-600 text-white' : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'"
+      >
+        {{ f === 'all' ? 'All' : (f | titlecase) }}
+      </button>
+    }
+  </div>
+
+  @if (error()) {
+    <div class="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{{ error() }}</div>
+  }
+
+  @if (loading()) {
+    <div class="py-16 text-center text-gray-500">Loading appointments...</div>
+  } @else {
+    <div class="space-y-4">
+      @for (apt of appointments(); track apt.id) {
+        <div class="rounded-2xl border border-gray-200 bg-white p-5">
+          <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+            <div>
+              <div class="flex items-center gap-2 mb-1 flex-wrap">
+                <h2 class="font-semibold text-gray-900">{{ apt.doctorName || 'Doctor' }}</h2>
+                <span class="rounded-full px-2 py-0.5 text-xs font-medium" [class]="statusBadge(apt.status)">
+                  {{ apt.status | titlecase }}
+                </span>
+                <span class="rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-600">
+                  {{ consultationLabel(apt.consultationType) }}
+                </span>
+              </div>
+              <p class="text-sm text-gray-600">{{ formatDate(apt.scheduledAt) }}</p>
+              @if (apt.bookingRef) {
+                <p class="text-xs text-gray-400 mt-1">Ref: {{ apt.bookingRef }}</p>
+              }
+            </div>
+            <div class="flex flex-wrap gap-2 shrink-0">
+              @if (canJoinVideo(apt) && apt.bookingRef) {
+                <button
+                  type="button"
+                  (click)="joinConsultation(apt.bookingRef)"
+                  class="rounded-lg bg-sky-600 px-4 py-2 text-sm font-semibold text-white hover:bg-sky-700"
+                >
+                  Join video call
+                </button>
+              }
+              @if (canCancel(apt.status)) {
+                <button
+                  type="button"
+                  (click)="cancelAppointment(apt.id)"
+                  [disabled]="actionId() === apt.id"
+                  class="rounded-lg border border-red-300 px-4 py-2 text-sm font-semibold text-red-600 hover:bg-red-50 disabled:opacity-60"
+                >
+                  {{ actionId() === apt.id ? 'Cancelling...' : 'Cancel' }}
+                </button>
+              }
+            </div>
+          </div>
+        </div>
+      } @empty {
+        <div class="rounded-2xl border border-gray-200 bg-white p-12 text-center">
+          <p class="text-gray-600">No appointments found.</p>
+          <a routerLink="/" class="inline-flex mt-4 text-sm font-semibold text-brand-600 hover:text-brand-700">
+            Find a doctor
+          </a>
+        </div>
+      }
+    </div>
+  }
+</div>

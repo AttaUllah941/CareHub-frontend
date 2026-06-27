@@ -26,25 +26,20 @@ export class DoctorSchedulePageComponent {
   addSlot(): void {
     const day = this.dayOptions.find((d) => d.value === this.selectedDay());
     if (!day) return;
-    const profile = this.portal.currentProfile();
-    if (!profile) return;
+
     const slot: AvailabilitySlot = {
       day: day.value,
       dayLabel: day.label,
       startTime: this.slotStart(),
       endTime: this.slotEnd(),
     };
-    const updated = [...profile.availability.filter((s) => s.day !== slot.day), slot].sort(
-      (a, b) => a.day - b.day,
-    );
-    this.portal.setAvailability(updated);
+
+    this.portal.addAvailabilitySlot(slot);
     this.saved.set(true);
     setTimeout(() => this.saved.set(false), 2000);
   }
 
   removeSlot(day: number): void {
-    const profile = this.portal.currentProfile();
-    if (!profile) return;
-    this.portal.setAvailability(profile.availability.filter((s) => s.day !== day));
+    this.portal.removeAvailabilitySlot(day);
   }
 }

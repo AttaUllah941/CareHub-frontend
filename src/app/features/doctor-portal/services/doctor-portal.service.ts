@@ -1,232 +1,302 @@
 import { computed, inject, Injectable, PLATFORM_ID, signal } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
+import { forkJoin, Observable, of, switchMap, tap } from 'rxjs';
+import { Appointment } from '../../../core/models/appointment.model';
+import { ApiErrorService } from '../../../core/services/api-error.service';
+import { NotificationService } from '../../../core/services/notification.service';
+import { AppointmentsApiService } from '../../appointments/services/appointments-api.service';
 import {
-  AppointmentStatus,
+  ApiClinic,
+  ApiDoctorProfile,
+  ApiSchedule,
+} from '../models/doctor-api.model';
+import {
+  AvailabilitySlot,
   ConsultationStats,
   DoctorAppointment,
-  DoctorApplicationStatus,
   DoctorPatientRecord,
   DoctorPortalProfile,
   DoctorPrescription,
-  DoctorRegistrationApplication,
-  DoctorRegistrationPayload,
   EarningsSummary,
 } from '../models/doctor-portal.model';
-
-const APPLICATIONS_KEY = 'carehub_doctor_applications';
-const SESSION_KEY = 'carehub_doctor_session';
-const APPOINTMENTS_KEY = 'carehub_doctor_appointments';
-const PATIENTS_KEY = 'carehub_doctor_patients';
-const PRESCRIPTIONS_KEY = 'carehub_doctor_prescriptions';
-
-const DEMO_DOCTOR_ID = 'doc-demo-001';
-const DEMO_APPLICATION_ID = 'app-demo-001';
-
-function generateId(prefix: string): string {
-  return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-}
+import { DoctorPortalApiService } from './doctor-portal-api.service';
+import { PrescriptionsApiService } from './prescriptions-api.service';
+import {
+  buildConsultationStats,
+  buildEarningsSummary,
+  buildPatientsFromAppointments,
+  mapApiAppointment,
+  mapToPortalProfile,
+  time12hTo24h,
+} from '../utils/doctor-portal.util';
 
 @Injectable({ providedIn: 'root' })
 export class DoctorPortalService {
   private readonly platformId = inject(PLATFORM_ID);
+  private readonly portalApi = inject(DoctorPortalApiService);
+  private readonly prescriptionsApi = inject(PrescriptionsApiService);
+  private readonly appointmentsApi = inject(AppointmentsApiService);
+  private readonly apiErrorService = inject(ApiErrorService);
+  private readonly notifications = inject(NotificationService);
   private readonly isBrowser = isPlatformBrowser(this.platformId);
 
-  private readonly applications = signal<DoctorRegistrationApplication[]>(this.loadApplications());
-  private readonly sessionDoctorId = signal<string | null>(this.loadSession());
-  private readonly appointments = signal<DoctorAppointment[]>(this.loadAppointments());
-  private readonly patients = signal<DoctorPatientRecord[]>(this.loadPatients());
-  private readonly prescriptions = signal<DoctorPrescription[]>(this.loadPrescriptions());
+  private readonly apiProfile = signal<ApiDoctorProfile | null>(null);
+  private readonly primaryClinic = signal<ApiClinic | null>(null);
+  private readonly apiSchedules = signal<ApiSchedule[]>([]);
+  private readonly portalAppointments = signal<DoctorAppointment[]>([]);
+  private readonly prescriptions = signal<DoctorPrescription[]>([]);
 
-  readonly allApplications = this.applications.asReadonly();
-  readonly currentDoctorId = this.sessionDoctorId.asReadonly();
-
-  readonly isLoggedIn = computed(() => !!this.sessionDoctorId());
+  readonly loading = signal(false);
+  readonly loadError = signal<string | null>(null);
+  readonly saving = signal(false);
 
   readonly currentProfile = computed<DoctorPortalProfile | null>(() => {
-    const id = this.sessionDoctorId();
-    if (!id) return null;
-    return this.profileForDoctorId(id);
+    const doctor = this.apiProfile();
+    if (!doctor) return null;
+    return mapToPortalProfile(doctor, this.primaryClinic(), this.apiSchedules());
   });
 
-  readonly myAppointments = computed(() =>
-    this.appointments().filter((a) => a.doctorId === this.sessionDoctorId()),
-  );
+  readonly myAppointments = computed(() => this.portalAppointments());
 
   readonly pendingAppointments = computed(() =>
-    this.myAppointments().filter((a) => a.status === 'pending'),
+    this.portalAppointments().filter((appointment) => appointment.status === 'pending'),
   );
 
-  readonly myPatients = computed(() =>
-    this.patients().filter((p) => p.doctorId === this.sessionDoctorId()),
+  readonly myPatients = computed<DoctorPatientRecord[]>(() =>
+    buildPatientsFromAppointments(this.portalAppointments()),
   );
 
-  readonly myPrescriptions = computed(() =>
-    this.prescriptions().filter((p) => p.doctorId === this.sessionDoctorId()),
-  );
+  readonly myPrescriptions = computed(() => this.prescriptions());
 
   readonly stats = computed<ConsultationStats>(() => {
-    const appts = this.myAppointments();
-    const now = new Date();
-    const month = now.getMonth();
-    const year = now.getFullYear();
-    const completed = appts.filter((a) => a.status === 'completed');
-    const completedThisMonth = completed.filter((a) => {
-      const d = new Date(a.date);
-      return d.getMonth() === month && d.getFullYear() === year;
-    });
-
-    return {
-      totalConsultations: completed.length,
-      videoConsultations: completed.filter((a) => a.type === 'video').length,
-      clinicVisits: completed.filter((a) => a.type === 'clinic').length,
-      completedThisMonth: completedThisMonth.length,
-      pendingAppointments: appts.filter((a) => a.status === 'pending').length,
-      averageRating: 4.8,
-      totalReviews: 127,
-    };
+    const doctor = this.apiProfile();
+    return buildConsultationStats(
+      this.portalAppointments(),
+      doctor?.averageRating ?? 0,
+      doctor?.reviewCount ?? 0,
+    );
   });
 
   readonly earnings = computed<EarningsSummary>(() => {
-    const appts = this.myAppointments().filter((a) => a.status === 'completed');
-    const now = new Date();
-    const thisMonth = now.getMonth();
-    const lastMonth = thisMonth === 0 ? 11 : thisMonth - 1;
-    const thisYear = thisMonth === 0 ? now.getFullYear() - 1 : now.getFullYear();
-    const lastMonthYear = thisMonth === 0 ? now.getFullYear() - 1 : now.getFullYear();
-
-    const total = appts.reduce((s, a) => s + a.fee, 0);
-    const monthTotal = appts
-      .filter((a) => {
-        const d = new Date(a.date);
-        return d.getMonth() === thisMonth && d.getFullYear() === now.getFullYear();
-      })
-      .reduce((s, a) => s + a.fee, 0);
-    const lastMonthTotal = appts
-      .filter((a) => {
-        const d = new Date(a.date);
-        return d.getMonth() === lastMonth && d.getFullYear() === lastMonthYear;
-      })
-      .reduce((s, a) => s + a.fee, 0);
-    const pending = this.myAppointments()
-      .filter((a) => a.status === 'accepted')
-      .reduce((s, a) => s + a.fee, 0);
-
-    const recent = appts
-      .slice(-5)
-      .reverse()
-      .map((a) => ({
-        id: a.id,
-        date: a.date,
-        patientName: a.patientName,
-        type: a.type,
-        amount: a.fee,
-        status: 'paid' as const,
-      }));
-
-    return {
-      totalEarnings: total,
-      thisMonth: monthTotal,
-      lastMonth: lastMonthTotal,
-      pendingPayout: pending,
-      currency: 'PKR',
-      recentTransactions: recent,
-    };
+    const doctor = this.apiProfile();
+    return buildEarningsSummary(this.portalAppointments(), doctor?.currency ?? 'PKR');
   });
 
-  constructor() {
-    this.seedDemoData();
-  }
+  loadPortalData(): void {
+    if (!this.isBrowser) return;
 
-  submitApplication(payload: DoctorRegistrationPayload): DoctorRegistrationApplication {
-    const application: DoctorRegistrationApplication = {
-      id: generateId('app'),
-      ...payload,
-      status: 'pending',
-      submittedAt: new Date().toISOString(),
-    };
+    this.loading.set(true);
+    this.loadError.set(null);
 
-    this.applications.update((list) => [...list, application]);
-    this.persistApplications();
-
-    if (this.isBrowser) {
-      console.group('Doctor Registration Submitted');
-      console.log(JSON.stringify(application, null, 2));
-      console.groupEnd();
-    }
-
-    return application;
-  }
-
-  getApplication(id: string): DoctorRegistrationApplication | undefined {
-    return this.applications().find((a) => a.id === id);
-  }
-
-  getApplicationByEmail(email: string): DoctorRegistrationApplication | undefined {
-    return this.applications().find((a) => a.email.toLowerCase() === email.toLowerCase());
-  }
-
-  login(email: string, password: string): { success: boolean; message: string } {
-    const app = this.getApplicationByEmail(email);
-    if (!app) {
-      return { success: false, message: 'No doctor account found with this email.' };
-    }
-    if (app.password !== password) {
-      return { success: false, message: 'Invalid password.' };
-    }
-    if (app.status === 'pending') {
-      return { success: false, message: 'Your application is still under admin review.' };
-    }
-    if (app.status === 'rejected') {
-      return { success: false, message: app.reviewNotes ?? 'Your application was not approved.' };
-    }
-
-    const profile = this.profileForApplication(app);
-    this.sessionDoctorId.set(profile.id);
-    this.persistSession();
-    return { success: true, message: 'Welcome back, Dr. ' + app.fullName.split(' ')[0] };
-  }
-
-  logout(): void {
-    this.sessionDoctorId.set(null);
-    this.persistSession();
+    forkJoin({
+      profile: this.portalApi.getMyProfile(),
+      clinics: this.portalApi.listMyClinics(),
+      schedules: this.portalApi.listMySchedules(),
+      appointments: this.appointmentsApi.listDoctor({ page: 1, limit: 100 }),
+      prescriptions: this.prescriptionsApi.listMine({ page: 1, limit: 50 }),
+    }).subscribe({
+      next: ({ profile, clinics, schedules, appointments, prescriptions }) => {
+        this.apiProfile.set(profile);
+        this.primaryClinic.set(clinics[0] ?? null);
+        this.apiSchedules.set(schedules);
+        this.portalAppointments.set(
+          appointments.data.appointments.map((appointment: Appointment) =>
+            mapApiAppointment(appointment, profile.consultationFee ?? 0),
+          ),
+        );
+        this.prescriptions.set(prescriptions.prescriptions);
+        this.loading.set(false);
+      },
+      error: (err) => {
+        this.loadError.set(this.apiErrorService.getMessage(err));
+        this.loading.set(false);
+      },
+    });
   }
 
   updateProfile(updates: Partial<DoctorPortalProfile>): void {
-    const profile = this.currentProfile();
-    if (!profile) return;
+    const doctor = this.apiProfile();
+    if (!doctor) return;
 
-    const app = this.applications().find((a) => a.id === profile.applicationId);
-    if (!app) return;
+    const payload: Record<string, unknown> = {};
 
-    const updatedApp: DoctorRegistrationApplication = {
-      ...app,
-      fullName: updates.fullName ?? app.fullName,
-      phone: updates.phone ?? app.phone,
-      specialization: updates.specialization ?? app.specialization,
-      qualifications: updates.qualifications ?? app.qualifications,
-      yearsOfExperience: updates.yearsOfExperience ?? app.yearsOfExperience,
-      clinic: updates.clinic ?? app.clinic,
-      consultationFee: updates.consultationFee ?? app.consultationFee,
-      videoConsultationFee: updates.videoConsultationFee ?? app.videoConsultationFee,
-      availability: updates.availability ?? app.availability,
-      bio: updates.bio ?? app.bio,
-    };
+    if (updates.specialization !== undefined) payload['title'] = updates.specialization;
+    if (updates.bio !== undefined) payload['bio'] = updates.bio;
+    if (updates.yearsOfExperience !== undefined) {
+      payload['yearsOfExperience'] = updates.yearsOfExperience;
+    }
+    if (updates.consultationFee !== undefined) {
+      payload['consultationFee'] = updates.consultationFee;
+    }
+    if (updates.qualifications !== undefined) {
+      payload['qualifications'] = updates.qualifications.map((q) => ({
+        degree: q.degree,
+        institute: q.institution,
+        year: q.year ?? undefined,
+      }));
+    }
+    if (updates.clinic?.city !== undefined) payload['city'] = updates.clinic.city;
 
-    this.applications.update((list) =>
-      list.map((a) => (a.id === app.id ? updatedApp : a)),
-    );
-    this.persistApplications();
+    this.saving.set(true);
+
+    const profileUpdate$ =
+      Object.keys(payload).length > 0
+        ? this.portalApi.updateMyProfile(payload)
+        : of(doctor);
+
+    profileUpdate$
+      .pipe(
+        switchMap((updatedDoctor) => {
+          this.apiProfile.set(updatedDoctor);
+          if (!updates.clinic) return of(updatedDoctor);
+
+          const clinic = this.primaryClinic();
+          const clinicPayload = {
+            name: updates.clinic.name,
+            address: updates.clinic.address,
+            city: updates.clinic.city,
+            consultationFee: updates.consultationFee ?? updatedDoctor.consultationFee,
+          };
+
+          if (clinic) {
+            return this.portalApi.updateClinic(clinic.id, clinicPayload).pipe(
+              switchMap((updatedClinic) => {
+                this.primaryClinic.set(updatedClinic);
+                return of(updatedDoctor);
+              }),
+            );
+          }
+
+          return this.portalApi.createClinic(clinicPayload).pipe(
+            switchMap((createdClinic) => {
+              this.primaryClinic.set(createdClinic);
+              return of(updatedDoctor);
+            }),
+          );
+        }),
+      )
+      .subscribe({
+        next: () => {
+          this.saving.set(false);
+          this.notifications.showSuccess('Profile updated successfully.');
+        },
+        error: (err) => {
+          this.saving.set(false);
+          this.notifications.showError(this.apiErrorService.getMessage(err));
+        },
+      });
   }
 
-  setAvailability(slots: DoctorPortalProfile['availability']): void {
-    this.updateProfile({ availability: slots });
+  setAvailability(slots: AvailabilitySlot[]): void {
+    const doctor = this.apiProfile();
+    if (!doctor) return;
+
+    this.saving.set(true);
+
+    const existingForDays = this.apiSchedules().filter(
+      (schedule) =>
+        schedule.isActive &&
+        schedule.dayOfWeek != null &&
+        !slots.some((slot) => slot.day === schedule.dayOfWeek),
+    );
+
+    const deactivate$ =
+      existingForDays.length > 0
+        ? forkJoin(existingForDays.map((schedule) => this.portalApi.deactivateSchedule(schedule.id)))
+        : of([]);
+
+    deactivate$
+      .pipe(
+        switchMap(() => {
+          const activeDays = new Set(
+            this.apiSchedules()
+              .filter((schedule) => schedule.isActive && schedule.dayOfWeek != null)
+              .map((schedule) => schedule.dayOfWeek as number),
+          );
+
+          const creates = slots
+            .filter((slot) => !activeDays.has(slot.day))
+            .map((slot) =>
+              this.portalApi.createSchedule({
+                dayOfWeek: slot.day,
+                startTime: time12hTo24h(slot.startTime),
+                endTime: time12hTo24h(slot.endTime),
+                consultationType: 'video',
+              }),
+            );
+
+          return creates.length > 0 ? forkJoin(creates) : of([]);
+        }),
+        switchMap(() => this.portalApi.listMySchedules()),
+      )
+      .subscribe({
+        next: (schedules) => {
+          this.apiSchedules.set(schedules);
+          this.saving.set(false);
+          this.notifications.showSuccess('Schedule updated successfully.');
+        },
+        error: (err) => {
+          this.saving.set(false);
+          this.notifications.showError(this.apiErrorService.getMessage(err));
+        },
+      });
   }
 
-  updateAppointmentStatus(appointmentId: string, status: AppointmentStatus): void {
-    this.appointments.update((list) =>
-      list.map((a) => (a.id === appointmentId ? { ...a, status } : a)),
+  addAvailabilitySlot(slot: AvailabilitySlot): void {
+    const existing = this.apiSchedules().filter(
+      (schedule) => schedule.isActive && schedule.dayOfWeek === slot.day,
     );
-    this.persistAppointments();
+
+    const create$ = (): Observable<ApiSchedule> =>
+      this.portalApi.createSchedule({
+        dayOfWeek: slot.day,
+        startTime: time12hTo24h(slot.startTime),
+        endTime: time12hTo24h(slot.endTime),
+        consultationType: 'video',
+      });
+
+    this.saving.set(true);
+
+    const request$ =
+      existing.length > 0
+        ? forkJoin(existing.map((schedule) => this.portalApi.deactivateSchedule(schedule.id))).pipe(
+            switchMap(() => create$()),
+          )
+        : create$();
+
+    request$.pipe(switchMap(() => this.portalApi.listMySchedules())).subscribe({
+      next: (schedules) => {
+        this.apiSchedules.set(schedules);
+        this.saving.set(false);
+        this.notifications.showSuccess('Availability slot saved.');
+      },
+      error: (err) => {
+        this.saving.set(false);
+        this.notifications.showError(this.apiErrorService.getMessage(err));
+      },
+    });
+  }
+
+  removeAvailabilitySlot(day: number): void {
+    const schedules = this.apiSchedules().filter(
+      (schedule) => schedule.isActive && schedule.dayOfWeek === day,
+    );
+    if (schedules.length === 0) return;
+
+    this.saving.set(true);
+
+    forkJoin(schedules.map((schedule) => this.portalApi.deactivateSchedule(schedule.id)))
+      .pipe(switchMap(() => this.portalApi.listMySchedules()))
+      .subscribe({
+        next: (updated) => {
+          this.apiSchedules.set(updated);
+          this.saving.set(false);
+        },
+        error: (err) => {
+          this.saving.set(false);
+          this.notifications.showError(this.apiErrorService.getMessage(err));
+        },
+      });
   }
 
   createPrescription(
@@ -234,259 +304,34 @@ export class DoctorPortalService {
     diagnosis: string,
     medicines: DoctorPrescription['medicines'],
     notes?: string,
-  ): DoctorPrescription {
-    const doctorId = this.sessionDoctorId()!;
-    const patient = this.patients().find((p) => p.id === patientId);
-    const rx: DoctorPrescription = {
-      id: generateId('rx'),
-      doctorId,
-      patientId,
-      patientName: patient?.name ?? 'Unknown',
-      diagnosis,
-      medicines,
-      notes,
-      createdAt: new Date().toISOString(),
-    };
-    this.prescriptions.update((list) => [...list, rx]);
-    this.persistPrescriptions();
+  ): Observable<DoctorPrescription> {
+    const patient = this.myPatients().find((entry) => entry.id === patientId);
 
-    if (this.isBrowser) {
-      console.group('Prescription Created');
-      console.log(JSON.stringify(rx, null, 2));
-      console.groupEnd();
-    }
+    return this.prescriptionsApi
+      .create({
+        patientName: patient?.name ?? 'Unknown',
+        patientId: /^[a-f\d]{24}$/i.test(patientId) ? patientId : undefined,
+        diagnosis,
+        medicines,
+        notes,
+      })
+      .pipe(
+        tap((prescription) => {
+          this.prescriptions.update((list) => [prescription, ...list]);
+          this.notifications.showSuccess('Prescription issued successfully.');
+        }),
+      );
+  }
 
-    return rx;
+  reloadPrescriptions(): void {
+    this.prescriptionsApi.listMine({ page: 1, limit: 50 }).subscribe({
+      next: (data) => this.prescriptions.set(data.prescriptions),
+      error: (err) =>
+        this.notifications.showError(this.apiErrorService.getMessage(err)),
+    });
   }
 
   formatCurrency(amount: number): string {
     return `Rs. ${amount.toLocaleString('en-PK')}`;
-  }
-
-  private profileForDoctorId(doctorId: string): DoctorPortalProfile | null {
-    if (doctorId === DEMO_DOCTOR_ID) {
-      const app = this.applications().find((a) => a.id === DEMO_APPLICATION_ID);
-      if (app) return this.profileForApplication(app, DEMO_DOCTOR_ID);
-    }
-    const app = this.applications().find(
-      (a) => a.status === 'approved' && `doc-${a.id}` === doctorId,
-    );
-    if (!app) return null;
-    return this.profileForApplication(app, doctorId);
-  }
-
-  private profileForApplication(
-    app: DoctorRegistrationApplication,
-    doctorId?: string,
-  ): DoctorPortalProfile {
-    return {
-      id: doctorId ?? `doc-${app.id}`,
-      applicationId: app.id,
-      fullName: app.fullName,
-      email: app.email,
-      phone: app.phone,
-      specialization: app.specialization,
-      qualifications: app.qualifications,
-      yearsOfExperience: app.yearsOfExperience,
-      clinic: app.clinic,
-      consultationFee: app.consultationFee,
-      videoConsultationFee: app.videoConsultationFee,
-      availability: app.availability,
-      profilePhotoUrl: app.documents.profilePhoto?.dataUrl,
-      bio: app.bio ?? `Board-certified ${app.specialization} with ${app.yearsOfExperience}+ years of experience.`,
-    };
-  }
-
-  private seedDemoData(): void {
-    const apps = this.applications();
-    const hasDemo = apps.some((a) => a.id === DEMO_APPLICATION_ID);
-    if (!hasDemo) {
-      const demoApp: DoctorRegistrationApplication = {
-        id: DEMO_APPLICATION_ID,
-        fullName: 'Dr. Ahmad Hassan',
-        email: 'dr.ahmad@carehub.demo',
-        phone: '03001234567',
-        password: 'Doctor@123',
-        specialization: 'Cardiologist',
-        qualifications: [
-          { degree: 'MBBS', institution: 'King Edward Medical University', year: 2010 },
-          { degree: 'FCPS Cardiology', institution: 'College of Physicians & Surgeons Pakistan', year: 2016 },
-        ],
-        yearsOfExperience: 12,
-        clinic: {
-          name: 'CareHub Heart Clinic',
-          address: '45 Main Boulevard, Gulberg III',
-          city: 'Lahore',
-          phone: '042-34500888',
-        },
-        consultationFee: 2500,
-        videoConsultationFee: 2000,
-        availability: [
-          { day: 1, dayLabel: 'Monday', startTime: '10:00 AM', endTime: '02:00 PM' },
-          { day: 3, dayLabel: 'Wednesday', startTime: '04:00 PM', endTime: '08:00 PM' },
-          { day: 5, dayLabel: 'Friday', startTime: '10:00 AM', endTime: '01:00 PM' },
-        ],
-        documents: {},
-        status: 'approved',
-        submittedAt: '2025-01-15T10:00:00.000Z',
-        reviewedAt: '2025-01-16T14:00:00.000Z',
-      };
-      this.applications.update((list) => [...list, demoApp]);
-      this.persistApplications();
-    }
-
-    const appts = this.appointments();
-    if (!appts.some((a) => a.doctorId === DEMO_DOCTOR_ID)) {
-      const today = new Date();
-      const tomorrow = new Date(today);
-      tomorrow.setDate(tomorrow.getDate() + 1);
-      const demoAppts: DoctorAppointment[] = [
-        {
-          id: 'apt-001',
-          doctorId: DEMO_DOCTOR_ID,
-          patientName: 'Sara Khan',
-          patientPhone: '03009876543',
-          patientAge: 34,
-          patientGender: 'Female',
-          type: 'video',
-          date: tomorrow.toISOString().split('T')[0],
-          timeSlot: '05:00 PM',
-          status: 'pending',
-          notes: 'Chest pain and shortness of breath',
-          fee: 2000,
-          createdAt: new Date().toISOString(),
-        },
-        {
-          id: 'apt-002',
-          doctorId: DEMO_DOCTOR_ID,
-          patientName: 'Ali Raza',
-          patientPhone: '03001112233',
-          patientAge: 45,
-          patientGender: 'Male',
-          type: 'clinic',
-          date: today.toISOString().split('T')[0],
-          timeSlot: '11:00 AM',
-          status: 'accepted',
-          fee: 2500,
-          createdAt: new Date().toISOString(),
-        },
-        {
-          id: 'apt-003',
-          doctorId: DEMO_DOCTOR_ID,
-          patientName: 'Fatima Noor',
-          patientPhone: '03004445566',
-          patientAge: 28,
-          patientGender: 'Female',
-          type: 'video',
-          date: '2025-06-10',
-          timeSlot: '06:30 PM',
-          status: 'completed',
-          fee: 2000,
-          createdAt: '2025-06-09T10:00:00.000Z',
-        },
-      ];
-      this.appointments.update((list) => [...list, ...demoAppts]);
-      this.persistAppointments();
-    }
-
-    const pts = this.patients();
-    if (!pts.some((p) => p.doctorId === DEMO_DOCTOR_ID)) {
-      const demoPatients: DoctorPatientRecord[] = [
-        {
-          id: 'pat-001',
-          doctorId: DEMO_DOCTOR_ID,
-          name: 'Fatima Noor',
-          age: 28,
-          gender: 'Female',
-          phone: '03004445566',
-          lastVisit: '2025-06-10',
-          conditions: ['Hypertension', 'Anxiety'],
-          visitCount: 3,
-        },
-        {
-          id: 'pat-002',
-          doctorId: DEMO_DOCTOR_ID,
-          name: 'Usman Tariq',
-          age: 52,
-          gender: 'Male',
-          phone: '03007778899',
-          lastVisit: '2025-06-05',
-          conditions: ['Coronary artery disease'],
-          visitCount: 7,
-        },
-        {
-          id: 'pat-003',
-          doctorId: DEMO_DOCTOR_ID,
-          name: 'Ayesha Malik',
-          age: 38,
-          gender: 'Female',
-          phone: '03003334455',
-          lastVisit: '2025-05-28',
-          conditions: ['Arrhythmia'],
-          visitCount: 2,
-        },
-      ];
-      this.patients.update((list) => [...list, ...demoPatients]);
-      this.persistPatients();
-    }
-  }
-
-  private loadApplications(): DoctorRegistrationApplication[] {
-    return this.loadJson(APPLICATIONS_KEY, []);
-  }
-
-  private loadAppointments(): DoctorAppointment[] {
-    return this.loadJson(APPOINTMENTS_KEY, []);
-  }
-
-  private loadPatients(): DoctorPatientRecord[] {
-    return this.loadJson(PATIENTS_KEY, []);
-  }
-
-  private loadPrescriptions(): DoctorPrescription[] {
-    return this.loadJson(PRESCRIPTIONS_KEY, []);
-  }
-
-  private loadSession(): string | null {
-    if (!this.isBrowser) return null;
-    return localStorage.getItem(SESSION_KEY);
-  }
-
-  private persistApplications(): void {
-    this.persistJson(APPLICATIONS_KEY, this.applications());
-  }
-
-  private persistAppointments(): void {
-    this.persistJson(APPOINTMENTS_KEY, this.appointments());
-  }
-
-  private persistPatients(): void {
-    this.persistJson(PATIENTS_KEY, this.patients());
-  }
-
-  private persistPrescriptions(): void {
-    this.persistJson(PRESCRIPTIONS_KEY, this.prescriptions());
-  }
-
-  private persistSession(): void {
-    if (!this.isBrowser) return;
-    const id = this.sessionDoctorId();
-    if (id) localStorage.setItem(SESSION_KEY, id);
-    else localStorage.removeItem(SESSION_KEY);
-  }
-
-  private loadJson<T>(key: string, fallback: T): T {
-    if (!this.isBrowser) return fallback;
-    try {
-      const raw = localStorage.getItem(key);
-      return raw ? (JSON.parse(raw) as T) : fallback;
-    } catch {
-      return fallback;
-    }
-  }
-
-  private persistJson(key: string, data: unknown): void {
-    if (!this.isBrowser) return;
-    localStorage.setItem(key, JSON.stringify(data));
   }
 }

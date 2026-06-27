@@ -50,13 +50,7 @@
                 <span class="text-gray-400">🕐</span>
                 <div>
                   <p class="font-medium text-gray-900">Timings</p>
-                  <p class="text-gray-600">Mon–Fri: {{ l.timings.weekdays }}</p>
-                  @if (l.timings.saturday) {
-                    <p class="text-gray-600">Saturday: {{ l.timings.saturday }}</p>
-                  }
-                  @if (l.timings.sunday) {
-                    <p class="text-gray-600">Sunday: {{ l.timings.sunday }}</p>
-                  }
+                  <p class="text-gray-600">{{ l.timings }}</p>
                 </div>
               </div>
             </div>

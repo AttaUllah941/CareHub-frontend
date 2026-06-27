@@ -1,11 +1,10 @@
 import { Component, inject, input, signal } from '@angular/core';
+import { PharmacyMedicine, PublicPharmacyView } from '../../../../core/models/medicine.model';
 import {
   formatMedicinePrice,
   getStockClasses,
   getStockLabel,
-  PharmacyMedicine,
-  PublicPharmacy,
-} from '../../data/dummy-medicines.data';
+} from '../../../marketplace/utils/marketplace-display.util';
 import { MedicineCartService } from '../../services/medicine-cart.service';
 
 @Component({
@@ -19,7 +18,7 @@ export class PublicMedicineCardComponent {
   private readonly cart = inject(MedicineCartService);
 
   readonly medicine = input.required<PharmacyMedicine>();
-  readonly pharmacy = input.required<PublicPharmacy>();
+  readonly pharmacy = input.required<PublicPharmacyView>();
 
   readonly toastMessage = signal('');
 

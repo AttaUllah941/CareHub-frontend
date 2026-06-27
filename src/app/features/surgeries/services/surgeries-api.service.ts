@@ -1,0 +1,39 @@
+import { Injectable, inject } from '@angular/core';
+import { Observable } from 'rxjs';
+import { ApiClientService } from '../../../core/api/api-client.service';
+import { ApiResponse } from '../../../core/models/api.model';
+import { PaginationMeta } from '../../../core/models/doctor.model';
+import {
+  CreateSurgeryConsultationRequest,
+  SurgeryProcedure,
+  SurgeryProcedureListQuery,
+} from '../../../core/models/surgery.model';
+
+@Injectable({ providedIn: 'root' })
+export class SurgeriesApiService {
+  private readonly api = inject(ApiClientService);
+
+  listPublicProcedures(
+    query: SurgeryProcedureListQuery = {},
+  ): Observable<ApiResponse<{ procedures: SurgeryProcedure[]; pagination: PaginationMeta }>> {
+    return this.api.get<{ procedures: SurgeryProcedure[]; pagination: PaginationMeta }>(
+      '/surgeries/public/procedures',
+      { params: query as Record<string, string | number | undefined> },
+    );
+  }
+
+  getPublicProcedureDetail(
+    slug: string,
+  ): Observable<ApiResponse<{ procedure: SurgeryProcedure }>> {
+    return this.api.get<{ procedure: SurgeryProcedure }>(`/surgeries/public/procedures/${slug}`);
+  }
+
+  createConsultationRequest(
+    payload: CreateSurgeryConsultationRequest,
+  ): Observable<ApiResponse<{ consultationRequest: { id: string; status: string } }>> {
+    return this.api.post<{ consultationRequest: { id: string; status: string } }>(
+      '/surgeries/consultation-requests',
+      payload,
+    );
+  }
+}

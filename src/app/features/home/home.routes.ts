@@ -1,4 +1,6 @@
 import { Routes } from '@angular/router';
+import { authGuard } from '../../core/guards/auth.guard';
+import { patientGuard } from '../../core/guards/role.guard';
 
 export const HOME_ROUTES: Routes = [
   {
@@ -46,6 +48,30 @@ export const HOME_ROUTES: Routes = [
         loadComponent: () =>
           import('../surgeries/pages/surgery-hospital-detail-page/surgery-hospital-detail-page.component').then(
             (m) => m.SurgeryHospitalDetailPageComponent,
+          ),
+      },
+      {
+        path: 'my-appointments',
+        canActivate: [authGuard, patientGuard],
+        loadComponent: () =>
+          import('../appointments/pages/my-appointments-page/my-appointments-page.component').then(
+            (m) => m.MyAppointmentsPageComponent,
+          ),
+      },
+      {
+        path: 'my-prescriptions',
+        canActivate: [authGuard, patientGuard],
+        loadComponent: () =>
+          import('../appointments/pages/my-prescriptions-page/my-prescriptions-page.component').then(
+            (m) => m.MyPrescriptionsPageComponent,
+          ),
+      },
+      {
+        path: 'consultation/:roomRef',
+        canActivate: [authGuard],
+        loadComponent: () =>
+          import('../appointments/pages/video-consultation-room-page/video-consultation-room-page.component').then(
+            (m) => m.VideoConsultationRoomPageComponent,
           ),
       },
       {

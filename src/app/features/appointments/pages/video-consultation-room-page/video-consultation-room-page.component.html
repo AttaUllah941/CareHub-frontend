@@ -1,0 +1,33 @@
+<div class="max-w-5xl mx-auto px-4 sm:px-6 py-8">
+  <nav class="text-sm text-gray-500 mb-4">
+    <a routerLink="/" class="hover:text-brand-600">CareHub</a>
+    <span class="mx-2">&gt;</span>
+    <span class="text-gray-800">Video consultation</span>
+  </nav>
+
+  <div class="flex flex-wrap items-start justify-between gap-4 mb-6">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900">Video Consultation Room</h1>
+      <p class="mt-1 font-mono text-sm text-brand-600">Room: {{ roomRef() }}</p>
+    </div>
+    @if (authService.user(); as user) {
+      <p class="text-sm text-gray-600">Joined as {{ user.firstName }} {{ user.lastName }}</p>
+    }
+  </div>
+
+  <div class="rounded-2xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-900 mb-6">
+    Share this room reference with your doctor or patient. Both parties should join at the scheduled time using the same reference.
+  </div>
+
+  @if (loadError()) {
+    <div class="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 mb-4">
+      {{ loadError() }}
+    </div>
+  }
+
+  <div id="jitsi-container" class="rounded-2xl overflow-hidden border border-gray-200 bg-gray-900 min-h-[560px]"></div>
+
+  <p class="mt-4 text-xs text-gray-500">
+    Powered by Jitsi Meet (demo). For production, replace with your preferred HIPAA-compliant video provider.
+  </p>
+</div>

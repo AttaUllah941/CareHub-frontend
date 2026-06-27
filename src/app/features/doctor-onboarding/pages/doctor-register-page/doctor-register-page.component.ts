@@ -1,7 +1,12 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { FIND_DOCTOR_SPECIALTIES } from '../../../home/data/home-content';
+import { forkJoin } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { ApiErrorService } from '../../../../core/services/api-error.service';
+import { NotificationService } from '../../../../core/services/notification.service';
+import { UploadsApiService } from '../../../../core/services/uploads-api.service';
+import { ReferenceDataService } from '../../../../core/services/reference-data.service';
 import {
   AvailabilitySlot,
   DAY_OPTIONS,
@@ -9,9 +14,18 @@ import {
   TIME_SLOT_OPTIONS,
   UploadedDocument,
 } from '../../../doctor-portal/models/doctor-portal.model';
-import { DoctorPortalService } from '../../../doctor-portal/services/doctor-portal.service';
+import { DoctorApplicationsApiService } from '../../../doctor-portal/services/doctor-applications-api.service';
+import {
+  normalizeUploadMimeType,
+  splitFullName,
+} from '../../../doctor-portal/utils/doctor-portal.util';
 
 type Step = 1 | 2 | 3 | 4 | 5;
+type DocumentTarget = 'license' | 'cert' | 'photo' | 'id';
+
+interface StoredDocument extends UploadedDocument {
+  file: File;
+}
 
 @Component({
   selector: 'app-doctor-register-page',
@@ -20,10 +34,13 @@ type Step = 1 | 2 | 3 | 4 | 5;
   templateUrl: './doctor-register-page.component.html',
   styleUrl: './doctor-register-page.component.scss',
 })
-export class DoctorRegisterPageComponent {
-  private readonly portal = inject(DoctorPortalService);
+export class DoctorRegisterPageComponent implements OnInit {
+  private readonly applicationsApi = inject(DoctorApplicationsApiService);
+  private readonly uploadsApi = inject(UploadsApiService);
+  private readonly apiErrorService = inject(ApiErrorService);
+  private readonly notifications = inject(NotificationService);
+  protected readonly referenceData = inject(ReferenceDataService);
 
-  readonly specialties = FIND_DOCTOR_SPECIALTIES;
   readonly dayOptions = DAY_OPTIONS;
   readonly timeOptions = TIME_SLOT_OPTIONS;
 
@@ -31,6 +48,7 @@ export class DoctorRegisterPageComponent {
   readonly submitted = signal(false);
   readonly applicationId = signal('');
   readonly submitError = signal('');
+  readonly submitting = signal(false);
 
   readonly fullName = signal('');
   readonly email = signal('');
@@ -55,10 +73,10 @@ export class DoctorRegisterPageComponent {
   readonly slotStart = signal('10:00 AM');
   readonly slotEnd = signal('02:00 PM');
 
-  readonly licenseFile = signal<UploadedDocument | null>(null);
-  readonly certFile = signal<UploadedDocument | null>(null);
-  readonly photoFile = signal<UploadedDocument | null>(null);
-  readonly idFile = signal<UploadedDocument | null>(null);
+  readonly licenseFile = signal<StoredDocument | null>(null);
+  readonly certFile = signal<StoredDocument | null>(null);
+  readonly photoFile = signal<StoredDocument | null>(null);
+  readonly idFile = signal<StoredDocument | null>(null);
 
   readonly stepLabels = ['Professional', 'Clinic & Fees', 'Availability', 'Documents', 'Review'];
 
@@ -98,8 +116,14 @@ export class DoctorRegisterPageComponent {
       this.canProceedStep1() &&
       this.canProceedStep2() &&
       this.canProceedStep3() &&
-      this.canProceedStep4(),
+      this.canProceedStep4() &&
+      !this.submitting(),
   );
+
+  ngOnInit(): void {
+    this.referenceData.loadSpecialties();
+    this.referenceData.loadLanguages();
+  }
 
   addQualification(): void {
     this.qualifications.update((list) => [...list, { degree: '', institution: '', year: null }]);
@@ -141,12 +165,20 @@ export class DoctorRegisterPageComponent {
     this.availability.update((list) => list.filter((s) => s.day !== day));
   }
 
-  onLicenseFile(event: Event): void { this.onFileSelected(event, 'license'); }
-  onCertFile(event: Event): void { this.onFileSelected(event, 'cert'); }
-  onPhotoFile(event: Event): void { this.onFileSelected(event, 'photo'); }
-  onIdFile(event: Event): void { this.onFileSelected(event, 'id'); }
+  onLicenseFile(event: Event): void {
+    this.onFileSelected(event, 'license');
+  }
+  onCertFile(event: Event): void {
+    this.onFileSelected(event, 'cert');
+  }
+  onPhotoFile(event: Event): void {
+    this.onFileSelected(event, 'photo');
+  }
+  onIdFile(event: Event): void {
+    this.onFileSelected(event, 'id');
+  }
 
-  onFileSelected(event: Event, target: 'license' | 'cert' | 'photo' | 'id'): void {
+  onFileSelected(event: Event, target: DocumentTarget): void {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
     if (!file) return;
@@ -155,24 +187,21 @@ export class DoctorRegisterPageComponent {
       return;
     }
 
-    const reader = new FileReader();
-    reader.onload = () => {
-      const doc: UploadedDocument = {
-        name: file.name,
-        type: file.type,
-        size: file.size,
-        dataUrl: typeof reader.result === 'string' ? reader.result : undefined,
-      };
-      const setters = {
-        license: this.licenseFile,
-        cert: this.certFile,
-        photo: this.photoFile,
-        id: this.idFile,
-      };
-      setters[target].set(doc);
-      this.submitError.set('');
+    const doc: StoredDocument = {
+      name: file.name,
+      type: file.type,
+      size: file.size,
+      file,
     };
-    reader.readAsDataURL(file);
+
+    const setters = {
+      license: this.licenseFile,
+      cert: this.certFile,
+      photo: this.photoFile,
+      id: this.idFile,
+    };
+    setters[target].set(doc);
+    this.submitError.set('');
   }
 
   nextStep(): void {
@@ -195,34 +224,64 @@ export class DoctorRegisterPageComponent {
 
   submit(): void {
     if (!this.canSubmit()) return;
-    this.submitError.set('');
 
-    const app = this.portal.submitApplication({
-      fullName: this.fullName().trim(),
-      email: this.email().trim(),
-      phone: this.phone().trim(),
-      password: this.password(),
-      specialization: this.specialization(),
-      qualifications: this.qualifications(),
-      yearsOfExperience: this.yearsOfExperience()!,
-      clinic: {
-        name: this.clinicName().trim(),
-        address: this.clinicAddress().trim(),
-        city: this.clinicCity().trim(),
-        phone: this.clinicPhone().trim(),
+    this.submitError.set('');
+    this.submitting.set(true);
+
+    const uploads: { type: string; file: File }[] = [
+      { type: 'medical_license', file: this.licenseFile()!.file },
+      { type: 'profile_photo', file: this.photoFile()!.file },
+      { type: 'identity_proof', file: this.idFile()!.file },
+    ];
+
+    const cert = this.certFile();
+    if (cert) {
+      uploads.push({ type: 'certification', file: cert.file });
+    }
+
+    forkJoin(
+      uploads.map((item) =>
+        this.uploadsApi.uploadApplicationFile(item.file).pipe(
+          map((result) => ({
+            type: item.type,
+            url: result.url,
+            mimeType: normalizeUploadMimeType(result.mimeType),
+            size: result.size,
+          })),
+        ),
+      ),
+    ).subscribe({
+      next: (documents) => {
+        const { firstName, lastName } = splitFullName(this.fullName().trim());
+
+        this.applicationsApi
+          .create({
+            firstName,
+            lastName,
+            email: this.email().trim(),
+            phone: this.phone().trim(),
+            password: this.password(),
+            documents,
+          })
+          .subscribe({
+            next: (application) => {
+              this.applicationId.set(application.id);
+              this.submitted.set(true);
+              this.submitting.set(false);
+              this.notifications.showSuccess(
+                'Application submitted. An admin will review your documents before activation.',
+              );
+            },
+            error: (err) => {
+              this.submitting.set(false);
+              this.submitError.set(this.apiErrorService.getMessage(err));
+            },
+          });
       },
-      consultationFee: this.consultationFee()!,
-      videoConsultationFee: this.videoConsultationFee() ?? this.consultationFee()!,
-      availability: this.availability(),
-      documents: {
-        medicalLicense: this.licenseFile() ?? undefined,
-        certifications: this.certFile() ?? undefined,
-        profilePhoto: this.photoFile() ?? undefined,
-        identityProof: this.idFile() ?? undefined,
+      error: (err) => {
+        this.submitting.set(false);
+        this.submitError.set(this.apiErrorService.getMessage(err));
       },
     });
-
-    this.applicationId.set(app.id);
-    this.submitted.set(true);
   }
 }

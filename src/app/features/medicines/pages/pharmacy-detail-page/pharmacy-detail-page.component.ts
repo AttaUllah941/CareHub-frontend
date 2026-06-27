@@ -2,14 +2,17 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { PharmacyMedicine, PublicPharmacyView } from '../../../../core/models/medicine.model';
+import { ApiErrorService } from '../../../../core/services/api-error.service';
 import { PaginationComponent } from '../../../../shared/components/pagination/pagination.component';
 import { PublicMedicineCardComponent } from '../../components/public-medicine-card/public-medicine-card.component';
 import {
+  cityNameFromSlug,
   formatMedicinePrice,
-  getMedicineCityName,
-  getPharmacyBySlug,
-  PublicPharmacy,
-} from '../../data/dummy-medicines.data';
+  groupMedicinesByPharmacy,
+  toPublicPharmacyView,
+} from '../../../marketplace/utils/marketplace-display.util';
+import { MedicinesApiService } from '../../services/medicines-api.service';
 
 const MEDICINES_PER_PAGE = 9;
 
@@ -22,16 +25,20 @@ const MEDICINES_PER_PAGE = 9;
 })
 export class PharmacyDetailPageComponent {
   private readonly route = inject(ActivatedRoute);
+  private readonly medicinesApi = inject(MedicinesApiService);
+  private readonly apiErrorService = inject(ApiErrorService);
 
   readonly citySlug = signal('lahore');
   readonly pharmacySlug = signal('');
-  readonly pharmacy = signal<PublicPharmacy | null>(null);
+  readonly pharmacy = signal<PublicPharmacyView | null>(null);
+  readonly loading = signal(false);
+  readonly error = signal<string | null>(null);
   readonly medicineSearchQuery = signal('');
   readonly currentPage = signal(1);
 
-  readonly cityName = computed(() => getMedicineCityName(this.citySlug()));
+  readonly cityName = computed(() => cityNameFromSlug(this.citySlug()));
 
-  readonly filteredMedicines = computed(() => {
+  readonly filteredMedicines = computed((): PharmacyMedicine[] => {
     const medicines = this.pharmacy()?.medicines ?? [];
     const query = this.medicineSearchQuery().trim().toLowerCase();
     if (!query) return medicines;
@@ -43,14 +50,12 @@ export class PharmacyDetailPageComponent {
   );
 
   readonly paginatedMedicines = computed(() => {
-    const medicines = this.filteredMedicines();
     const page = Math.min(this.currentPage(), this.totalMedicinePages());
     const start = (page - 1) * MEDICINES_PER_PAGE;
-    return medicines.slice(start, start + MEDICINES_PER_PAGE);
+    return this.filteredMedicines().slice(start, start + MEDICINES_PER_PAGE);
   });
 
   readonly hasActiveSearch = computed(() => this.medicineSearchQuery().trim().length > 0);
-
   readonly formatPrice = formatMedicinePrice;
 
   constructor() {
@@ -59,9 +64,35 @@ export class PharmacyDetailPageComponent {
       const slug = params.get('pharmacySlug') ?? '';
       this.citySlug.set(city);
       this.pharmacySlug.set(slug);
-      this.pharmacy.set(getPharmacyBySlug(city, slug) ?? null);
       this.medicineSearchQuery.set('');
       this.currentPage.set(1);
+      this.loadPharmacy(city, slug);
+    });
+  }
+
+  private loadPharmacy(citySlug: string, slug: string): void {
+    if (!slug) {
+      this.pharmacy.set(null);
+      return;
+    }
+
+    this.loading.set(true);
+    this.error.set(null);
+
+    this.medicinesApi.listPublic({ limit: 100 }).subscribe({
+      next: (res) => {
+        const grouped = groupMedicinesByPharmacy(res.data.medicines);
+        const match = grouped.find(
+          (entry) => entry.pharmacy.citySlug === citySlug && entry.pharmacy.slug === slug,
+        );
+        this.pharmacy.set(match ? toPublicPharmacyView(match.pharmacy, match.medicines) : null);
+        this.loading.set(false);
+      },
+      error: (err) => {
+        this.error.set(this.apiErrorService.getMessage(err));
+        this.pharmacy.set(null);
+        this.loading.set(false);
+      },
     });
   }
 
