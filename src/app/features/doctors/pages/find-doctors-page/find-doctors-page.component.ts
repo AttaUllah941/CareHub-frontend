@@ -3,6 +3,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { DecimalPipe } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { combineLatest } from 'rxjs';
 import { PublicDoctorApiService } from '../../services/public-doctor-api.service';
 import { PublicDoctorListingCardComponent } from '../../components/public-doctor-listing-card/public-doctor-listing-card.component';
 import { PaginationComponent } from '../../../../shared/components/pagination/pagination.component';
@@ -39,33 +40,43 @@ export class FindDoctorsPageComponent implements OnInit {
 
   readonly pageTitle = computed(() => {
     const total = this.pagination().total;
-    const specialty = this.referenceData.getSpecialtyPluralTitle(this.specialtySlug());
+    const slug = this.specialtySlug();
+    const specialty = slug
+      ? this.referenceData.getSpecialtyPluralTitle(slug)
+      : 'Doctors';
     const city = this.selectedCity();
     const countLabel = total > 0 ? `${total.toLocaleString()} ` : '';
     return `${countLabel}Best ${specialty} In ${city} | Top Specialists`;
   });
 
-  readonly breadcrumbSpecialty = computed(() =>
-    this.referenceData.getSpecialtyName(this.specialtySlug()),
-  );
+  readonly breadcrumbSpecialty = computed(() => {
+    const slug = this.specialtySlug();
+    return slug ? this.referenceData.getSpecialtyName(slug) : 'All Specialities';
+  });
 
   constructor() {
-    this.route.paramMap.pipe(takeUntilDestroyed()).subscribe((params) => {
-      const slug = params.get('specialtySlug') ?? 'general-physician';
-      this.specialtySlug.set(slug);
-      this.loadDoctors(1);
-    });
+    combineLatest([this.route.paramMap, this.route.queryParamMap])
+      .pipe(takeUntilDestroyed())
+      .subscribe(([params, queryParams]) => {
+        const rawSlug = params.get('specialtySlug') ?? 'all';
+        this.specialtySlug.set(rawSlug === 'all' ? '' : rawSlug);
 
-    this.route.queryParamMap.pipe(takeUntilDestroyed()).subscribe((params) => {
-      const city = params.get('city');
-      if (city) this.selectedCity.set(city);
-    });
+        const city = queryParams.get('city');
+        if (city) {
+          this.selectedCity.set(city);
+        }
+
+        const name = queryParams.get('q') ?? queryParams.get('name');
+        if (name != null) {
+          this.searchName.set(name);
+        }
+
+        this.loadDoctors(1);
+      });
   }
 
   ngOnInit(): void {
     this.referenceData.loadSpecialties();
-    const city = this.route.snapshot.queryParamMap.get('city');
-    if (city) this.selectedCity.set(city);
   }
 
   loadDoctors(page = 1): void {
@@ -75,11 +86,15 @@ export class FindDoctorsPageComponent implements OnInit {
     const query: Record<string, string | number> = {
       page,
       limit: 10,
-      specialtySlug: this.specialtySlug(),
       city: this.selectedCity(),
       sortBy: this.activeFilters().includes('Top Reviewed') ? 'averageRating' : 'yearsOfExperience',
       sortOrder: 'desc',
     };
+
+    const specialtySlug = this.specialtySlug().trim();
+    if (specialtySlug) {
+      query['specialtySlug'] = specialtySlug;
+    }
 
     const name = this.searchName().trim();
     if (name) query['name'] = name;
@@ -113,7 +128,6 @@ export class FindDoctorsPageComponent implements OnInit {
       queryParams: { city },
       queryParamsHandling: 'merge',
     });
-    this.loadDoctors(1);
   }
 
   toggleFilter(filter: string): void {

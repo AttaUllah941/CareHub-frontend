@@ -48,12 +48,16 @@ export class HomePageComponent implements OnInit {
   }
 
   searchDoctors(): void {
-    const slug = this.searchSpecialty || this.referenceData.specialtyChips()[0]?.slug || 'general-physician';
-    this.router.navigate(['/find-doctors', slug], {
-      queryParams: {
-        city: this.selectedCity(),
-        q: this.searchQuery || undefined,
-      },
-    });
+    const slug = this.searchSpecialty.trim() || 'all';
+    const queryParams: Record<string, string> = {
+      city: this.selectedCity(),
+    };
+
+    const q = this.searchQuery.trim();
+    if (q) {
+      queryParams['q'] = q;
+    }
+
+    this.router.navigate(['/find-doctors', slug], { queryParams });
   }
 }
