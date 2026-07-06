@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { catchError, exhaustMap, map, of, tap } from 'rxjs';
 import { AuthApiService } from '../../../core/services/auth-api.service';
+import { ReferenceDataService } from '../../../core/services/reference-data.service';
 import { TokenStorageService } from '../../../core/services/token-storage.service';
 import {
   ChangePasswordRequest,
@@ -19,6 +20,7 @@ import { isSafeInternalReturnUrl } from '../../../core/utils/auth-navigation.uti
 export class AuthEffects {
   private readonly actions$ = inject(Actions);
   private readonly authApi = inject(AuthApiService);
+  private readonly referenceData = inject(ReferenceDataService);
   private readonly tokenStorage = inject(TokenStorageService);
   private readonly router = inject(Router);
 
@@ -123,6 +125,7 @@ export class AuthEffects {
         ofType(AuthActions.loginSuccess, AuthActions.registerSuccess),
         tap(({ response }) => {
           this.tokenStorage.setTokens(response.accessToken, response.refreshToken);
+          this.referenceData.loadSpecialties();
 
           const returnUrl = this.router.parseUrl(this.router.url).queryParams['returnUrl'];
           if (isSafeInternalReturnUrl(returnUrl)) {
@@ -203,6 +206,15 @@ export class AuthEffects {
         );
       }),
     ),
+  );
+
+  sessionRestored$ = createEffect(
+    () =>
+      this.actions$.pipe(
+        ofType(AuthActions.loadProfileSuccess),
+        tap(() => this.referenceData.loadSpecialties()),
+      ),
+    { dispatch: false },
   );
 
   sessionExpired$ = createEffect(
