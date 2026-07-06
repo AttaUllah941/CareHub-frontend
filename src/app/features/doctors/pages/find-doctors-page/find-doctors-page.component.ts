@@ -51,7 +51,7 @@ export class FindDoctorsPageComponent implements OnInit {
 
   constructor() {
     this.route.paramMap.pipe(takeUntilDestroyed()).subscribe((params) => {
-      const slug = params.get('specialtySlug') ?? 'dermatology';
+      const slug = params.get('specialtySlug') ?? 'general-physician';
       this.specialtySlug.set(slug);
       this.loadDoctors(1);
     });

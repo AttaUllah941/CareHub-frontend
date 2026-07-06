@@ -48,7 +48,7 @@ export class HomePageComponent implements OnInit {
   }
 
   searchDoctors(): void {
-    const slug = this.searchSpecialty || this.referenceData.specialtyChips()[0]?.slug || 'general-medicine';
+    const slug = this.searchSpecialty || this.referenceData.specialtyChips()[0]?.slug || 'general-physician';
     this.router.navigate(['/find-doctors', slug], {
       queryParams: {
         city: this.selectedCity(),
