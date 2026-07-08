@@ -350,28 +350,31 @@
                     type="tel"
                     placeholder="Phone number"
                     class="flex-1 px-3 py-2.5 text-sm outline-none"
-                    [(ngModel)]="patientPhone"
+                    [ngModel]="patientPhone()"
+                    (ngModelChange)="patientPhone.set($event)"
                   />
                 </div>
                 <input
                   type="text"
                   placeholder="Add Patient Name"
                   class="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-[#0B4F6C] focus:ring-1 focus:ring-[#0B4F6C]"
-                  [(ngModel)]="patientName"
+                  [ngModel]="patientName()"
+                  (ngModelChange)="patientName.set($event)"
                 />
               </div>
 
-              <a
-                [routerLink]="['/auth/register']"
-                [queryParams]="{
-                  intent: isVideoSelected() ? 'video' : 'appointment',
-                  doctorId: d.id,
-                  slot: selectedTimeSlot()
-                }"
-                class="block w-full rounded-lg bg-emerald-600 px-4 py-3.5 text-center text-sm font-semibold text-white hover:bg-emerald-700 transition-colors"
+              @if (bookingError()) {
+                <p class="text-sm text-red-600">{{ bookingError() }}</p>
+              }
+
+              <button
+                type="button"
+                (click)="bookAppointment()"
+                [disabled]="!canBookAppointment()"
+                class="block w-full rounded-lg bg-emerald-600 px-4 py-3.5 text-center text-sm font-semibold text-white hover:bg-emerald-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
               >
-                {{ bookingButtonLabel() }}
-              </a>
+                {{ bookingSubmitting() ? 'Booking...' : bookingButtonLabel() }}
+              </button>
             </div>
           </div>
         </div>

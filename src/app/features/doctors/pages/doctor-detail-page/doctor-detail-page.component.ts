@@ -16,6 +16,10 @@ import {
 } from '../../../../core/models/doctor-profile.model';
 import { DoctorReview } from '../../../../core/models/review.model';
 import { buildBookingDateOptions, BookingDateOption } from '../../../appointments/utils/booking-date.util';
+import { combineDateAndTimeSlot } from '../../../appointments/utils/appointment-schedule.util';
+import { patientDefaultsFromUser } from '../../../appointments/utils/patient-form.util';
+import { AppointmentsApiService } from '../../../appointments/services/appointments-api.service';
+import { CreateAppointmentRequest } from '../../../../core/models/appointment.model';
 import { VideoConsultationModalComponent } from '../../../appointments/components/video-consultation-modal/video-consultation-modal.component';
 import { ClinicAppointmentModalComponent } from '../../../appointments/components/clinic-appointment-modal/clinic-appointment-modal.component';
 
@@ -35,6 +39,7 @@ export class DoctorDetailPageComponent {
   private readonly referenceData = inject(ReferenceDataService);
   private readonly apiErrorService = inject(ApiErrorService);
   private readonly notifications = inject(NotificationService);
+  private readonly appointmentsApi = inject(AppointmentsApiService);
   protected readonly authService = inject(AuthService);
   protected readonly UserRole = UserRole;
 
@@ -55,14 +60,16 @@ export class DoctorDetailPageComponent {
   readonly selectedConsultationId = signal('');
   readonly selectedDateIndex = signal(0);
   readonly selectedTimeSlot = signal('');
-  patientPhone = '';
-  patientName = '';
+  readonly patientPhone = signal('');
+  readonly patientName = signal('');
   promoCode = '';
 
   readonly dateOptions = signal<DateOption[]>(buildBookingDateOptions());
 
   readonly videoModalOpen = signal(false);
   readonly appointmentModalOpen = signal(false);
+  readonly bookingSubmitting = signal(false);
+  readonly bookingError = signal<string | null>(null);
 
   readonly breadcrumbSpecialty = computed(() => {
     const d = this.doctor();
@@ -82,6 +89,19 @@ export class DoctorDetailPageComponent {
   readonly bookingButtonLabel = computed(() =>
     this.isVideoSelected() ? 'Book Video Consultation' : 'Book In-Clinic Appointment',
   );
+
+  readonly canBookAppointment = computed(() => {
+    const phone = this.patientPhone().replace(/\D/g, '');
+    const name = this.patientName().trim();
+    return (
+      Boolean(this.selectedConsultation()) &&
+      Boolean(this.selectedTimeSlot()) &&
+      name.length >= 2 &&
+      phone.length >= 10 &&
+      phone.length <= 11 &&
+      !this.bookingSubmitting()
+    );
+  });
 
   constructor() {
     this.route.paramMap.pipe(takeUntilDestroyed()).subscribe((params) => {
@@ -146,6 +166,7 @@ export class DoctorDetailPageComponent {
   private applyDoctor(profile: DoctorDetailProfile): void {
     this.doctor.set(profile);
     this.initSelections(profile);
+    this.initPatientForm();
   }
 
   private initSelections(d: DoctorDetailProfile): void {
@@ -156,6 +177,15 @@ export class DoctorDetailPageComponent {
     if (d.timeSlots.length) {
       this.selectedTimeSlot.set(d.timeSlots[0]);
     }
+    this.selectedDateIndex.set(0);
+    this.dateOptions.set(buildBookingDateOptions());
+    this.bookingError.set(null);
+  }
+
+  private initPatientForm(): void {
+    const defaults = patientDefaultsFromUser(this.authService.user());
+    this.patientName.set(defaults.name);
+    this.patientPhone.set(defaults.phone);
   }
 
   doctorName(d: DoctorDetailProfile): string {
@@ -239,6 +269,63 @@ export class DoctorDetailPageComponent {
 
   closeAppointmentModal(): void {
     this.appointmentModalOpen.set(false);
+  }
+
+  bookAppointment(): void {
+    const doctor = this.doctor();
+    const consultation = this.selectedConsultation();
+    const selectedDate = this.dateOptions()[this.selectedDateIndex()];
+    const timeSlot = this.selectedTimeSlot();
+
+    this.bookingError.set(null);
+
+    if (!this.authService.isAuthenticated()) {
+      this.notifications.showError('Please login first.');
+      return;
+    }
+
+    if (!doctor || !consultation || !selectedDate || !timeSlot) {
+      this.bookingError.set('Please select a consultation type, date, and time slot.');
+      return;
+    }
+
+    const name = this.patientName().trim();
+    const phone = this.patientPhone().replace(/\D/g, '');
+
+    if (name.length < 2) {
+      this.bookingError.set('Please enter the patient name (at least 2 characters).');
+      return;
+    }
+
+    if (phone.length < 10 || phone.length > 11) {
+      this.bookingError.set('Please enter a valid phone number (10–11 digits).');
+      return;
+    }
+
+    const request: CreateAppointmentRequest = {
+      doctorId: doctor.id,
+      scheduledAt: combineDateAndTimeSlot(selectedDate.date, timeSlot),
+      consultationType: consultation.type,
+      patientPhone: phone,
+    };
+
+    this.bookingSubmitting.set(true);
+
+    this.appointmentsApi.create(request).subscribe({
+      next: (res) => {
+        const appointment = res.data.appointment;
+        const ref = appointment.bookingRef ?? appointment.id;
+        const label = consultation.type === 'video' ? 'Video consultation' : 'Clinic appointment';
+        this.notifications.showSuccess(`${label} booked. Reference: ${ref}`);
+        this.bookingSubmitting.set(false);
+      },
+      error: (err) => {
+        const message = this.apiErrorService.getMessage(err);
+        this.bookingError.set(message);
+        this.notifications.showError(message);
+        this.bookingSubmitting.set(false);
+      },
+    });
   }
 
   canSubmitReview(): boolean {
