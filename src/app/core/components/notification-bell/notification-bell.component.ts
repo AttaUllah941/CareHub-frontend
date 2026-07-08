@@ -2,6 +2,7 @@ import { DatePipe, isPlatformBrowser } from '@angular/common';
 import { Component, computed, inject, OnDestroy, OnInit, PLATFORM_ID, signal } from '@angular/core';
 import { AppNotification } from '../../models/notification.model';
 import { AuthService } from '../../../features/auth/services/auth.service';
+import { UserRole } from '../../models/auth.model';
 import { ApiErrorService } from '../../services/api-error.service';
 import { NotificationsApiService } from '../../services/notifications-api.service';
 
@@ -10,7 +11,7 @@ import { NotificationsApiService } from '../../services/notifications-api.servic
   standalone: true,
   imports: [DatePipe],
   template: `
-    @if (authService.isAuthenticated()) {
+    @if (authService.isAuthenticated() && canSeeBell()) {
       <div class="relative">
         <button
           type="button"
@@ -91,6 +92,10 @@ export class NotificationBellComponent implements OnInit, OnDestroy {
   private readonly platformId = inject(PLATFORM_ID);
   private readonly isBrowser = isPlatformBrowser(this.platformId);
   private pollTimer: ReturnType<typeof setInterval> | null = null;
+
+  readonly canSeeBell = computed(() =>
+    this.authService.hasRole(UserRole.DOCTOR, UserRole.ADMIN, UserRole.SUPER_ADMIN),
+  );
 
   readonly notifications = signal<AppNotification[]>([]);
   readonly loading = signal(false);
