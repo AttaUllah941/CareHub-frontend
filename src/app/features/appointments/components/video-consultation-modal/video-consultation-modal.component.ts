@@ -324,7 +324,7 @@ export class VideoConsultationModalComponent {
       next: (res) => {
         const appointment = res.data.appointment;
         const ref = appointment.bookingRef ?? appointment.id;
-        this.notifications.showSuccess(`Video consultation booked. Reference: ${ref}`);
+        this.notifications.showSuccess(`Video consultation booked successfully. Reference: ${ref}`);
         this.confirmed.emit(this.buildPayload(ref));
         this.submitting.set(false);
         this.close();

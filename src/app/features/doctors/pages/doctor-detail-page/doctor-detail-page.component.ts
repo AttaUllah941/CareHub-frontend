@@ -316,7 +316,14 @@ export class DoctorDetailPageComponent {
         const appointment = res.data.appointment;
         const ref = appointment.bookingRef ?? appointment.id;
         const label = consultation.type === 'video' ? 'Video consultation' : 'Clinic appointment';
-        this.notifications.showSuccess(`${label} booked. Reference: ${ref}`);
+        const dateLabel = selectedDate.date.toLocaleDateString('en-PK', {
+          weekday: 'short',
+          day: 'numeric',
+          month: 'short',
+        });
+        this.notifications.showSuccess(
+          `${label} booked successfully for ${dateLabel} at ${timeSlot}. Reference: ${ref}`,
+        );
         this.bookingSubmitting.set(false);
       },
       error: (err) => {

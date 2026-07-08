@@ -408,7 +408,7 @@ export class ClinicAppointmentModalComponent {
       next: (res) => {
         const appointment = res.data.appointment;
         const ref = appointment.bookingRef ?? appointment.id;
-        this.notifications.showSuccess(`Clinic appointment booked. Reference: ${ref}`);
+        this.notifications.showSuccess(`Clinic appointment booked successfully. Reference: ${ref}`);
         this.confirmed.emit(this.buildPayload(ref));
         this.submitting.set(false);
         this.close();
