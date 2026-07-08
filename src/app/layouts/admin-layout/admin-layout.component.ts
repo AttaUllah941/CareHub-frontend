@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { AuthService } from '../../features/auth/services/auth.service';
+import { NotificationBellComponent } from '../../core/components/notification-bell/notification-bell.component';
 
 interface NavItem {
   label: string;
@@ -11,7 +12,7 @@ interface NavItem {
 @Component({
   selector: 'app-admin-layout',
   standalone: true,
-  imports: [RouterOutlet, RouterLink, RouterLinkActive],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, NotificationBellComponent],
   templateUrl: './admin-layout.component.html',
   styleUrl: './admin-layout.component.scss',
 })

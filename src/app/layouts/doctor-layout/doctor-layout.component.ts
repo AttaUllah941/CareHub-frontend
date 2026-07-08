@@ -3,6 +3,7 @@ import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/rou
 import { AuthService } from '../../features/auth/services/auth.service';
 import { UserRole } from '../../core/models/auth.model';
 import { DoctorPortalService } from '../../features/doctor-portal/services/doctor-portal.service';
+import { NotificationBellComponent } from '../../core/components/notification-bell/notification-bell.component';
 interface NavItem {
   label: string;
   path: string;
@@ -12,7 +13,7 @@ interface NavItem {
 @Component({
   selector: 'app-doctor-layout',
   standalone: true,
-  imports: [RouterOutlet, RouterLink, RouterLinkActive],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, NotificationBellComponent],
   templateUrl: './doctor-layout.component.html',
   styleUrl: './doctor-layout.component.scss',
 })

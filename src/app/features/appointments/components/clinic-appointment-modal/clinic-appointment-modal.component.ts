@@ -375,6 +375,12 @@ export class ClinicAppointmentModalComponent {
   confirmAppointment(): void {
     this.showValidation.set(true);
     this.bookingError.set(null);
+
+    if (!this.auth.isAuthenticated()) {
+      this.notifications.showError('Please login first.');
+      return;
+    }
+
     if (!this.clinicSelected() || !this.scheduleComplete() || !this.patientFormComplete() || this.submitting()) {
       return;
     }

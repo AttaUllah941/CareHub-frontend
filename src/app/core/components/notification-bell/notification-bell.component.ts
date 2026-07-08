@@ -1,5 +1,5 @@
 import { DatePipe, isPlatformBrowser } from '@angular/common';
-import { Component, computed, inject, OnInit, PLATFORM_ID, signal } from '@angular/core';
+import { Component, computed, inject, OnDestroy, OnInit, PLATFORM_ID, signal } from '@angular/core';
 import { AppNotification } from '../../models/notification.model';
 import { AuthService } from '../../../features/auth/services/auth.service';
 import { ApiErrorService } from '../../services/api-error.service';
@@ -84,12 +84,13 @@ import { NotificationsApiService } from '../../services/notifications-api.servic
     }
   `,
 })
-export class NotificationBellComponent implements OnInit {
+export class NotificationBellComponent implements OnInit, OnDestroy {
   protected readonly authService = inject(AuthService);
   private readonly notificationsApi = inject(NotificationsApiService);
   private readonly apiErrorService = inject(ApiErrorService);
   private readonly platformId = inject(PLATFORM_ID);
   private readonly isBrowser = isPlatformBrowser(this.platformId);
+  private pollTimer: ReturnType<typeof setInterval> | null = null;
 
   readonly notifications = signal<AppNotification[]>([]);
   readonly loading = signal(false);
@@ -101,6 +102,28 @@ export class NotificationBellComponent implements OnInit {
   ngOnInit(): void {
     if (this.isBrowser && this.authService.isAuthenticated()) {
       this.loadNotifications();
+      this.startPolling();
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.stopPolling();
+  }
+
+  private startPolling(): void {
+    if (!this.isBrowser || this.pollTimer) return;
+
+    this.pollTimer = setInterval(() => {
+      if (this.authService.isAuthenticated()) {
+        this.loadNotifications(true);
+      }
+    }, 30000);
+  }
+
+  private stopPolling(): void {
+    if (this.pollTimer) {
+      clearInterval(this.pollTimer);
+      this.pollTimer = null;
     }
   }
 
@@ -112,20 +135,26 @@ export class NotificationBellComponent implements OnInit {
     }
   }
 
-  loadNotifications(): void {
+  loadNotifications(silent = false): void {
     if (!this.isBrowser) return;
 
-    this.loading.set(true);
-    this.error.set(null);
+    if (!silent) {
+      this.loading.set(true);
+      this.error.set(null);
+    }
 
     this.notificationsApi.listMine({ page: 1, limit: 20 }).subscribe({
       next: (res) => {
         this.notifications.set(res.data.notifications);
-        this.loading.set(false);
+        if (!silent) {
+          this.loading.set(false);
+        }
       },
       error: (err) => {
-        this.error.set(this.apiErrorService.getMessage(err));
-        this.loading.set(false);
+        if (!silent) {
+          this.error.set(this.apiErrorService.getMessage(err));
+          this.loading.set(false);
+        }
       },
     });
   }
