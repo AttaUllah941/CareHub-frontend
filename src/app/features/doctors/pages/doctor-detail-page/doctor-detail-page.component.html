@@ -72,22 +72,7 @@
             </div>
 
             <!-- Header CTAs -->
-            <div class="flex flex-col gap-2 shrink-0 lg:w-52">
-              <button
-                type="button"
-                (click)="openVideoModal()"
-                class="inline-flex items-center justify-center rounded-lg bg-[#0B4F6C] px-4 py-3 text-sm font-semibold text-white hover:bg-[#093f56] transition-colors text-center"
-              >
-                Consult Online
-              </button>
-              <button
-                type="button"
-                (click)="openAppointmentModal()"
-                class="inline-flex items-center justify-center rounded-lg bg-emerald-600 px-4 py-3 text-sm font-semibold text-white hover:bg-emerald-700 transition-colors text-center"
-              >
-                Visit In Clinic
-              </button>
-            </div>
+
           </div>
         </div>
       </div>
@@ -248,7 +233,7 @@
         <div class="lg:w-[380px] shrink-0">
           <div class="sticky top-20 bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
             <div class="p-5 border-b border-gray-100">
-              <h2 class="text-lg font-bold text-gray-900">Get Confirmed Appointment Online</h2>
+              <h2 class="text-lg font-bold text-gray-900">Book Appointment</h2>
             </div>
 
             <div class="p-5 space-y-6">
@@ -373,12 +358,6 @@
                   placeholder="Add Patient Name"
                   class="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-[#0B4F6C] focus:ring-1 focus:ring-[#0B4F6C]"
                   [(ngModel)]="patientName"
-                />
-                <input
-                  type="text"
-                  placeholder="Add Promo Code"
-                  class="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-[#0B4F6C] focus:ring-1 focus:ring-[#0B4F6C]"
-                  [(ngModel)]="promoCode"
                 />
               </div>
 
