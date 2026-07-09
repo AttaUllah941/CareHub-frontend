@@ -41,8 +41,7 @@ export class PublicDoctorListingCardComponent {
   }
 
   doctorName(d: DoctorSearchResult): string {
-    const title = d.title ? `${d.title} ` : 'Dr. ';
-    return `${title}${d.user?.firstName ?? ''} ${d.user?.lastName ?? ''}`.trim();
+    return `Dr. ${d.user?.firstName ?? ''} ${d.user?.lastName ?? ''}`.trim();
   }
 
   specialtyLine(d: DoctorSearchResult): string {

@@ -19,9 +19,7 @@ import { LoadingService } from '../../services/loading.service';
           ? 'bg-red-50/95 text-red-800 border-red-200'
           : 'bg-emerald-50/95 text-emerald-800 border-emerald-200'"
       >
-        <span class="mt-0.5 shrink-0 text-lg" aria-hidden="true">
-          {{ toast.variant === 'error' ? '✕' : '✓' }}
-        </span>
+        
         <p class="flex-1 text-sm font-medium leading-relaxed">{{ toast.message }}</p>
         <button
           type="button"

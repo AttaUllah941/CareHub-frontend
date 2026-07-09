@@ -363,10 +363,6 @@
                 />
               </div>
 
-              @if (bookingError()) {
-                <p class="text-sm text-red-600">{{ bookingError() }}</p>
-              }
-
               <button
                 type="button"
                 (click)="bookAppointment()"
