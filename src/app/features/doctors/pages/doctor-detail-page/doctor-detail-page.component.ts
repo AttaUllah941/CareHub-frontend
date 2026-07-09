@@ -186,10 +186,13 @@ export class DoctorDetailPageComponent {
     const defaults = patientDefaultsFromUser(this.authService.user());
     this.patientName.set(defaults.name);
     this.patientPhone.set(defaults.phone);
+    console.log("defaults", defaults);
+    console.log("this.patientName()", this.patientName());
+    console.log("this.patientPhone()", this.patientPhone());
   }
 
   doctorName(d: DoctorDetailProfile): string {
-    const title = d.title ? `${d.title} ` : 'Dr. ';
+    const title = 'Dr. ';
     return `${title}${d.user?.firstName ?? ''} ${d.user?.lastName ?? ''}`.trim();
   }
 
