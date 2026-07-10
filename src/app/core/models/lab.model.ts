@@ -61,3 +61,46 @@ export interface CreateLabBookingRequest {
   collectionType: 'home' | 'lab_visit';
   patient: LabBookingPatientSnapshot;
 }
+
+export type LabBookingStatus =
+  | 'pending'
+  | 'confirmed'
+  | 'sample_collected'
+  | 'report_ready'
+  | 'cancelled';
+
+export interface LabBooking {
+  id: string;
+  labId: string;
+  testIds: string[];
+  patientId: string | null;
+  patientSnapshot: LabBookingPatientSnapshot;
+  scheduledDate: string;
+  scheduledSlot: string;
+  collectionType: 'home' | 'lab_visit';
+  status: LabBookingStatus;
+  totalPrice: number;
+  currency: string;
+  lab?: {
+    id: string;
+    name: string;
+    slug: string;
+    city: string;
+    citySlug: string;
+    address?: string;
+  };
+  tests?: LabTest[];
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface LabBookingListQuery {
+  page?: number;
+  limit?: number;
+  status?: LabBookingStatus;
+}
+
+export interface LabBookingListResponse {
+  bookings: LabBooking[];
+  pagination: PaginationMeta;
+}

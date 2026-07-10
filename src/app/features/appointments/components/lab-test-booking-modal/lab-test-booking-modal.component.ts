@@ -300,7 +300,7 @@ export class LabTestBookingModalComponent {
       })
       .subscribe({
         next: (res) => {
-          const ref = res.data.booking.bookingRef ?? res.data.booking.id;
+          const ref = res.data.booking.id;
           const payload = this.buildPayload(ref);
           this.notifications.showSuccess(`Lab test booked. Reference: ${ref}`);
           this.confirmed.emit(payload);

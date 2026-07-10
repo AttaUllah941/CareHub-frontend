@@ -210,8 +210,35 @@
                 Doctor Dashboard
               </a>
             } @else {
-              <a routerLink="/my-appointments" class="text-sm font-semibold text-brand-600 hover:text-brand-700">My Appointments</a>
-              <a routerLink="/my-prescriptions" class="text-sm font-semibold text-brand-600 hover:text-brand-700">My Prescriptions</a>
+              <div class="relative">
+                <button
+                  type="button"
+                  (click)="toggleRecordDropdown()"
+                  class="inline-flex items-center gap-1 px-3 py-2 text-sm font-semibold rounded-lg transition-colors"
+                  [class]="recordDropdownOpen() ? 'text-brand-600 bg-brand-50' : 'text-brand-600 hover:text-brand-700'"
+                >
+                  Record
+                  <svg class="h-4 w-4 transition-transform" [class.rotate-180]="recordDropdownOpen()" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+
+                @if (recordDropdownOpen()) {
+                  <div class="absolute right-0 top-full mt-2 w-56 rounded-2xl border border-gray-200 bg-white shadow-xl shadow-gray-200/60 p-2 z-50">
+                    <p class="text-xs font-semibold uppercase tracking-wide text-gray-500 px-3 py-2">Your records</p>
+                    @for (item of recordLinks; track item.href) {
+                      <a
+                        [routerLink]="item.href"
+                        (click)="closeRecordDropdown()"
+                        class="flex items-center gap-3 rounded-lg px-3 py-3 text-sm text-gray-700 hover:bg-brand-50 hover:text-brand-600 transition-colors"
+                      >
+                        <span class="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-50 text-lg">{{ item.icon }}</span>
+                        <span class="font-medium">{{ item.label }}</span>
+                      </a>
+                    }
+                  </div>
+                }
+              </div>
               <span class="text-sm text-gray-600">Hello, {{ authService.user()?.firstName }}</span>
               <button
                 type="button"
@@ -345,8 +372,29 @@
               } @else if (authService.hasRole(UserRole.DOCTOR)) {
                 <a routerLink="/doctor/dashboard" (click)="closeMobileMenu()" class="w-full text-center py-2 text-sm font-semibold bg-brand-600 text-white rounded-lg">Doctor Dashboard</a>
               } @else {
-                <a routerLink="/my-appointments" (click)="closeMobileMenu()" class="w-full text-center py-2 text-sm font-semibold text-brand-600 border border-brand-200 rounded-lg">My Appointments</a>
-                <a routerLink="/my-prescriptions" (click)="closeMobileMenu()" class="w-full text-center py-2 text-sm font-semibold text-brand-600 border border-brand-200 rounded-lg">My Prescriptions</a>
+                <div class="w-full">
+                  <button
+                    type="button"
+                    (click)="toggleRecordDropdown()"
+                    class="w-full text-center py-2 text-sm font-semibold text-brand-600 border border-brand-200 rounded-lg"
+                  >
+                    Record
+                  </button>
+                  @if (recordDropdownOpen()) {
+                    <div class="mt-2 space-y-1 rounded-xl border border-gray-200 bg-gray-50 p-2">
+                      @for (item of recordLinks; track item.href) {
+                        <a
+                          [routerLink]="item.href"
+                          (click)="closeRecordDropdown(); closeMobileMenu()"
+                          class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-white hover:text-brand-600"
+                        >
+                          <span>{{ item.icon }}</span>
+                          <span>{{ item.label }}</span>
+                        </a>
+                      }
+                    </div>
+                  }
+                </div>
                 <button type="button" (click)="authService.logout(); closeMobileMenu()" class="w-full text-center py-2 text-sm font-semibold border border-gray-300 text-gray-700 rounded-lg">Sign out</button>
               }
             } @else {

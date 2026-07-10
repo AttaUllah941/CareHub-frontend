@@ -60,3 +60,44 @@ export interface CreateSurgeryConsultationRequest {
   hospitalId: string;
   patient: SurgeryConsultationPatientSnapshot;
 }
+
+export type SurgeryConsultationStatus = 'pending' | 'contacted' | 'scheduled' | 'closed';
+
+export interface SurgeryConsultationRequest {
+  id: string;
+  procedureId: string;
+  hospitalId: string;
+  patientId: string | null;
+  patientSnapshot: SurgeryConsultationPatientSnapshot;
+  status: SurgeryConsultationStatus;
+  procedure?: {
+    id: string;
+    name: string;
+    slug: string;
+    category?: string;
+    estimatedCostRange?: { min: number; max: number };
+    currency?: string;
+  };
+  hospital?: {
+    id: string;
+    name: string;
+    slug: string;
+    city: string;
+    citySlug: string;
+    address?: string;
+    rating?: number;
+  };
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface SurgeryConsultationListQuery {
+  page?: number;
+  limit?: number;
+  status?: SurgeryConsultationStatus;
+}
+
+export interface SurgeryConsultationListResponse {
+  consultationRequests: SurgeryConsultationRequest[];
+  pagination: PaginationMeta;
+}

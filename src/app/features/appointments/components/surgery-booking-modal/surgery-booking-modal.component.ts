@@ -343,6 +343,11 @@ export class SurgeryBookingModalComponent {
     this.showValidation.set(true);
     if (!this.canConfirm() || this.submitting()) return;
 
+    if (!this.auth.isAuthenticated()) {
+      this.notifications.showError('Please login first.');
+      return;
+    }
+
     this.submitting.set(true);
 
     const notes = this.buildConsultationNotes();

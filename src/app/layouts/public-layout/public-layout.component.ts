@@ -29,6 +29,13 @@ export class PublicLayoutComponent implements OnInit {
   protected readonly hospitalsDropdownOpen = signal(false);
   protected readonly labsDropdownOpen = signal(false);
   protected readonly surgeryDropdownOpen = signal(false);
+  protected readonly recordDropdownOpen = signal(false);
+
+  protected readonly recordLinks = [
+    { label: 'My Appointments', href: '/my-appointments', icon: '📅' },
+    { label: 'My Lab Tests', href: '/my-lab-tests', icon: '🧪' },
+    { label: 'My Surgery', href: '/my-surgery-requests', icon: '⚕️' },
+  ];
 
   private readonly elementRef = inject(ElementRef);
 
@@ -55,6 +62,7 @@ export class PublicLayoutComponent implements OnInit {
     this.hospitalsDropdownOpen.set(false);
     this.labsDropdownOpen.set(false);
     this.surgeryDropdownOpen.set(false);
+    this.recordDropdownOpen.set(false);
     this.doctorsDropdownOpen.update((open) => !open);
   }
 
@@ -62,6 +70,7 @@ export class PublicLayoutComponent implements OnInit {
     this.doctorsDropdownOpen.set(false);
     this.labsDropdownOpen.set(false);
     this.surgeryDropdownOpen.set(false);
+    this.recordDropdownOpen.set(false);
     this.hospitalsDropdownOpen.update((open) => !open);
   }
 
@@ -69,6 +78,7 @@ export class PublicLayoutComponent implements OnInit {
     this.doctorsDropdownOpen.set(false);
     this.hospitalsDropdownOpen.set(false);
     this.surgeryDropdownOpen.set(false);
+    this.recordDropdownOpen.set(false);
     this.labsDropdownOpen.update((open) => !open);
   }
 
@@ -76,7 +86,16 @@ export class PublicLayoutComponent implements OnInit {
     this.doctorsDropdownOpen.set(false);
     this.hospitalsDropdownOpen.set(false);
     this.labsDropdownOpen.set(false);
+    this.recordDropdownOpen.set(false);
     this.surgeryDropdownOpen.update((open) => !open);
+  }
+
+  toggleRecordDropdown(): void {
+    this.doctorsDropdownOpen.set(false);
+    this.hospitalsDropdownOpen.set(false);
+    this.labsDropdownOpen.set(false);
+    this.surgeryDropdownOpen.set(false);
+    this.recordDropdownOpen.update((open) => !open);
   }
 
   closeDropdowns(): void {
@@ -84,6 +103,7 @@ export class PublicLayoutComponent implements OnInit {
     this.hospitalsDropdownOpen.set(false);
     this.labsDropdownOpen.set(false);
     this.surgeryDropdownOpen.set(false);
+    this.recordDropdownOpen.set(false);
   }
 
   closeDoctorsDropdown(): void {
@@ -100,5 +120,9 @@ export class PublicLayoutComponent implements OnInit {
 
   closeSurgeryDropdown(): void {
     this.surgeryDropdownOpen.set(false);
+  }
+
+  closeRecordDropdown(): void {
+    this.recordDropdownOpen.set(false);
   }
 }
