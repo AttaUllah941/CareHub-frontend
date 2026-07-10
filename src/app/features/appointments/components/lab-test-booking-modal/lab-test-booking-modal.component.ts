@@ -290,7 +290,7 @@ export class LabTestBookingModalComponent {
         testIds: [this.test().id],
         scheduledDate,
         scheduledSlot: this.selectedTimeSlot(),
-        collectionType: collectionType === 'home_sample' ? 'home_sample' : 'lab_visit',
+        collectionType: collectionType === 'home_sample' ? 'home' : 'lab_visit',
         patient: {
           name: this.patientName().trim(),
           phone: this.patientPhone().trim(),

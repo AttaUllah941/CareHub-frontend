@@ -58,6 +58,6 @@ export interface CreateLabBookingRequest {
   testIds: string[];
   scheduledDate: string;
   scheduledSlot: string;
-  collectionType: 'home_sample' | 'lab_visit';
+  collectionType: 'home' | 'lab_visit';
   patient: LabBookingPatientSnapshot;
 }
