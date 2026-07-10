@@ -8,11 +8,15 @@ export interface DoctorRatingBreakdown {
   clinicEnvironment: number;
 }
 
+export type ConsultationFacilityType = 'clinic' | 'hospital' | 'lab';
+
 export interface DoctorConsultationOption {
   id: string;
   type: 'video' | 'clinic';
   name: string;
+  address?: string;
   location?: string;
+  facilityType?: ConsultationFacilityType;
   fee: number;
   currency: string;
   hours: string;

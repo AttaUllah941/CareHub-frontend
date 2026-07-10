@@ -255,9 +255,18 @@
                       [class.hover:border-gray-300]="selectedConsultationId() !== option.id"
                     >
                       <div class="flex justify-between items-start gap-2">
-                        <div>
-                          <p class="text-sm font-semibold text-gray-900">{{ option.name }}</p>
-                          @if (option.location) {
+                        <div class="min-w-0">
+                          <div class="flex items-center gap-2 flex-wrap">
+                            <p class="text-sm font-semibold text-gray-900">{{ option.name }}</p>
+                            @if (option.type === 'clinic' && option.facilityType) {
+                              <span class="rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-semibold text-gray-600">
+                                {{ facilityLabel(option.facilityType) }}
+                              </span>
+                            }
+                          </div>
+                          @if (option.type === 'clinic' && consultationAddress(option)) {
+                            <p class="text-xs text-gray-500 mt-0.5">{{ consultationAddress(option) }}</p>
+                          } @else if (option.location) {
                             <p class="text-xs text-gray-500 mt-0.5">{{ option.location }}</p>
                           }
                           <p class="text-xs text-gray-500 mt-1">{{ option.hours }}</p>
