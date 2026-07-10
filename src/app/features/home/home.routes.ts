@@ -59,11 +59,27 @@ export const HOME_ROUTES: Routes = [
           ),
       },
       {
+        path: 'my-lab-tests',
+        canActivate: [authGuard, patientGuard],
+        loadComponent: () =>
+          import('../labs/pages/my-lab-tests-page/my-lab-tests-page.component').then(
+            (m) => m.MyLabTestsPageComponent,
+          ),
+      },
+      {
         path: 'my-prescriptions',
         canActivate: [authGuard, patientGuard],
         loadComponent: () =>
           import('../appointments/pages/my-prescriptions-page/my-prescriptions-page.component').then(
             (m) => m.MyPrescriptionsPageComponent,
+          ),
+      },
+      {
+        path: 'my-surgery-requests',
+        canActivate: [authGuard, patientGuard],
+        loadComponent: () =>
+          import('../surgeries/pages/my-surgery-requests-page/my-surgery-requests-page.component').then(
+            (m) => m.MySurgeryRequestsPageComponent,
           ),
       },
       {

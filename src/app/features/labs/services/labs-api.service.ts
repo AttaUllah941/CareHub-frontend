@@ -5,17 +5,14 @@ import { ApiResponse } from '../../../core/models/api.model';
 import { PaginationMeta } from '../../../core/models/doctor.model';
 import {
   CreateLabBookingRequest,
+  LabBooking,
+  LabBookingListQuery,
+  LabBookingListResponse,
   LabListQuery,
   LabTest,
   LabTestListQuery,
   PublicLab,
 } from '../../../core/models/lab.model';
-
-interface LabBooking {
-  id: string;
-  bookingRef?: string;
-  status: string;
-}
 
 @Injectable({ providedIn: 'root' })
 export class LabsApiService {
@@ -47,5 +44,15 @@ export class LabsApiService {
     payload: CreateLabBookingRequest,
   ): Observable<ApiResponse<{ booking: LabBooking }>> {
     return this.api.post<{ booking: LabBooking }>('/lab-bookings', payload);
+  }
+
+  listMine(query: LabBookingListQuery = {}): Observable<ApiResponse<LabBookingListResponse>> {
+    return this.api.get<LabBookingListResponse>('/lab-bookings/me', {
+      params: query as Record<string, string | number | undefined>,
+    });
+  }
+
+  cancel(id: string): Observable<ApiResponse<{ booking: LabBooking }>> {
+    return this.api.patch<{ booking: LabBooking }>(`/lab-bookings/${id}/cancel`, {});
   }
 }

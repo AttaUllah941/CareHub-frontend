@@ -5,6 +5,8 @@ import { ApiResponse } from '../../../core/models/api.model';
 import { PaginationMeta } from '../../../core/models/doctor.model';
 import {
   CreateSurgeryConsultationRequest,
+  SurgeryConsultationListQuery,
+  SurgeryConsultationListResponse,
   SurgeryProcedure,
   SurgeryProcedureListQuery,
 } from '../../../core/models/surgery.model';
@@ -35,5 +37,13 @@ export class SurgeriesApiService {
       '/surgeries/consultation-requests',
       payload,
     );
+  }
+
+  listMine(
+    query: SurgeryConsultationListQuery = {},
+  ): Observable<ApiResponse<SurgeryConsultationListResponse>> {
+    return this.api.get<SurgeryConsultationListResponse>('/surgeries/consultation-requests/me', {
+      params: query as Record<string, string | number | undefined>,
+    });
   }
 }
