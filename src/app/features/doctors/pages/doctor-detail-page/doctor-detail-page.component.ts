@@ -18,6 +18,7 @@ import { DoctorReview } from '../../../../core/models/review.model';
 import { buildBookingDateOptions, BookingDateOption } from '../../../appointments/utils/booking-date.util';
 import { combineDateAndTimeSlot } from '../../../appointments/utils/appointment-schedule.util';
 import { patientDefaultsFromUser } from '../../../appointments/utils/patient-form.util';
+import { formatConsultationAddress, facilityTypeLabel } from '../../utils/doctor-booking-profile.util';
 import { AppointmentsApiService } from '../../../appointments/services/appointments-api.service';
 import { CreateAppointmentRequest } from '../../../../core/models/appointment.model';
 import { VideoConsultationModalComponent } from '../../../appointments/components/video-consultation-modal/video-consultation-modal.component';
@@ -209,6 +210,14 @@ export class DoctorDetailPageComponent {
   formatFee(fee: number, currency = 'PKR'): string {
     const symbol = !currency || currency === 'USD' || currency === 'PKR' ? 'Rs.' : currency;
     return `${symbol} ${fee.toLocaleString()}`;
+  }
+
+  consultationAddress(option: DoctorConsultationOption): string {
+    return formatConsultationAddress(option);
+  }
+
+  facilityLabel(type?: string): string {
+    return facilityTypeLabel(type);
   }
 
   ratingPercent(score: number): number {

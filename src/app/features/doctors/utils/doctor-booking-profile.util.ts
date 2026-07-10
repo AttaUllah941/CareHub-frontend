@@ -3,14 +3,14 @@ import { DoctorSearchResult } from '../../../core/models/doctor.model';
 
 const DEFAULT_TIME_SLOTS = ['04:30 PM', '05:00 PM', '05:30 PM', '06:00 PM', '06:30 PM', '07:00 PM'];
 
-/** Builds a bookable profile from listing data when the detail API is unavailable. */
-export const buildBookingProfileFromListing = (
+const buildConsultationOptions = (
   doctor: DoctorSearchResult,
-  city = 'Lahore',
-): DoctorDetailProfile => {
+  city: string,
+): DoctorConsultationOption[] => {
   const fee = doctor.consultationFee ?? 1500;
   const currency = doctor.currency ?? 'PKR';
-  const consultationOptions: DoctorConsultationOption[] = [
+
+  const options: DoctorConsultationOption[] = [
     {
       id: `${doctor.id}-video`,
       type: 'video',
@@ -20,17 +20,47 @@ export const buildBookingProfileFromListing = (
       hours: '04:30 PM - 09:30 PM',
       status: 'Online',
     },
-    {
-      id: `${doctor.id}-clinic`,
+  ];
+
+  const clinics = doctor.clinics ?? [];
+  if (clinics.length) {
+    clinics.forEach((clinic) => {
+      options.push({
+        id: clinic.id,
+        type: 'clinic',
+        name: clinic.name,
+        address: clinic.address,
+        location: clinic.city || city,
+        facilityType: clinic.facilityType ?? 'clinic',
+        fee,
+        currency,
+        hours: '10:00 AM - 07:00 PM',
+        status: 'In Clinic',
+      });
+    });
+  } else if (doctor.city || city) {
+    options.push({
+      id: `${doctor.id}-clinic-fallback`,
       type: 'clinic',
       name: `${doctor.city || city} Clinic`,
       location: doctor.city || city,
+      facilityType: 'clinic',
       fee,
       currency,
       hours: '10:00 AM - 07:00 PM',
       status: 'In Clinic',
-    },
-  ];
+    });
+  }
+
+  return options;
+};
+
+/** Builds a bookable profile from listing data when the detail API is unavailable. */
+export const buildBookingProfileFromListing = (
+  doctor: DoctorSearchResult,
+  city = 'Lahore',
+): DoctorDetailProfile => {
+  const consultationOptions = buildConsultationOptions(doctor, city);
 
   return {
     ...doctor,
@@ -50,4 +80,24 @@ export const buildBookingProfileFromListing = (
     consultationOptions,
     timeSlots: DEFAULT_TIME_SLOTS,
   };
+};
+
+export const formatConsultationAddress = (option: {
+  address?: string;
+  location?: string;
+  city?: string;
+}): string => {
+  const parts = [option.address?.trim(), (option.location ?? option.city)?.trim()].filter(Boolean);
+  return parts.join(', ');
+};
+
+export const facilityTypeLabel = (type?: string): string => {
+  switch (type) {
+    case 'hospital':
+      return 'Hospital';
+    case 'lab':
+      return 'Lab';
+    default:
+      return 'Clinic';
+  }
 };

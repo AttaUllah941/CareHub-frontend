@@ -15,7 +15,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DoctorSearchResult } from '../../../../core/models/doctor.model';
 import { DoctorConsultationOption, DoctorDetailProfile } from '../../../../core/models/doctor-profile.model';
-import { buildBookingProfileFromListing } from '../../../doctors/utils/doctor-booking-profile.util';
+import { buildBookingProfileFromListing, formatConsultationAddress, facilityTypeLabel } from '../../../doctors/utils/doctor-booking-profile.util';
 import { PublicDoctorApiService } from '../../../doctors/services/public-doctor-api.service';
 import { AuthService } from '../../../auth/services/auth.service';
 import { ApiErrorService } from '../../../../core/services/api-error.service';
@@ -34,6 +34,8 @@ interface ClinicLocationOption {
   id: string;
   name: string;
   location: string;
+  address?: string;
+  facilityType?: 'clinic' | 'hospital' | 'lab';
   hours: string;
   fee: number;
   status: string;
@@ -258,6 +260,8 @@ export class ClinicAppointmentModalComponent {
         id: c.id,
         name: c.name,
         location: c.city || this.city(),
+        address: c.address,
+        facilityType: c.facilityType ?? 'clinic',
         hours: 'Mon – Sat, 10:00 AM – 7:00 PM',
         fee,
         status: 'Available Today',
@@ -281,10 +285,20 @@ export class ClinicAppointmentModalComponent {
       id: option.id,
       name: option.name,
       location: option.location ?? this.city(),
+      address: option.address,
+      facilityType: option.facilityType ?? 'clinic',
       hours: option.hours,
       fee: option.fee,
       status: option.status,
     };
+  }
+
+  clinicAddressLine(clinic: ClinicLocationOption): string {
+    return formatConsultationAddress(clinic);
+  }
+
+  facilityLabel(type?: string): string {
+    return facilityTypeLabel(type);
   }
 
   private buildPayload(ref: string): ClinicAppointmentPayload {
@@ -304,6 +318,8 @@ export class ClinicAppointmentModalComponent {
         id: clinic.id,
         name: clinic.name,
         location: clinic.location,
+        address: clinic.address ?? '',
+        facilityType: clinic.facilityType,
         hours: clinic.hours,
         fee: clinic.fee,
         feeFormatted: this.formatFee(clinic.fee),

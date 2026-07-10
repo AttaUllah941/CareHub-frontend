@@ -137,6 +137,8 @@ export interface DoctorSearchClinic {
   id: string;
   name: string;
   city: string;
+  address?: string;
+  facilityType?: 'clinic' | 'hospital' | 'lab';
 }
 
 export interface DoctorSearchResult {

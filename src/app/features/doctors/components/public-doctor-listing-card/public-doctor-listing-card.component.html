@@ -117,7 +117,11 @@
             class="shrink-0 w-64 sm:w-72 rounded-lg border-2 border-[#0B4F6C]/20 bg-white overflow-hidden text-left hover:border-orange-300 hover:shadow-sm transition-all cursor-pointer"
           >
             <div class="p-3">
-              <p class="text-sm font-semibold text-gray-900 line-clamp-2">{{ clinic.name }}{{ clinic.city ? ', ' + clinic.city : '' }}</p>
+              <p class="text-sm font-semibold text-gray-900 line-clamp-2">{{ clinic.name }}</p>
+              @if (clinic.address) {
+                <p class="mt-1 text-xs text-gray-500 line-clamp-2">{{ clinic.address }}</p>
+              }
+              <p class="mt-1 text-xs text-gray-500">{{ clinic.city }}</p>
               <p class="mt-2 flex items-center gap-1.5 text-xs text-emerald-600 font-medium">
                 <span class="h-2 w-2 rounded-full bg-emerald-500 shrink-0"></span>
                 Available Today

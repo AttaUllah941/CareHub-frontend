@@ -10,6 +10,8 @@ export interface ClinicAppointmentPayload {
     id: string;
     name: string;
     location: string;
+    address?: string;
+    facilityType?: 'clinic' | 'hospital' | 'lab';
     hours: string;
     fee: number;
     feeFormatted: string;
