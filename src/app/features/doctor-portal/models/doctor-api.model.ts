@@ -71,6 +71,24 @@ export interface CreateDoctorApplicationRequest {
     mimeType: 'application/pdf' | 'image/jpeg' | 'image/jpg' | 'image/png';
     size: number;
   }[];
+  specialtySlug: string;
+  yearsOfExperience: number;
+  qualifications: {
+    degree: string;
+    institution: string;
+    year?: number;
+  }[];
+  clinicName: string;
+  clinicAddress: string;
+  clinicCity: string;
+  clinicPhone: string;
+  consultationFee: number;
+  videoConsultationFee?: number;
+  availability: {
+    day: number;
+    startTime: string;
+    endTime: string;
+  }[];
 }
 
 export interface DoctorApplicationResponse {

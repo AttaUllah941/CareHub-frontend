@@ -80,7 +80,7 @@
                 <select class="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-brand-500 focus:ring-1 focus:ring-brand-500" [ngModel]="specialization()" (ngModelChange)="specialization.set($event)">
                   <option value="">Select specialty</option>
                   @for (s of referenceData.specialtyChips(); track s.slug) {
-                    <option [value]="s.name">{{ s.name }}</option>
+                    <option [value]="s.slug">{{ s.name }}</option>
                   }
                 </select>
               </div>
