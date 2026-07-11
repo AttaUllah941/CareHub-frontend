@@ -262,6 +262,24 @@ export class DoctorRegisterPageComponent implements OnInit {
             phone: this.phone().trim(),
             password: this.password(),
             documents,
+            specialtySlug: this.specialization(),
+            yearsOfExperience: this.yearsOfExperience() ?? 0,
+            qualifications: this.qualifications().map((q) => ({
+              degree: q.degree.trim(),
+              institution: q.institution.trim(),
+              year: q.year ?? undefined,
+            })),
+            clinicName: this.clinicName().trim(),
+            clinicAddress: this.clinicAddress().trim(),
+            clinicCity: this.clinicCity().trim(),
+            clinicPhone: this.clinicPhone().trim(),
+            consultationFee: this.consultationFee() ?? 0,
+            videoConsultationFee: this.videoConsultationFee() ?? undefined,
+            availability: this.availability().map((slot) => ({
+              day: slot.day,
+              startTime: slot.startTime,
+              endTime: slot.endTime,
+            })),
           })
           .subscribe({
             next: (application) => {

@@ -20,36 +20,36 @@
   <!-- Filter bar -->
   <div class="bg-white border-b border-gray-200 sticky top-16 lg:top-[72px] z-40 shadow-sm">
     <div class="page-container py-4 space-y-3">
-      <div class="flex flex-col lg:flex-row gap-3">
+      <div class="flex flex-col sm:flex-row gap-3">
         <select
           [ngModel]="selectedCity()"
           (ngModelChange)="onCityChange($event)"
-          class="select-field min-w-[140px]"
+          class="select-field w-full sm:w-auto sm:min-w-[160px] sm:max-w-[200px] sm:shrink-0"
         >
           @for (city of cities; track city.slug) {
             <option [value]="city.name">{{ city.name }}</option>
           }
         </select>
 
-        <div class="flex flex-1 gap-2">
+        <div class="flex flex-1 min-w-0 gap-2">
           <input
             type="text"
             [ngModel]="searchName()"
             (ngModelChange)="searchName.set($event)"
             placeholder="Search by Doctors"
-            class="input-field flex-1"
+            class="input-field flex-1 min-w-0"
             (keyup.enter)="onSearch()"
           />
           <button
             type="button"
             (click)="onSearch()"
-            class="btn-clinical px-5"
+            class="btn-clinical shrink-0 px-5"
             aria-label="Search"
           >
             <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
-          </button>
+          </button>  
         </div>
       </div>
 
