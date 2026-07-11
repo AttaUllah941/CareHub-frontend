@@ -10,11 +10,12 @@ import {
   TRUST_BADGES,
 } from '../../data/home-content';
 import { ReferenceDataService } from '../../../../core/services/reference-data.service';
+import { IconComponent } from '../../../../shared/components/icon/icon.component';
 
 @Component({
   selector: 'app-home-page',
   standalone: true,
-  imports: [RouterLink, FormsModule],
+  imports: [RouterLink, FormsModule, IconComponent],
   templateUrl: './home-page.component.html',
   styleUrl: './home-page.component.scss',
 })

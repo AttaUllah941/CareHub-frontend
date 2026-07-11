@@ -8,10 +8,12 @@ import { NotificationService } from '../../../../core/services/notification.serv
 import { AppointmentsApiService } from '../../services/appointments-api.service';
 import { formatAppointmentDateTime } from '../../utils/appointment-schedule.util';
 
+import { IconComponent } from '../../../../shared/components/icon/icon.component';
+
 @Component({
   selector: 'app-my-appointments-page',
   standalone: true,
-  imports: [RouterLink, TitleCasePipe],
+  imports: [RouterLink, TitleCasePipe, IconComponent],
   templateUrl: './my-appointments-page.component.html',
   styleUrl: './my-appointments-page.component.scss',
 })

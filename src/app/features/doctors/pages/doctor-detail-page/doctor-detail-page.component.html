@@ -41,7 +41,7 @@
               <div class="flex flex-wrap items-center gap-2 sm:gap-3">
                 <h1 class="text-xl sm:text-2xl font-bold text-gray-900">{{ doctorName(d) }}</h1>
                 @if (isTopBooked()) {
-                  <span class="inline-flex items-center gap-1 rounded-full bg-teal-50 border border-teal-200 px-2.5 py-0.5 text-xs font-semibold text-teal-700">
+                  <span class="inline-flex items-center gap-1 rounded-full bg-primary-50 border border-teal-200 px-2.5 py-0.5 text-xs font-semibold text-teal-700">
                     ★ Top Booked Doctor
                   </span>
                 }
@@ -240,7 +240,7 @@
               <!-- Step 1: Select Clinic -->
               <div>
                 <p class="text-sm font-semibold text-gray-900 mb-3">
-                  <span class="inline-flex items-center justify-center h-5 w-5 rounded-full bg-[#0B4F6C] text-white text-xs mr-2">1</span>
+                  <span class="inline-flex items-center justify-center h-5 w-5 rounded-full bg-primary-600 text-white text-xs mr-2">1</span>
                   Select Hospital/Clinic
                 </p>
                 <div class="space-y-3">
@@ -249,8 +249,8 @@
                       type="button"
                       (click)="selectConsultation(option)"
                       class="w-full text-left rounded-xl border-2 p-4 transition-colors"
-                      [class.border-teal-500]="selectedConsultationId() === option.id"
-                      [class.bg-teal-50/30]="selectedConsultationId() === option.id"
+                      [class.border-primary-500]="selectedConsultationId() === option.id"
+                      [class.bg-primary-50/30]="selectedConsultationId() === option.id"
                       [class.border-gray-200]="selectedConsultationId() !== option.id"
                       [class.hover:border-gray-300]="selectedConsultationId() !== option.id"
                     >
@@ -294,7 +294,7 @@
               <!-- Step 2: Date & Time -->
               <div>
                 <p class="text-sm font-semibold text-gray-900 mb-3">
-                  <span class="inline-flex items-center justify-center h-5 w-5 rounded-full bg-[#0B4F6C] text-white text-xs mr-2">2</span>
+                  <span class="inline-flex items-center justify-center h-5 w-5 rounded-full bg-primary-600 text-white text-xs mr-2">2</span>
                   Select Date &amp; Time
                 </p>
 
@@ -316,9 +316,9 @@
                       type="button"
                       (click)="selectDate(i)"
                       class="shrink-0 flex flex-col items-center rounded-lg border px-3 py-2 min-w-[52px] transition-colors"
-                      [class.bg-[#0B4F6C]]="selectedDateIndex() === i"
+                      [class.bg-primary-600]="selectedDateIndex() === i"
                       [class.text-white]="selectedDateIndex() === i"
-                      [class.border-[#0B4F6C]]="selectedDateIndex() === i"
+                      [class.border-primary-600]="selectedDateIndex() === i"
                       [class.border-gray-200]="selectedDateIndex() !== i"
                       [class.text-gray-700]="selectedDateIndex() !== i"
                       [class.hover:border-gray-300]="selectedDateIndex() !== i"
@@ -335,9 +335,9 @@
                       type="button"
                       (click)="selectTimeSlot(slot)"
                       class="rounded-lg border px-2 py-2 text-xs font-medium transition-colors"
-                      [class.bg-[#0B4F6C]]="selectedTimeSlot() === slot"
+                      [class.bg-primary-600]="selectedTimeSlot() === slot"
                       [class.text-white]="selectedTimeSlot() === slot"
-                      [class.border-[#0B4F6C]]="selectedTimeSlot() === slot"
+                      [class.border-primary-600]="selectedTimeSlot() === slot"
                       [class.border-gray-200]="selectedTimeSlot() !== slot"
                       [class.text-gray-700]="selectedTimeSlot() !== slot"
                       [class.hover:border-gray-300]="selectedTimeSlot() !== slot"
@@ -366,7 +366,7 @@
                 <input
                   type="text"
                   placeholder="Add Patient Name"
-                  class="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-[#0B4F6C] focus:ring-1 focus:ring-[#0B4F6C]"
+                  class="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-primary-600 focus:ring-1 focus:ring-primary-600"
                   [ngModel]="patientName()"
                   (ngModelChange)="patientName.set($event)"
                 />
@@ -376,7 +376,7 @@
                 type="button"
                 (click)="bookAppointment()"
                 [disabled]="!canBookAppointment()"
-                class="block w-full rounded-lg bg-emerald-600 px-4 py-3.5 text-center text-sm font-semibold text-white hover:bg-emerald-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                class="btn-clinical w-full disabled:opacity-60"
               >
                 {{ bookingSubmitting() ? 'Booking...' : bookingButtonLabel() }}
               </button>

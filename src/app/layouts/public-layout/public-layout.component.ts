@@ -1,6 +1,7 @@
 import { Component, ElementRef, HostListener, inject, OnInit, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { NotificationBellComponent } from '../../core/components/notification-bell/notification-bell.component';
+import { IconComponent, IconName } from '../../shared/components/icon/icon.component';
 import { UserRole } from '../../core/models/auth.model';
 import { AuthService } from '../../features/auth/services/auth.service';
 import { ReferenceDataService } from '../../core/services/reference-data.service';
@@ -10,7 +11,7 @@ import { FOOTER_CITY_LINKS, NAV_LINKS, PAKISTAN_CITIES } from '../../features/ho
 @Component({
   selector: 'app-public-layout',
   standalone: true,
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, NotificationBellComponent],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, NotificationBellComponent, IconComponent],
   templateUrl: './public-layout.component.html',
   styleUrl: './public-layout.component.scss',
 })
@@ -31,10 +32,12 @@ export class PublicLayoutComponent implements OnInit {
   protected readonly surgeryDropdownOpen = signal(false);
   protected readonly recordDropdownOpen = signal(false);
 
-  protected readonly recordLinks = [
-    { label: 'My Appointments', href: '/my-appointments', icon: '📅' },
-    { label: 'My Lab Tests', href: '/my-lab-tests', icon: '🧪' },
-    { label: 'My Surgery', href: '/my-surgery-requests', icon: '⚕️' },
+  protected readonly currentYear = new Date().getFullYear();
+
+  protected readonly recordLinks: { label: string; href: string; icon: IconName }[] = [
+    { label: 'My Appointments', href: '/my-appointments', icon: 'appointments' },
+    { label: 'My Lab Tests', href: '/my-lab-tests', icon: 'lab-tests' },
+    { label: 'My Surgery', href: '/my-surgery-requests', icon: 'surgery' },
   ];
 
   private readonly elementRef = inject(ElementRef);

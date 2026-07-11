@@ -1,194 +1,143 @@
 <div class="min-h-screen flex flex-col bg-white">
-  <header class="sticky top-0 z-50 bg-white border-b border-gray-100 shadow-sm">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+  <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-sm">
+    <div class="page-container">
       <div class="flex items-center justify-between h-16 lg:h-[72px]">
-        <a routerLink="/" class="flex items-center gap-2 shrink-0" (click)="closeMobileMenu(); closeDropdowns()">
-          <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-600 text-white text-lg font-bold">C</span>
+        <a routerLink="/" class="flex items-center gap-2.5 shrink-0 group" (click)="closeMobileMenu(); closeDropdowns()">
+          <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-600 text-white text-lg font-bold shadow-sm group-hover:bg-brand-700 transition-colors">C</span>
           <span class="text-2xl font-bold text-brand-600 tracking-tight">CareHub</span>
         </a>
 
         <nav class="hidden lg:flex items-center gap-1">
-          <!-- Find Doctors dropdown -->
+          <!-- Find Doctors -->
           <div class="relative">
-            <button
-              type="button"
-              (click)="toggleDoctorsDropdown()"
-              class="inline-flex items-center gap-1 px-3 py-2 text-sm font-medium rounded-lg transition-colors"
-              [class]="doctorsDropdownOpen() ? 'text-brand-600 bg-brand-50' : 'text-gray-700 hover:text-brand-600'"
-            >
+            <button type="button" (click)="toggleDoctorsDropdown()" class="nav-link" [class.nav-link-active]="doctorsDropdownOpen()">
+              <app-icon name="doctors" size="sm" />
               Find Doctors
-              <svg class="h-4 w-4 transition-transform" [class.rotate-180]="doctorsDropdownOpen()" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-              </svg>
+              <span class="transition-transform" [class.rotate-180]="doctorsDropdownOpen()">
+                <app-icon name="chevron-down" size="xs" />
+              </span>
             </button>
-
             @if (doctorsDropdownOpen()) {
-              <div class="absolute left-0 top-full mt-2 w-[640px] rounded-2xl border border-gray-200 bg-white shadow-xl shadow-gray-200/60 p-5 z-50">
-                <p class="text-xs font-semibold uppercase tracking-wide text-gray-500 mb-3">Browse by Specialty</p>
-                <div class="grid grid-cols-2 gap-1 max-h-[360px] overflow-y-auto">
+              <div class="nav-dropdown left-0 w-[640px] p-5">
+                <p class="text-xs font-semibold uppercase tracking-wide text-gray-500 mb-3 flex items-center gap-2">
+                  <app-icon name="stethoscope" size="xs" />
+                  Browse by Specialty
+                </p>
+                <div class="grid grid-cols-2 gap-1 max-h-[360px] overflow-y-auto scrollbar-hide">
                   @for (specialty of referenceData.specialtyChips(); track specialty.slug) {
-                    <a
-                      [routerLink]="['/find-doctors', specialty.slug]"
-                      (click)="closeDoctorsDropdown()"
-                      class="flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm text-gray-700 hover:bg-brand-50 hover:text-brand-600 transition-colors"
-                    >
+                    <a [routerLink]="['/find-doctors', specialty.slug]" (click)="closeDoctorsDropdown()" class="nav-dropdown-item">
                       <span>{{ specialty.icon }}</span>
                       <span class="font-medium">{{ specialty.name }}</span>
                     </a>
                   }
                 </div>
                 <div class="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between">
-                  <a
-                    routerLink="/find-doctors/general-practitioner"
-                    (click)="closeDoctorsDropdown()"
-                    class="text-sm font-semibold text-brand-600 hover:text-brand-700"
-                  >
-                    All Specialities →
-                  </a>
-                  <a
-                    routerLink="/join-as-doctor"
-                    (click)="closeDoctorsDropdown()"
-                    class="text-sm text-gray-500 hover:text-gray-700"
-                  >
-                    Join as Doctor
-                  </a>
+                  <a routerLink="/find-doctors/general-practitioner" (click)="closeDoctorsDropdown()" class="text-sm font-semibold text-brand-600 hover:text-brand-700">All Specialities →</a>
+                  <a routerLink="/join-as-doctor" (click)="closeDoctorsDropdown()" class="text-sm text-gray-500 hover:text-gray-700">Join as Doctor</a>
                 </div>
               </div>
             }
           </div>
 
-          <!-- Hospitals dropdown -->
+          <!-- Hospitals -->
           <div class="relative">
-            <button
-              type="button"
-              (click)="toggleHospitalsDropdown()"
-              class="inline-flex items-center gap-1 px-3 py-2 text-sm font-medium rounded-lg transition-colors"
-              [class]="hospitalsDropdownOpen() ? 'text-brand-600 bg-brand-50' : 'text-gray-700 hover:text-brand-600'"
-            >
+            <button type="button" (click)="toggleHospitalsDropdown()" class="nav-link" [class.nav-link-active]="hospitalsDropdownOpen()">
+              <app-icon name="hospitals" size="sm" />
               Hospitals
-              <svg class="h-4 w-4 transition-transform" [class.rotate-180]="hospitalsDropdownOpen()" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-              </svg>
+              <span class="transition-transform" [class.rotate-180]="hospitalsDropdownOpen()">
+                <app-icon name="chevron-down" size="xs" />
+              </span>
             </button>
-
             @if (hospitalsDropdownOpen()) {
-              <div class="absolute left-0 top-full mt-2 w-72 rounded-2xl border border-gray-200 bg-white shadow-xl shadow-gray-200/60 p-3 z-50">
-                <p class="text-xs font-semibold uppercase tracking-wide text-gray-500 px-3 py-2">Browse by City</p>
+              <div class="nav-dropdown left-0 w-72 p-3">
+                <p class="text-xs font-semibold uppercase tracking-wide text-gray-500 px-3 py-2 flex items-center gap-2">
+                  <app-icon name="location" size="xs" />
+                  Browse by City
+                </p>
                 @for (city of hospitalCities; track city.slug) {
-                  <a
-                    [routerLink]="['/hospitals', city.slug]"
-                    (click)="closeHospitalsDropdown()"
-                    class="flex items-center gap-3 rounded-lg px-3 py-3 text-sm text-gray-700 hover:bg-brand-50 hover:text-brand-600 transition-colors"
-                  >
-                    <span class="flex h-9 w-9 items-center justify-center rounded-lg bg-sky-50 text-lg">🏥</span>
+                  <a [routerLink]="['/hospitals', city.slug]" (click)="closeHospitalsDropdown()" class="nav-dropdown-item py-3">
+                    <span class="icon-box-primary"><app-icon name="hospitals" size="sm" /></span>
                     <span class="font-medium">Hospitals in {{ city.name }}</span>
                   </a>
                 }
                 <div class="mt-2 pt-2 border-t border-gray-100 px-3">
-                  <a routerLink="/hospitals/lahore" (click)="closeHospitalsDropdown()" class="text-sm font-semibold text-brand-600 hover:text-brand-700">
-                    All Hospitals (City wise) →
-                  </a>
+                  <a routerLink="/hospitals/lahore" (click)="closeHospitalsDropdown()" class="text-sm font-semibold text-brand-600 hover:text-brand-700">All Hospitals →</a>
                 </div>
               </div>
             }
           </div>
 
-          <!-- Labs dropdown -->
+          <!-- Labs -->
           <div class="relative">
-            <button
-              type="button"
-              (click)="toggleLabsDropdown()"
-              class="inline-flex items-center gap-1 px-3 py-2 text-sm font-medium rounded-lg transition-colors"
-              [class]="labsDropdownOpen() ? 'text-brand-600 bg-brand-50' : 'text-gray-700 hover:text-brand-600'"
-            >
+            <button type="button" (click)="toggleLabsDropdown()" class="nav-link" [class.nav-link-active]="labsDropdownOpen()">
+              <app-icon name="labs" size="sm" />
               Labs
-              <svg class="h-4 w-4 transition-transform" [class.rotate-180]="labsDropdownOpen()" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-              </svg>
+              <span class="transition-transform" [class.rotate-180]="labsDropdownOpen()">
+                <app-icon name="chevron-down" size="xs" />
+              </span>
             </button>
-
             @if (labsDropdownOpen()) {
-              <div class="absolute left-0 top-full mt-2 w-72 rounded-2xl border border-gray-200 bg-white shadow-xl shadow-gray-200/60 p-3 z-50">
-                <p class="text-xs font-semibold uppercase tracking-wide text-gray-500 px-3 py-2">Browse by City</p>
+              <div class="nav-dropdown left-0 w-72 p-3">
+                <p class="text-xs font-semibold uppercase tracking-wide text-gray-500 px-3 py-2 flex items-center gap-2">
+                  <app-icon name="location" size="xs" />
+                  Browse by City
+                </p>
                 @for (city of labCities; track city.slug) {
-                  <a
-                    [routerLink]="['/labs', city.slug]"
-                    (click)="closeLabsDropdown()"
-                    class="flex items-center gap-3 rounded-lg px-3 py-3 text-sm text-gray-700 hover:bg-brand-50 hover:text-brand-600 transition-colors"
-                  >
-                    <span class="flex h-9 w-9 items-center justify-center rounded-lg bg-violet-50 text-lg">🧪</span>
+                  <a [routerLink]="['/labs', city.slug]" (click)="closeLabsDropdown()" class="nav-dropdown-item py-3">
+                    <span class="icon-box bg-violet-50 text-violet-600"><app-icon name="labs" size="sm" /></span>
                     <span class="font-medium">Labs in {{ city.name }}</span>
                   </a>
                 }
                 <div class="mt-2 pt-2 border-t border-gray-100 px-3">
-                  <a routerLink="/labs/lahore" (click)="closeLabsDropdown()" class="text-sm font-semibold text-brand-600 hover:text-brand-700">
-                    All Labs (City wise) →
-                  </a>
+                  <a routerLink="/labs/lahore" (click)="closeLabsDropdown()" class="text-sm font-semibold text-brand-600 hover:text-brand-700">All Labs →</a>
                 </div>
               </div>
             }
           </div>
 
-          <!-- Surgery dropdown -->
+          <!-- Surgery -->
           <div class="relative">
-            <button
-              type="button"
-              (click)="toggleSurgeryDropdown()"
-              class="inline-flex items-center gap-1 px-3 py-2 text-sm font-medium rounded-lg transition-colors"
-              [class]="surgeryDropdownOpen() ? 'text-brand-600 bg-brand-50' : 'text-gray-700 hover:text-brand-600'"
-            >
+            <button type="button" (click)="toggleSurgeryDropdown()" class="nav-link" [class.nav-link-active]="surgeryDropdownOpen()">
+              <app-icon name="surgery" size="sm" />
               Surgery
-              <svg class="h-4 w-4 transition-transform" [class.rotate-180]="surgeryDropdownOpen()" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-              </svg>
+              <span class="transition-transform" [class.rotate-180]="surgeryDropdownOpen()">
+                <app-icon name="chevron-down" size="xs" />
+              </span>
             </button>
-
             @if (surgeryDropdownOpen()) {
-              <div class="absolute left-0 top-full mt-2 w-72 rounded-2xl border border-gray-200 bg-white shadow-xl shadow-gray-200/60 p-3 z-50">
-                <p class="text-xs font-semibold uppercase tracking-wide text-gray-500 px-3 py-2">Browse by City</p>
+              <div class="nav-dropdown left-0 w-72 p-3">
+                <p class="text-xs font-semibold uppercase tracking-wide text-gray-500 px-3 py-2 flex items-center gap-2">
+                  <app-icon name="location" size="xs" />
+                  Browse by City
+                </p>
                 @for (city of surgeryCities; track city.slug) {
-                  <a
-                    [routerLink]="['/surgery', city.slug]"
-                    (click)="closeSurgeryDropdown()"
-                    class="flex items-center gap-3 rounded-lg px-3 py-3 text-sm text-gray-700 hover:bg-brand-50 hover:text-brand-600 transition-colors"
-                  >
-                    <span class="flex h-9 w-9 items-center justify-center rounded-lg bg-rose-50 text-lg">⚕️</span>
+                  <a [routerLink]="['/surgery', city.slug]" (click)="closeSurgeryDropdown()" class="nav-dropdown-item py-3">
+                    <span class="icon-box bg-rose-50 text-rose-600"><app-icon name="surgery" size="sm" /></span>
                     <span class="font-medium">Surgery in {{ city.name }}</span>
                   </a>
                 }
                 <div class="mt-2 pt-2 border-t border-gray-100 px-3">
-                  <a routerLink="/surgery/lahore" (click)="closeSurgeryDropdown()" class="text-sm font-semibold text-brand-600 hover:text-brand-700">
-                    All Surgical Hospitals →
-                  </a>
+                  <a routerLink="/surgery/lahore" (click)="closeSurgeryDropdown()" class="text-sm font-semibold text-brand-600 hover:text-brand-700">All Surgical Hospitals →</a>
                 </div>
               </div>
             }
           </div>
 
           @for (link of navLinks; track link.label) {
-            <a
-              [routerLink]="link.href"
-              routerLinkActive="text-brand-600"
-              class="px-3 py-2 text-sm font-medium text-gray-700 hover:text-brand-600 rounded-lg transition-colors"
-            >
+            <a [routerLink]="link.href" routerLinkActive="nav-link-active" class="nav-link">
+              <app-icon name="medicines" size="sm" />
               {{ link.label }}
             </a>
           }
         </nav>
 
-        <div class="hidden lg:flex items-center gap-3">
+        <div class="hidden lg:flex items-center gap-2.5">
           @if (authService.hasRole(UserRole.ADMIN, UserRole.SUPER_ADMIN, UserRole.DOCTOR)) {
             <app-notification-bell></app-notification-bell>
           }
           @if (cartService.itemCount() > 0) {
-            <a
-              routerLink="/medicines/cart"
-              class="relative inline-flex items-center justify-center p-2 rounded-lg text-gray-600 hover:bg-gray-100 hover:text-brand-600 transition-colors"
-              aria-label="Shopping cart"
-            >
-              <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-              </svg>
+            <a routerLink="/medicines/cart" class="btn-ghost relative p-2" aria-label="Shopping cart">
+              <app-icon name="cart" size="lg" />
               <span class="absolute -top-0.5 -right-0.5 flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-brand-600 px-1 text-[10px] font-bold text-white">
                 {{ cartService.itemCount() }}
               </span>
@@ -196,212 +145,140 @@
           }
           @if (authService.isAuthenticated()) {
             @if (authService.hasRole(UserRole.ADMIN, UserRole.SUPER_ADMIN)) {
-              <a
-                routerLink="/admin/dashboard"
-                class="inline-flex items-center justify-center px-4 py-2 text-sm font-semibold rounded-lg bg-brand-600 text-white hover:bg-brand-700 transition-colors"
-              >
+              <a routerLink="/admin/dashboard" class="btn-primary btn-sm">
+                <app-icon name="shield" size="sm" />
                 Admin
               </a>
             } @else if (authService.hasRole(UserRole.DOCTOR)) {
-              <a
-                routerLink="/doctor/dashboard"
-                class="inline-flex items-center justify-center px-4 py-2 text-sm font-semibold rounded-lg bg-brand-600 text-white hover:bg-brand-700 transition-colors"
-              >
+              <a routerLink="/doctor/dashboard" class="btn-primary btn-sm">
+                <app-icon name="dashboard" size="sm" />
                 Doctor Dashboard
               </a>
             } @else {
               <div class="relative">
-                <button
-                  type="button"
-                  (click)="toggleRecordDropdown()"
-                  class="inline-flex items-center gap-1 px-3 py-2 text-sm font-semibold rounded-lg transition-colors"
-                  [class]="recordDropdownOpen() ? 'text-brand-600 bg-brand-50' : 'text-brand-600 hover:text-brand-700'"
-                >
+                <button type="button" (click)="toggleRecordDropdown()" class="nav-link font-semibold text-brand-600" [class.nav-link-active]="recordDropdownOpen()">
+                  <app-icon name="record" size="sm" />
                   Record
-                  <svg class="h-4 w-4 transition-transform" [class.rotate-180]="recordDropdownOpen()" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                  </svg>
+                  <span class="transition-transform" [class.rotate-180]="recordDropdownOpen()">
+                    <app-icon name="chevron-down" size="xs" />
+                  </span>
                 </button>
-
                 @if (recordDropdownOpen()) {
-                  <div class="absolute right-0 top-full mt-2 w-56 rounded-2xl border border-gray-200 bg-white shadow-xl shadow-gray-200/60 p-2 z-50">
+                  <div class="nav-dropdown right-0 w-60 p-2">
                     <p class="text-xs font-semibold uppercase tracking-wide text-gray-500 px-3 py-2">Your records</p>
                     @for (item of recordLinks; track item.href) {
-                      <a
-                        [routerLink]="item.href"
-                        (click)="closeRecordDropdown()"
-                        class="flex items-center gap-3 rounded-lg px-3 py-3 text-sm text-gray-700 hover:bg-brand-50 hover:text-brand-600 transition-colors"
-                      >
-                        <span class="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-50 text-lg">{{ item.icon }}</span>
+                      <a [routerLink]="item.href" (click)="closeRecordDropdown()" class="nav-dropdown-item py-3">
+                        <span class="icon-box-brand"><app-icon [name]="item.icon" size="sm" /></span>
                         <span class="font-medium">{{ item.label }}</span>
                       </a>
                     }
                   </div>
                 }
               </div>
-              <span class="text-sm text-gray-600">Hello, {{ authService.user()?.firstName }}</span>
-              <button
-                type="button"
-                (click)="authService.logout()"
-                class="inline-flex items-center justify-center px-4 py-2 text-sm font-semibold rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors"
-              >
+              <span class="text-sm text-gray-600 hidden xl:inline">Hello, {{ authService.user()?.firstName }}</span>
+              <button type="button" (click)="authService.logout()" class="btn-outline btn-sm">
+                <app-icon name="logout" size="sm" />
                 Sign out
               </button>
             }
           } @else {
-            <a
-              routerLink="/join-as-doctor"
-              class="inline-flex items-center justify-center px-4 py-2 text-sm font-semibold rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors"
-            >
-              Join as Doctor
-            </a>
-            <a
-              routerLink="/auth/login"
-              class="inline-flex items-center justify-center px-4 py-2 text-sm font-semibold rounded-lg border border-brand-600 text-brand-600 hover:bg-brand-50 transition-colors"
-            >
-              Login
-            </a>
-            <a
-              routerLink="/auth/register"
-              class="inline-flex items-center justify-center px-4 py-2 text-sm font-semibold rounded-lg bg-brand-600 text-white hover:bg-brand-700 transition-colors"
-            >
-              Register
-            </a>
+            <a routerLink="/join-as-doctor" class="btn-outline btn-sm">Join as Doctor</a>
+            <a routerLink="/auth/login" class="btn-outline-brand btn-sm">Login</a>
+            <a routerLink="/auth/register" class="btn-primary btn-sm">Register</a>
           }
         </div>
 
-        <button
-          type="button"
-          class="lg:hidden inline-flex items-center justify-center p-2 rounded-lg text-gray-600 hover:bg-gray-100 relative"
-          aria-label="Shopping cart"
-          routerLink="/medicines/cart"
-        >
-          <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-          </svg>
-          @if (cartService.itemCount() > 0) {
-            <span class="absolute top-0 right-0 flex h-4 min-w-[1rem] items-center justify-center rounded-full bg-brand-600 px-1 text-[9px] font-bold text-white">
-              {{ cartService.itemCount() }}
-            </span>
-          }
-        </button>
-
-        <button
-          type="button"
-          class="lg:hidden inline-flex items-center justify-center p-2 rounded-lg text-gray-600 hover:bg-gray-100"
-          (click)="toggleMobileMenu()"
-          aria-label="Toggle menu"
-        >
-          <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            @if (mobileMenuOpen()) {
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-            } @else {
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+        <div class="flex items-center gap-1 lg:hidden">
+          <a routerLink="/medicines/cart" class="btn-ghost relative p-2" aria-label="Shopping cart" (click)="closeMobileMenu()">
+            <app-icon name="cart" size="lg" />
+            @if (cartService.itemCount() > 0) {
+              <span class="absolute top-0 right-0 flex h-4 min-w-[1rem] items-center justify-center rounded-full bg-brand-600 px-1 text-[9px] font-bold text-white">
+                {{ cartService.itemCount() }}
+              </span>
             }
-          </svg>
-        </button>
+          </a>
+          <button type="button" class="btn-ghost p-2" (click)="toggleMobileMenu()" aria-label="Toggle menu">
+            @if (mobileMenuOpen()) {
+              <app-icon name="close" size="lg" />
+            } @else {
+              <app-icon name="menu" size="lg" />
+            }
+          </button>
+        </div>
       </div>
 
       @if (mobileMenuOpen()) {
-        <nav class="lg:hidden pb-4 border-t border-gray-100 pt-3 space-y-1">
-          <p class="px-3 pt-2 pb-1 text-xs font-semibold uppercase tracking-wide text-gray-400">Find Doctors</p>
+        <nav class="lg:hidden pb-4 border-t border-gray-100 pt-3 space-y-1 max-h-[70vh] overflow-y-auto">
+          <p class="px-3 pt-2 pb-1 text-xs font-semibold uppercase tracking-wide text-gray-400 flex items-center gap-2">
+            <app-icon name="doctors" size="xs" /> Find Doctors
+          </p>
           <div class="grid grid-cols-2 gap-1 px-2 pb-3">
             @for (specialty of referenceData.specialtyChips(); track specialty.slug) {
-              <a
-                [routerLink]="['/find-doctors', specialty.slug]"
-                (click)="closeMobileMenu()"
-                class="rounded-lg px-2 py-2 text-sm text-gray-700 hover:bg-brand-50 hover:text-brand-600"
-              >
-                {{ specialty.name }}
-              </a>
+              <a [routerLink]="['/find-doctors', specialty.slug]" (click)="closeMobileMenu()" class="nav-dropdown-item text-sm">{{ specialty.name }}</a>
             }
           </div>
 
-          <p class="px-3 pt-2 pb-1 text-xs font-semibold uppercase tracking-wide text-gray-400">Hospitals</p>
+          <p class="px-3 pt-2 pb-1 text-xs font-semibold uppercase tracking-wide text-gray-400 flex items-center gap-2">
+            <app-icon name="hospitals" size="xs" /> Hospitals
+          </p>
           <div class="px-2 pb-3 space-y-1">
             @for (city of hospitalCities; track city.slug) {
-              <a
-                [routerLink]="['/hospitals', city.slug]"
-                (click)="closeMobileMenu()"
-                class="block rounded-lg px-3 py-2 text-sm text-gray-700 hover:bg-brand-50 hover:text-brand-600"
-              >
-                Hospitals in {{ city.name }}
-              </a>
+              <a [routerLink]="['/hospitals', city.slug]" (click)="closeMobileMenu()" class="nav-dropdown-item">Hospitals in {{ city.name }}</a>
             }
           </div>
 
-          <p class="px-3 pt-2 pb-1 text-xs font-semibold uppercase tracking-wide text-gray-400">Labs</p>
+          <p class="px-3 pt-2 pb-1 text-xs font-semibold uppercase tracking-wide text-gray-400 flex items-center gap-2">
+            <app-icon name="labs" size="xs" /> Labs
+          </p>
           <div class="px-2 pb-3 space-y-1">
             @for (city of labCities; track city.slug) {
-              <a
-                [routerLink]="['/labs', city.slug]"
-                (click)="closeMobileMenu()"
-                class="block rounded-lg px-3 py-2 text-sm text-gray-700 hover:bg-brand-50 hover:text-brand-600"
-              >
-                Labs in {{ city.name }}
-              </a>
+              <a [routerLink]="['/labs', city.slug]" (click)="closeMobileMenu()" class="nav-dropdown-item">Labs in {{ city.name }}</a>
             }
           </div>
 
-          <p class="px-3 pt-2 pb-1 text-xs font-semibold uppercase tracking-wide text-gray-400">Surgery</p>
+          <p class="px-3 pt-2 pb-1 text-xs font-semibold uppercase tracking-wide text-gray-400 flex items-center gap-2">
+            <app-icon name="surgery" size="xs" /> Surgery
+          </p>
           <div class="px-2 pb-3 space-y-1">
             @for (city of surgeryCities; track city.slug) {
-              <a
-                [routerLink]="['/surgery', city.slug]"
-                (click)="closeMobileMenu()"
-                class="block rounded-lg px-3 py-2 text-sm text-gray-700 hover:bg-brand-50 hover:text-brand-600"
-              >
-                Surgery in {{ city.name }}
-              </a>
+              <a [routerLink]="['/surgery', city.slug]" (click)="closeMobileMenu()" class="nav-dropdown-item">Surgery in {{ city.name }}</a>
             }
           </div>
 
           @for (link of navLinks; track link.label) {
-            <a
-              [routerLink]="link.href"
-              (click)="closeMobileMenu()"
-              class="block px-3 py-2 text-sm font-medium text-gray-700 hover:text-brand-600 hover:bg-brand-50 rounded-lg"
-            >
+            <a [routerLink]="link.href" (click)="closeMobileMenu()" class="nav-dropdown-item mx-2">
+              <app-icon name="medicines" size="sm" />
               {{ link.label }}
             </a>
           }
-          <div class="flex flex-col gap-2 pt-2 px-3">
+
+          <div class="flex flex-col gap-2 pt-3 px-3 border-t border-gray-100 mt-2">
             @if (authService.isAuthenticated()) {
               @if (authService.hasRole(UserRole.ADMIN, UserRole.SUPER_ADMIN)) {
-                <a routerLink="/admin/dashboard" (click)="closeMobileMenu()" class="w-full text-center py-2 text-sm font-semibold bg-brand-600 text-white rounded-lg">Admin</a>
+                <a routerLink="/admin/dashboard" (click)="closeMobileMenu()" class="btn-primary w-full">Admin</a>
               } @else if (authService.hasRole(UserRole.DOCTOR)) {
-                <a routerLink="/doctor/dashboard" (click)="closeMobileMenu()" class="w-full text-center py-2 text-sm font-semibold bg-brand-600 text-white rounded-lg">Doctor Dashboard</a>
+                <a routerLink="/doctor/dashboard" (click)="closeMobileMenu()" class="btn-primary w-full">Doctor Dashboard</a>
               } @else {
-                <div class="w-full">
-                  <button
-                    type="button"
-                    (click)="toggleRecordDropdown()"
-                    class="w-full text-center py-2 text-sm font-semibold text-brand-600 border border-brand-200 rounded-lg"
-                  >
-                    Record
-                  </button>
-                  @if (recordDropdownOpen()) {
-                    <div class="mt-2 space-y-1 rounded-xl border border-gray-200 bg-gray-50 p-2">
-                      @for (item of recordLinks; track item.href) {
-                        <a
-                          [routerLink]="item.href"
-                          (click)="closeRecordDropdown(); closeMobileMenu()"
-                          class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-white hover:text-brand-600"
-                        >
-                          <span>{{ item.icon }}</span>
-                          <span>{{ item.label }}</span>
-                        </a>
-                      }
-                    </div>
-                  }
-                </div>
-                <button type="button" (click)="authService.logout(); closeMobileMenu()" class="w-full text-center py-2 text-sm font-semibold border border-gray-300 text-gray-700 rounded-lg">Sign out</button>
+                <button type="button" (click)="toggleRecordDropdown()" class="btn-outline-brand w-full">
+                  <app-icon name="record" size="sm" /> Record
+                </button>
+                @if (recordDropdownOpen()) {
+                  <div class="space-y-1 rounded-xl border border-gray-200 bg-gray-50 p-2">
+                    @for (item of recordLinks; track item.href) {
+                      <a [routerLink]="item.href" (click)="closeRecordDropdown(); closeMobileMenu()" class="nav-dropdown-item">
+                        <span class="icon-box-brand"><app-icon [name]="item.icon" size="sm" /></span>
+                        {{ item.label }}
+                      </a>
+                    }
+                  </div>
+                }
+                <button type="button" (click)="authService.logout(); closeMobileMenu()" class="btn-outline w-full">Sign out</button>
               }
             } @else {
-              <a routerLink="/join-as-doctor" (click)="closeMobileMenu()" class="w-full text-center py-2 text-sm font-semibold border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">Join as Doctor</a>
+              <a routerLink="/join-as-doctor" (click)="closeMobileMenu()" class="btn-outline w-full">Join as Doctor</a>
               <div class="flex gap-2">
-                <a routerLink="/auth/login" (click)="closeMobileMenu()" class="flex-1 text-center py-2 text-sm font-semibold border border-brand-600 text-brand-600 rounded-lg">Login</a>
-                <a routerLink="/auth/register" (click)="closeMobileMenu()" class="flex-1 text-center py-2 text-sm font-semibold bg-brand-600 text-white rounded-lg">Register</a>
+                <a routerLink="/auth/login" (click)="closeMobileMenu()" class="btn-outline-brand flex-1">Login</a>
+                <a routerLink="/auth/register" (click)="closeMobileMenu()" class="btn-primary flex-1">Register</a>
               </div>
             }
           </div>
@@ -415,21 +292,28 @@
   </main>
 
   <footer class="bg-gray-900 text-gray-300">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-10">
-        <!-- <div>
-          <div class="flex items-center gap-2 mb-4">
-            <span class="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-600 text-white font-bold">C</span>
+    <div class="page-container py-12">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8 mb-10">
+        <div class="sm:col-span-2 lg:col-span-1">
+          <div class="flex items-center gap-2.5 mb-4">
+            <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-600 text-white font-bold">C</span>
             <span class="text-xl font-bold text-white">CareHub</span>
           </div>
-          <p class="text-sm text-gray-400 leading-relaxed">
-            Pakistan's healthcare marketplace. Find doctors, book appointments, and consult online.
+          <p class="text-sm text-gray-400 leading-relaxed max-w-xs">
+            Pakistan's trusted healthcare marketplace. Find doctors, book appointments, lab tests, and medicines — all in one place.
           </p>
-        </div> -->
+          <p class="mt-4 text-sm text-brand-400 font-medium flex items-center gap-2">
+            <app-icon name="phone" size="sm" />
+            042-34500888
+          </p>
+        </div>
 
         @for (group of footerCityLinks; track group.city) {
           <div>
-            <h4 class="text-white font-semibold mb-3">{{ group.city }}</h4>
+            <h4 class="text-white font-semibold mb-3 flex items-center gap-2">
+              <app-icon name="location" size="xs" />
+              {{ group.city }}
+            </h4>
             <ul class="space-y-2">
               @for (link of group.links; track link) {
                 <li>
@@ -442,11 +326,10 @@
       </div>
 
       <div class="border-t border-gray-800 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-        <p class="text-sm text-gray-500">Copyright &copy; CareHub. All rights reserved.</p>
+        <p class="text-sm text-gray-500">Copyright &copy; {{ currentYear }} CareHub. All rights reserved.</p>
         <div class="flex items-center gap-6 text-sm">
           <a routerLink="/auth/login" class="hover:text-white transition-colors">Terms & Policies</a>
           <a routerLink="/auth/register" class="hover:text-white transition-colors">About Us</a>
-          <span class="text-brand-400 font-medium">042-34500888</span>
         </div>
       </div>
     </div>
