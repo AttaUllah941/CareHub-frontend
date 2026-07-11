@@ -1,0 +1,78 @@
+<div class="bg-gray-50 min-h-full">
+  <div class="bg-white border-b border-gray-200">
+    <div class="page-container py-8">
+      <nav class="text-sm text-gray-500 mb-4 flex items-center gap-2 flex-wrap">
+        <a routerLink="/" class="hover:text-brand-600">CareHub</a>
+        <span>&gt;</span>
+        <span class="text-gray-800">Terms & Policies</span>
+      </nav>
+      <h1 class="section-title">
+        <app-icon name="shield" size="lg" />
+        Terms & Policies
+      </h1>
+      <p class="section-subtitle">Last updated: {{ lastUpdated }}</p>
+    </div>
+  </div>
+
+  <div class="page-container py-8 space-y-6 max-w-4xl">
+    <section class="card card-body space-y-4">
+      <h2 class="text-lg font-semibold text-gray-900">Terms of Service</h2>
+      <p class="text-sm text-gray-600 leading-relaxed">
+        By using CareHub, you agree to use the platform for lawful healthcare-related purposes only.
+        CareHub connects patients with PMC verified doctors, hospitals, labs, and pharmacies across Pakistan.
+        We do not provide medical diagnosis or treatment directly — all clinical decisions remain between you and your healthcare provider.
+      </p>
+      <ul class="list-disc pl-5 space-y-2 text-sm text-gray-600">
+        <li>You must provide accurate information when booking appointments or submitting health questions.</li>
+        <li>Missed appointments or late cancellations may be subject to provider policies.</li>
+        <li>CareHub may suspend accounts that misuse the platform or violate applicable laws.</li>
+      </ul>
+    </section>
+
+    <section class="card card-body space-y-4">
+      <h2 class="text-lg font-semibold text-gray-900">Privacy Policy</h2>
+      <p class="text-sm text-gray-600 leading-relaxed">
+        We respect your privacy and handle personal and health-related data with care. Information you share
+        — such as name, contact details, appointment history, and health questions — is used to deliver our services
+        and improve your experience on CareHub.
+      </p>
+      <ul class="list-disc pl-5 space-y-2 text-sm text-gray-600">
+        <li>We do not sell your personal data to third parties.</li>
+        <li>Health questions submitted anonymously are not publicly linked to your identity.</li>
+        <li>Payment data is processed through secure, encrypted channels.</li>
+        <li>You may request access to or correction of your account information by contacting support.</li>
+      </ul>
+    </section>
+
+    <section class="card card-body space-y-4">
+      <h2 class="text-lg font-semibold text-gray-900">Medical Disclaimer</h2>
+      <p class="text-sm text-gray-600 leading-relaxed">
+        Content on CareHub — including doctor profiles, health advice answers, and symptom guides — is for
+        informational purposes only. It is not a substitute for professional medical advice, diagnosis, or treatment.
+        Always seek the advice of a qualified healthcare provider with questions about a medical condition.
+        In case of emergency, call your local emergency number or visit the nearest hospital immediately.
+      </p>
+    </section>
+
+    <section class="card card-body space-y-4">
+      <h2 class="text-lg font-semibold text-gray-900">Booking & Refund Policy</h2>
+      <ul class="list-disc pl-5 space-y-2 text-sm text-gray-600">
+        <li>Appointment confirmations are subject to doctor availability and clinic schedules.</li>
+        <li>Lab test and medicine orders follow the respective provider's cancellation terms.</li>
+        <li>Refund eligibility depends on the service type and timing of cancellation — contact support for assistance.</li>
+      </ul>
+    </section>
+
+    <section class="card card-body bg-primary-50 border-primary-100 space-y-3">
+      <h2 class="text-lg font-semibold text-gray-900">Contact</h2>
+      <p class="text-sm text-gray-600">
+        For questions about these policies, reach our support team:
+      </p>
+      <p class="text-sm font-medium text-primary-700 flex items-center gap-2">
+        <app-icon name="phone" size="sm" />
+        042-34500888
+      </p>
+      <a routerLink="/about" class="btn-outline-brand btn-sm inline-flex w-fit">Learn about CareHub</a>
+    </section>
+  </div>
+</div>

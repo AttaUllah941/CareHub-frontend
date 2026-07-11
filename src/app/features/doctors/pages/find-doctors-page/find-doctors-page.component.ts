@@ -30,6 +30,7 @@ export class FindDoctorsPageComponent implements OnInit {
   readonly specialtySlug = signal('');
   readonly selectedCity = signal('Lahore');
   readonly searchName = signal('');
+  readonly healthCondition = signal('');
   readonly maxFee = signal('');
   readonly loading = signal(false);
   readonly error = signal<string | null>(null);
@@ -66,9 +67,16 @@ export class FindDoctorsPageComponent implements OnInit {
           this.selectedCity.set(city);
         }
 
-        const name = queryParams.get('q') ?? queryParams.get('name');
-        if (name != null) {
-          this.searchName.set(name);
+        const condition = queryParams.get('condition');
+        if (condition) {
+          this.healthCondition.set(condition);
+          this.searchName.set('');
+        } else {
+          this.healthCondition.set('');
+          const name = queryParams.get('q') ?? queryParams.get('name');
+          if (name != null) {
+            this.searchName.set(name);
+          }
         }
 
         this.loadDoctors(1);
@@ -148,6 +156,12 @@ export class FindDoctorsPageComponent implements OnInit {
     this.activeFilters.set([]);
     this.maxFee.set('');
     this.searchName.set('');
+    this.healthCondition.set('');
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { condition: null, q: null, name: null },
+      queryParamsHandling: 'merge',
+    });
     this.loadDoctors(1);
   }
 

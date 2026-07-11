@@ -315,9 +315,13 @@
               {{ group.city }}
             </h4>
             <ul class="space-y-2">
-              @for (link of group.links; track link) {
+              @for (link of group.links; track link.label) {
                 <li>
-                  <a [routerLink]="['/find-doctors', 'dermatologist']" class="text-sm text-gray-400 hover:text-white transition-colors">{{ link }}</a>
+                  <a
+                    [routerLink]="['/find-doctors', link.specialtySlug]"
+                    [queryParams]="{ city: link.city }"
+                    class="text-sm text-gray-400 hover:text-white transition-colors"
+                  >{{ link.label }}</a>
                 </li>
               }
             </ul>
@@ -328,8 +332,8 @@
       <div class="border-t border-gray-800 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
         <p class="text-sm text-gray-500">Copyright &copy; {{ currentYear }} CareHub. All rights reserved.</p>
         <div class="flex items-center gap-6 text-sm">
-          <a routerLink="/auth/login" class="hover:text-white transition-colors">Terms & Policies</a>
-          <a routerLink="/auth/register" class="hover:text-white transition-colors">About Us</a>
+          <a routerLink="/terms" class="hover:text-white transition-colors">Terms & Policies</a>
+          <a routerLink="/about" class="hover:text-white transition-colors">About Us</a>
         </div>
       </div>
     </div>
