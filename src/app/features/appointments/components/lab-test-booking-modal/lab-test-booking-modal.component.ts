@@ -23,6 +23,8 @@ import { buildBookingDateOptions, BookingDateOption } from '../../utils/booking-
 import { setBodyScrollLocked } from '../../utils/browser.util';
 import { patientDefaultsFromUser } from '../../utils/patient-form.util';
 import { LabSampleCollectionType, LabTestBookingPayload } from './lab-test-booking-payload.model';
+import { labBookingStatusLabel } from '../../utils/booking-status.util';
+import { LabBookingStatus } from '../../../../core/models/lab.model';
 
 interface DateOption extends BookingDateOption {}
 
@@ -182,7 +184,7 @@ export class LabTestBookingModalComponent {
     }
   }
 
-  private buildPayload(ref: string): LabTestBookingPayload {
+  private buildPayload(ref: string, status: LabBookingStatus): LabTestBookingPayload {
     const test = this.test();
     const lab = this.lab();
     const type = this.collectionType() as LabSampleCollectionType;
@@ -231,7 +233,7 @@ export class LabTestBookingModalComponent {
       },
       meta: {
         createdAt: new Date().toISOString(),
-        status: 'confirmed',
+        status,
       },
     };
   }
@@ -274,6 +276,11 @@ export class LabTestBookingModalComponent {
     this.showValidation.set(true);
     if (!this.canConfirm() || this.submitting()) return;
 
+    if (!this.auth.isAuthenticated()) {
+      this.notifications.showError('Please login first.');
+      return;
+    }
+
     const selectedDate = this.selectedDate();
     if (!selectedDate) return;
 
@@ -300,9 +307,13 @@ export class LabTestBookingModalComponent {
       })
       .subscribe({
         next: (res) => {
-          const ref = res.data.booking.id;
-          const payload = this.buildPayload(ref);
-          this.notifications.showSuccess(`Lab test booked. Reference: ${ref}`);
+          const booking = res.data.booking;
+          const ref = booking.id;
+          const status = booking.status;
+          const payload = this.buildPayload(ref, status);
+          this.notifications.showSuccess(
+            `Lab test booked. Status: ${labBookingStatusLabel(status)}. Reference: ${ref}`,
+          );
           this.confirmed.emit(payload);
           this.submitting.set(false);
           this.close();

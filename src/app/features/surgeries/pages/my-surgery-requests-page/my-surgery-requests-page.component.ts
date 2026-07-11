@@ -1,4 +1,4 @@
-import { DatePipe, TitleCasePipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { Component, inject, OnInit, PLATFORM_ID, signal } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { RouterLink } from '@angular/router';
@@ -9,11 +9,15 @@ import {
 import { ApiErrorService } from '../../../../core/services/api-error.service';
 import { formatSurgeryPriceRange } from '../../../marketplace/utils/marketplace-display.util';
 import { SurgeriesApiService } from '../../services/surgeries-api.service';
+import {
+  surgeryConsultationStatusBadge,
+  surgeryConsultationStatusLabel,
+} from '../../../appointments/utils/booking-status.util';
 
 @Component({
   selector: 'app-my-surgery-requests-page',
   standalone: true,
-  imports: [RouterLink, TitleCasePipe, DatePipe],
+  imports: [RouterLink, DatePipe],
   templateUrl: './my-surgery-requests-page.component.html',
   styleUrl: './my-surgery-requests-page.component.scss',
 })
@@ -65,22 +69,10 @@ export class MySurgeryRequestsPageComponent implements OnInit {
   }
 
   statusBadge(status: SurgeryConsultationStatus): string {
-    const map: Record<SurgeryConsultationStatus, string> = {
-      pending: 'bg-amber-100 text-amber-800',
-      contacted: 'bg-sky-100 text-sky-800',
-      scheduled: 'bg-emerald-100 text-emerald-800',
-      closed: 'bg-gray-100 text-gray-600',
-    };
-    return map[status];
+    return surgeryConsultationStatusBadge(status);
   }
 
-  statusLabel(status: SurgeryConsultationStatus): string {
-    const map: Record<SurgeryConsultationStatus, string> = {
-      pending: 'Pending review',
-      contacted: 'Hospital contacted you',
-      scheduled: 'Consultation scheduled',
-      closed: 'Closed',
-    };
-    return map[status];
+  statusLabel(status: SurgeryConsultationStatus | string): string {
+    return surgeryConsultationStatusLabel(status);
   }
 }

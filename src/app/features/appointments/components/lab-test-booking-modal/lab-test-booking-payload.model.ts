@@ -1,3 +1,5 @@
+import { LabBookingStatus } from '../../../../core/models/lab.model';
+
 export type LabSampleCollectionType = 'home_sample' | 'lab_visit';
 
 export interface LabTestBookingPayload {
@@ -43,6 +45,6 @@ export interface LabTestBookingPayload {
   };
   meta: {
     createdAt: string;
-    status: 'confirmed';
+    status: LabBookingStatus;
   };
 }

@@ -7,6 +7,7 @@ import {
   CreateSurgeryConsultationRequest,
   SurgeryConsultationListQuery,
   SurgeryConsultationListResponse,
+  SurgeryConsultationStatus,
   SurgeryProcedure,
   SurgeryProcedureListQuery,
 } from '../../../core/models/surgery.model';
@@ -32,8 +33,8 @@ export class SurgeriesApiService {
 
   createConsultationRequest(
     payload: CreateSurgeryConsultationRequest,
-  ): Observable<ApiResponse<{ consultationRequest: { id: string; status: string } }>> {
-    return this.api.post<{ consultationRequest: { id: string; status: string } }>(
+  ): Observable<ApiResponse<{ consultationRequest: { id: string; status: SurgeryConsultationStatus } }>> {
+    return this.api.post<{ consultationRequest: { id: string; status: SurgeryConsultationStatus } }>(
       '/surgeries/consultation-requests',
       payload,
     );

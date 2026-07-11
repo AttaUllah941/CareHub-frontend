@@ -24,6 +24,8 @@ import { buildBookingDateOptions, BookingDateOption } from '../../utils/booking-
 import { setBodyScrollLocked } from '../../utils/browser.util';
 import { patientDefaultsFromUser } from '../../utils/patient-form.util';
 import { SurgeryBookingPayload } from './surgery-booking-payload.model';
+import { surgeryConsultationStatusLabel } from '../../utils/booking-status.util';
+import { SurgeryConsultationStatus } from '../../../../core/models/surgery.model';
 
 interface DateOption extends BookingDateOption {}
 
@@ -245,7 +247,7 @@ export class SurgeryBookingModalComponent {
     return base;
   }
 
-  private buildPayload(ref: string): SurgeryBookingPayload {
+  private buildPayload(ref: string, status: SurgeryConsultationStatus): SurgeryBookingPayload {
     const surgery = this.surgery();
     const hospital = this.hospital();
     const surgeon = this.selectedSurgeon()!;
@@ -302,7 +304,7 @@ export class SurgeryBookingModalComponent {
       },
       meta: {
         createdAt: new Date().toISOString(),
-        status: 'submitted',
+        status,
       },
     };
   }
@@ -365,9 +367,13 @@ export class SurgeryBookingModalComponent {
       })
       .subscribe({
         next: (res) => {
-          const ref = res.data.consultationRequest.id;
-          const payload = this.buildPayload(ref);
-          this.notifications.showSuccess('Surgery consultation request submitted successfully.');
+          const request = res.data.consultationRequest;
+          const ref = request.id;
+          const status = request.status as SurgeryConsultationStatus;
+          const payload = this.buildPayload(ref, status);
+          this.notifications.showSuccess(
+            `Surgery request submitted. Status: ${surgeryConsultationStatusLabel(status)}. Reference: ${ref}`,
+          );
           this.confirmed.emit(payload);
           this.submitting.set(false);
           this.close();
