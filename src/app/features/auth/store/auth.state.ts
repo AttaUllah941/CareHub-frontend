@@ -26,8 +26,8 @@ export const AUTH_FEATURE_KEY = 'auth';
 
 /** Post-login landing routes per role */
 export const ROLE_DASHBOARD_ROUTES: Record<UserRole, string> = {
-  [UserRole.SUPER_ADMIN]: '/',
-  [UserRole.ADMIN]: '/',
+  [UserRole.SUPER_ADMIN]: '/admin/dashboard',
+  [UserRole.ADMIN]: '/admin/dashboard',
   [UserRole.DOCTOR]: '/doctor/dashboard',
   [UserRole.PATIENT]: '/',
   [UserRole.CLINIC_MANAGER]: '/',

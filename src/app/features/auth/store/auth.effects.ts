@@ -14,7 +14,7 @@ import {
 } from '../../../core/models/auth.model';
 import { AuthActions } from './auth.actions';
 import { ROLE_DASHBOARD_ROUTES } from './auth.state';
-import { isSafeInternalReturnUrl } from '../../../core/utils/auth-navigation.util';
+import { resolvePostLoginUrl } from '../../../core/utils/auth-navigation.util';
 
 @Injectable()
 export class AuthEffects {
@@ -128,13 +128,13 @@ export class AuthEffects {
           this.referenceData.loadSpecialties();
 
           const returnUrl = this.router.parseUrl(this.router.url).queryParams['returnUrl'];
-          if (isSafeInternalReturnUrl(returnUrl)) {
-            this.router.navigateByUrl(returnUrl);
-            return;
-          }
-
           const dashboardRoute = ROLE_DASHBOARD_ROUTES[response.user.role] ?? '/';
-          this.router.navigate([dashboardRoute]);
+          const destination = resolvePostLoginUrl(
+            response.user.role,
+            returnUrl,
+            dashboardRoute,
+          );
+          this.router.navigateByUrl(destination);
         }),
       ),
     { dispatch: false },
