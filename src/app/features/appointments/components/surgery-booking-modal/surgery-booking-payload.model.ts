@@ -1,3 +1,5 @@
+import { SurgeryConsultationStatus } from '../../../../core/models/surgery.model';
+
 export interface SurgeryBookingPayload {
   bookingRef: string;
   requestType: 'surgery_consultation';
@@ -49,6 +51,6 @@ export interface SurgeryBookingPayload {
   };
   meta: {
     createdAt: string;
-    status: 'submitted';
+    status: SurgeryConsultationStatus;
   };
 }
