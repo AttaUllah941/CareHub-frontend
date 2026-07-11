@@ -8,6 +8,12 @@
         <span class="text-gray-800">{{ breadcrumbSpecialty() }}</span>
       </nav>
       <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 leading-tight">{{ pageTitle() }}</h1>
+      @if (healthCondition()) {
+        <p class="mt-2 text-sm text-gray-600">
+          Showing <span class="font-semibold text-brand-600">{{ breadcrumbSpecialty() }}</span> for
+          <span class="font-semibold text-gray-900">{{ healthCondition() }}</span> in {{ selectedCity() }}
+        </p>
+      }
     </div>
   </div>
 

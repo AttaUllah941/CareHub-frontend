@@ -16,6 +16,37 @@ export const HOME_ROUTES: Routes = [
           import('./pages/home-page/home-page.component').then((m) => m.HomePageComponent),
       },
       {
+        path: 'health-advice',
+        loadComponent: () =>
+          import('./pages/health-advice-page/health-advice-page.component').then(
+            (m) => m.HealthAdvicePageComponent,
+          ),
+      },
+      {
+        path: 'symptoms',
+        loadComponent: () =>
+          import('./pages/symptoms-page/symptoms-page.component').then(
+            (m) => m.SymptomsPageComponent,
+          ),
+      },
+      {
+        path: 'diseases',
+        loadComponent: () =>
+          import('./pages/diseases-page/diseases-page.component').then(
+            (m) => m.DiseasesPageComponent,
+          ),
+      },
+      {
+        path: 'terms',
+        loadComponent: () =>
+          import('./pages/terms-page/terms-page.component').then((m) => m.TermsPageComponent),
+      },
+      {
+        path: 'about',
+        loadComponent: () =>
+          import('./pages/about-page/about-page.component').then((m) => m.AboutPageComponent),
+      },
+      {
         path: 'join-as-doctor',
         loadComponent: () =>
           import('../doctor-onboarding/pages/doctor-register-page/doctor-register-page.component').then(

@@ -1,0 +1,127 @@
+<div class="bg-gray-50 min-h-full">
+  <div class="bg-white border-b border-gray-200">
+    <div class="page-container py-8">
+      <nav class="text-sm text-gray-500 mb-4 flex items-center gap-2 flex-wrap">
+        <a routerLink="/" class="hover:text-brand-600">CareHub</a>
+        <span>&gt;</span>
+        <span class="text-gray-800">Health Advice</span>
+      </nav>
+      <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
+        <div>
+          <h1 class="section-title">
+            <app-icon name="stethoscope" size="lg" />
+            Ask a Doctor — Free Medical Advice
+          </h1>
+          <p class="section-subtitle max-w-2xl">
+            Browse answers from PMC verified doctors or ask your own health question anonymously.
+          </p>
+        </div>
+        <button type="button" (click)="askQuestion()" class="btn-primary shrink-0">
+          <app-icon name="consultations" size="sm" />
+          Ask a Question
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-container py-8 space-y-8">
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      @for (stat of stats; track stat.label) {
+        <div class="card card-body text-center">
+          <p class="text-2xl font-bold text-brand-600">{{ stat.value }}</p>
+          <p class="text-sm text-gray-600 mt-1">{{ stat.label }}</p>
+        </div>
+      }
+    </div>
+
+    <div class="card card-body space-y-4">
+      <div class="flex flex-col lg:flex-row gap-3">
+        <input
+          type="text"
+          [ngModel]="searchQuery()"
+          (ngModelChange)="searchQuery.set($event)"
+          placeholder="Search questions, symptoms, or topics..."
+          class="input-field flex-1"
+        />
+        <select
+          [ngModel]="selectedCity()"
+          (ngModelChange)="selectedCity.set($event)"
+          class="select-field lg:w-48"
+        >
+          @for (city of cities; track city.slug) {
+            <option [value]="city.name">{{ city.name }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="flex flex-wrap gap-2">
+        @for (category of categories; track category) {
+          <button
+            type="button"
+            (click)="selectedCategory.set(category)"
+            class="rounded-full px-4 py-1.5 text-sm font-medium transition-colors"
+            [class]="selectedCategory() === category
+              ? 'bg-brand-600 text-white'
+              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
+          >
+            {{ category }}
+          </button>
+        }
+      </div>
+    </div>
+
+    <div class="space-y-4">
+      @for (item of filteredQuestions(); track item.id) {
+        <article class="card card-body">
+          <div class="flex flex-wrap items-center gap-2 mb-3">
+            <span class="badge-info">{{ item.category }}</span>
+            <span class="text-xs text-gray-400">{{ item.askedAt }} · {{ item.views | number }} views</span>
+          </div>
+          <h2 class="text-lg font-semibold text-gray-900">{{ item.question }}</h2>
+          <div class="mt-4 rounded-xl bg-primary-50 border border-primary-100 p-4">
+            <p class="text-sm text-gray-700 leading-relaxed">{{ item.answer }}</p>
+            <div class="mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <p class="text-sm font-medium text-primary-700 flex items-center gap-1.5">
+                <app-icon name="doctors" size="sm" />
+                {{ item.doctorName }} · {{ item.specialty }}
+              </p>
+              <button
+                type="button"
+                (click)="consultSpecialist(item.specialtySlug)"
+                class="btn-outline-brand btn-sm"
+              >
+                Consult {{ item.specialty }}
+              </button>
+            </div>
+          </div>
+        </article>
+      } @empty {
+        <div class="empty-state">
+          <app-icon name="search" size="lg" />
+          <p class="mt-3 text-gray-600">No questions match your search.</p>
+          <button type="button" (click)="searchQuery.set(''); selectedCategory.set('All')" class="btn-outline btn-sm mt-4">
+            Clear filters
+          </button>
+        </div>
+      }
+    </div>
+
+    <div class="card card-body bg-gradient-to-r from-brand-600 to-rose-500 text-white border-0">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <h3 class="text-xl font-bold">Still have a health concern?</h3>
+          <p class="text-brand-50 text-sm mt-1">Post your question anonymously and get expert advice within 24 hours.</p>
+        </div>
+        <button type="button" (click)="askQuestion()" class="btn bg-white text-brand-600 hover:bg-brand-50 shrink-0">
+          Ask a Question — It's Free
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<app-ask-question-modal
+  [open]="askQuestionOpen()"
+  [defaultCity]="selectedCity()"
+  (closed)="closeAskQuestion()"
+/>

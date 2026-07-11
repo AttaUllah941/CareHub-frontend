@@ -1,0 +1,96 @@
+<div class="bg-gray-50 min-h-full">
+  <div class="bg-white border-b border-gray-200">
+    <div class="page-container py-8">
+      <nav class="text-sm text-gray-500 mb-4 flex items-center gap-2 flex-wrap">
+        <a routerLink="/" class="hover:text-brand-600">CareHub</a>
+        <span>&gt;</span>
+        <span class="text-gray-800">About Us</span>
+      </nav>
+      <h1 class="section-title">
+        <app-icon name="home" size="lg" />
+        About CareHub
+      </h1>
+      <p class="section-subtitle max-w-2xl">
+        Pakistan's trusted healthcare marketplace — connecting patients with verified doctors, hospitals, labs, and pharmacies.
+      </p>
+    </div>
+  </div>
+
+  <div class="page-container py-8 space-y-8 max-w-4xl">
+    <section class="card card-body space-y-4">
+      <h2 class="text-lg font-semibold text-gray-900">Our Mission</h2>
+      <p class="text-sm text-gray-600 leading-relaxed">
+        CareHub makes quality healthcare accessible across Pakistan. Whether you need to find a specialist,
+        book an in-clinic or video consultation, order lab tests with home collection, or get medicines from
+        verified pharmacies — CareHub brings it all together in one trusted platform.
+      </p>
+    </section>
+
+    <section class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      @for (badge of trustBadges; track badge.title) {
+        <div class="card card-body text-center">
+          <div class="inline-flex h-12 w-12 items-center justify-center rounded-full bg-brand-600 text-white text-lg font-bold mx-auto mb-3">
+            {{ badge.number }}
+          </div>
+          <h3 class="font-semibold text-gray-900">{{ badge.title }}</h3>
+          <p class="text-sm text-gray-500 mt-1">{{ badge.subtitle }}</p>
+        </div>
+      }
+    </section>
+
+    <section class="card card-body space-y-4">
+      <h2 class="text-lg font-semibold text-gray-900">What We Offer</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="flex items-start gap-3">
+          <span class="icon-box-brand"><app-icon name="doctors" size="sm" /></span>
+          <div>
+            <p class="font-medium text-gray-900">Find Doctors</p>
+            <p class="text-sm text-gray-500">Browse PMC verified specialists by city and specialty.</p>
+          </div>
+        </div>
+        <div class="flex items-start gap-3">
+          <span class="icon-box-brand"><app-icon name="appointments" size="sm" /></span>
+          <div>
+            <p class="font-medium text-gray-900">Book Appointments</p>
+            <p class="text-sm text-gray-500">In-clinic visits and video consultations.</p>
+          </div>
+        </div>
+        <div class="flex items-start gap-3">
+          <span class="icon-box-brand"><app-icon name="labs" size="sm" /></span>
+          <div>
+            <p class="font-medium text-gray-900">Lab Tests</p>
+            <p class="text-sm text-gray-500">Book tests with lab visit or home sample collection.</p>
+          </div>
+        </div>
+        <div class="flex items-start gap-3">
+          <span class="icon-box-brand"><app-icon name="medicines" size="sm" /></span>
+          <div>
+            <p class="font-medium text-gray-900">Medicines</p>
+            <p class="text-sm text-gray-500">Order from verified pharmacies near you.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card card-body space-y-4">
+      <h2 class="text-lg font-semibold text-gray-900">For Healthcare Providers</h2>
+      <p class="text-sm text-gray-600 leading-relaxed">
+        Doctors can join CareHub to reach more patients, manage appointments, and offer video consultations.
+        Our doctor portal includes scheduling, patient records, prescriptions, and earnings tracking.
+      </p>
+      <a routerLink="/join-as-doctor" class="btn-primary btn-sm inline-flex w-fit">Join as Doctor</a>
+    </section>
+
+    <section class="card card-body bg-brand-50 border-brand-100 space-y-3">
+      <h2 class="text-lg font-semibold text-gray-900">Get in Touch</h2>
+      <p class="text-sm text-gray-600 flex items-center gap-2">
+        <app-icon name="phone" size="sm" />
+        <span class="font-medium text-brand-700">042-34500888</span>
+      </p>
+      <div class="flex flex-wrap gap-3 pt-1">
+        <a routerLink="/terms" class="btn-outline-brand btn-sm">Terms & Policies</a>
+        <a routerLink="/find-doctors/general-physician" [queryParams]="{ city: 'Lahore' }" class="btn-primary btn-sm">Find a Doctor</a>
+      </div>
+    </section>
+  </div>
+</div>

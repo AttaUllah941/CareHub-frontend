@@ -1,0 +1,176 @@
+@if (open()) {
+  <div
+    class="modal-overlay"
+    data-backdrop="true"
+    (click)="onBackdropClick($event)"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="ask-question-title"
+  >
+    <div
+      class="modal-panel sm:max-w-lg"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="modal-header">
+        <div class="flex items-start justify-between gap-4">
+          <div class="flex items-start gap-3 min-w-0">
+            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/15">
+              <app-icon name="clipboard" size="md" />
+            </div>
+            <div class="min-w-0">
+              <h2 id="ask-question-title" class="text-lg font-bold">Ask a Doctor</h2>
+              <p class="mt-0.5 text-sm text-primary-100">Text-based health question — no video required</p>
+            </div>
+          </div>
+          <button type="button" (click)="close()" class="btn-ghost p-2 text-white hover:bg-white/10" aria-label="Close">
+            <app-icon name="close" size="sm" />
+          </button>
+        </div>
+      </div>
+
+      <div class="overflow-y-auto p-5 sm:p-6 space-y-4">
+        <div>
+          <label for="ask-question-text" class="form-label">
+            Your health question <span class="text-danger-600">*</span>
+          </label>
+          <textarea
+            id="ask-question-text"
+            rows="5"
+            [ngModel]="questionText()"
+            (ngModelChange)="questionText.set($event)"
+            placeholder="Describe your symptoms or health concern in detail. For example: I have had a mild fever and sore throat for 3 days..."
+            class="textarea-field"
+            [class.input-field-error]="showValidation() && !questionValid()"
+          ></textarea>
+          @if (showValidation() && !questionValid()) {
+            <p class="form-error">Please enter at least 10 characters.</p>
+          } @else {
+            <p class="form-hint">A PMC verified doctor will reply with written advice within 24 hours.</p>
+          }
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label for="ask-question-category" class="form-label">Category</label>
+            <select
+              id="ask-question-category"
+              [ngModel]="category()"
+              (ngModelChange)="category.set($event)"
+              class="select-field"
+            >
+              @for (cat of categories; track cat) {
+                <option [value]="cat">{{ cat }}</option>
+              }
+            </select>
+          </div>
+          <div>
+            <label for="ask-question-city" class="form-label">City</label>
+            <select
+              id="ask-question-city"
+              [ngModel]="city()"
+              (ngModelChange)="city.set($event)"
+              class="select-field"
+            >
+              @for (c of cities; track c.slug) {
+                <option [value]="c.name">{{ c.name }}</option>
+              }
+            </select>
+          </div>
+        </div>
+
+        <label class="flex items-start gap-3 rounded-xl border border-gray-200 bg-gray-50 p-4 cursor-pointer hover:bg-gray-100 transition-colors">
+          <input
+            type="checkbox"
+            class="mt-1 h-4 w-4 rounded border-gray-300 text-brand-600 focus:ring-brand-500"
+            [ngModel]="isAnonymous()"
+            (ngModelChange)="isAnonymous.set($event)"
+          />
+          <span>
+            <span class="block text-sm font-medium text-gray-900">Ask anonymously</span>
+            <span class="block text-xs text-gray-500 mt-0.5">Your name will not be shown publicly</span>
+          </span>
+        </label>
+
+        @if (!isAnonymous()) {
+          <div>
+            <label for="ask-question-name" class="form-label">
+              Your name <span class="text-danger-600">*</span>
+            </label>
+            <input
+              id="ask-question-name"
+              type="text"
+              [ngModel]="askerName()"
+              (ngModelChange)="askerName.set($event)"
+              placeholder="Enter your name"
+              class="input-field"
+              [class.input-field-error]="showValidation() && !nameValid()"
+            />
+            @if (showValidation() && !nameValid()) {
+              <p class="form-error">Please enter your name or choose anonymous.</p>
+            }
+          </div>
+        }
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label for="ask-question-age" class="form-label">Age <span class="text-gray-400 font-normal">(optional)</span></label>
+            <input
+              id="ask-question-age"
+              type="number"
+              min="0"
+              max="120"
+              [ngModel]="age()"
+              (ngModelChange)="age.set($event ? +$event : null)"
+              placeholder="e.g. 32"
+              class="input-field"
+            />
+          </div>
+          <div>
+            <label for="ask-question-gender" class="form-label">Gender <span class="text-gray-400 font-normal">(optional)</span></label>
+            <select
+              id="ask-question-gender"
+              [ngModel]="gender()"
+              (ngModelChange)="gender.set($event)"
+              class="select-field"
+            >
+              <option value="">Prefer not to say</option>
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="rounded-xl bg-primary-50 border border-primary-100 p-4 text-sm text-primary-800">
+          <p class="font-medium flex items-center gap-2">
+            <app-icon name="shield" size="sm" />
+            This is general medical information only
+          </p>
+          <p class="mt-1 text-primary-700 text-xs leading-relaxed">
+            Written answers are not a substitute for an in-person or video consultation. Seek emergency care for urgent symptoms.
+          </p>
+        </div>
+      </div>
+
+      <div class="shrink-0 border-t border-gray-100 bg-gray-50 px-5 sm:px-6 py-4 flex flex-col-reverse sm:flex-row gap-3 sm:justify-end">
+        <button type="button" (click)="close()" class="btn-outline w-full sm:w-auto" [disabled]="submitting()">
+          Cancel
+        </button>
+        <button
+          type="button"
+          (click)="submit()"
+          class="btn-clinical w-full sm:w-auto"
+          [disabled]="submitting()"
+        >
+          @if (submitting()) {
+            <span class="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></span>
+            Submitting...
+          } @else {
+            <app-icon name="clipboard" size="sm" />
+            Submit Question
+          }
+        </button>
+      </div>
+    </div>
+  </div>
+}
