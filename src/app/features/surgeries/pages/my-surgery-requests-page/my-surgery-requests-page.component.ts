@@ -14,10 +14,12 @@ import {
   surgeryConsultationStatusLabel,
 } from '../../../appointments/utils/booking-status.util';
 
+import { IconComponent } from '../../../../shared/components/icon/icon.component';
+
 @Component({
   selector: 'app-my-surgery-requests-page',
   standalone: true,
-  imports: [RouterLink, DatePipe],
+  imports: [RouterLink, DatePipe, IconComponent],
   templateUrl: './my-surgery-requests-page.component.html',
   styleUrl: './my-surgery-requests-page.component.scss',
 })

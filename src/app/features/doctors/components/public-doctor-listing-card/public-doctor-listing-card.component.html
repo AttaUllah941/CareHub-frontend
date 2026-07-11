@@ -68,7 +68,7 @@
           <button
             type="button"
             (click)="openVideoModal()"
-            class="flex-1 lg:flex-none inline-flex items-center justify-center gap-2 rounded-lg border-2 border-[#0B4F6C] bg-white px-4 py-2.5 text-sm font-semibold text-[#0B4F6C] hover:bg-sky-50 transition-colors text-center"
+            class="flex-1 lg:flex-none inline-flex items-center justify-center gap-2 rounded-lg border-2 border-primary-600 bg-white px-4 py-2.5 text-sm font-semibold text-primary-600 hover:bg-sky-50 transition-colors text-center"
           >
             <svg class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
@@ -93,7 +93,7 @@
         <button
           type="button"
           (click)="openVideoModal()"
-          class="shrink-0 w-56 sm:w-60 rounded-lg border-2 border-[#0B4F6C]/20 bg-white overflow-hidden text-left hover:border-[#0B4F6C]/40 hover:shadow-sm transition-all cursor-pointer"
+          class="shrink-0 w-56 sm:w-60 rounded-lg border-2 border-primary-200 bg-white overflow-hidden text-left hover:border-primary-300 hover:shadow-sm transition-all cursor-pointer"
         >
           <div class="p-3 relative">
             <p class="text-sm font-semibold text-gray-900 pr-2">Online Video Consultation</p>
@@ -104,7 +104,7 @@
             <p class="mt-2 text-sm font-bold text-gray-900">{{ formatFee(d) }}</p>
           </div>
           @if (showDiscount(rank())) {
-            <div class="bg-[#0B4F6C] px-3 py-1.5 text-center text-[10px] font-semibold text-white">
+            <div class="bg-primary-600 px-3 py-1.5 text-center text-[10px] font-semibold text-white">
               Upto 15% OFF
             </div>
           }
@@ -114,7 +114,7 @@
           <button
             type="button"
             (click)="openAppointmentModal(clinic.id)"
-            class="shrink-0 w-64 sm:w-72 rounded-lg border-2 border-[#0B4F6C]/20 bg-white overflow-hidden text-left hover:border-orange-300 hover:shadow-sm transition-all cursor-pointer"
+            class="shrink-0 w-64 sm:w-72 rounded-lg border-2 border-primary-200 bg-white overflow-hidden text-left hover:border-orange-300 hover:shadow-sm transition-all cursor-pointer"
           >
             <div class="p-3">
               <p class="text-sm font-semibold text-gray-900 line-clamp-2">{{ clinic.name }}</p>
@@ -129,7 +129,7 @@
               <p class="mt-2 text-sm font-bold text-gray-900">{{ formatFee(d) }}</p>
             </div>
             @if (showDiscount(ci + 1)) {
-              <div class="bg-[#0B4F6C] px-3 py-1.5 text-center text-[10px] font-semibold text-white">
+              <div class="bg-primary-600 px-3 py-1.5 text-center text-[10px] font-semibold text-white">
                 Upto 15% OFF
               </div>
             }
@@ -139,7 +139,7 @@
             <button
               type="button"
               (click)="openAppointmentModal()"
-              class="shrink-0 w-56 sm:w-60 rounded-lg border-2 border-[#0B4F6C]/20 bg-white p-3 text-left hover:border-orange-300 hover:shadow-sm transition-all cursor-pointer"
+              class="shrink-0 w-56 sm:w-60 rounded-lg border-2 border-primary-200 bg-white p-3 text-left hover:border-orange-300 hover:shadow-sm transition-all cursor-pointer"
             >
               <p class="text-sm font-semibold text-gray-900">{{ d.city }} Clinic</p>
               <p class="mt-2 flex items-center gap-1.5 text-xs text-emerald-600 font-medium">

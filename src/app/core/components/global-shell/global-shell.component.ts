@@ -16,8 +16,8 @@ import { LoadingService } from '../../services/loading.service';
       <div
         class="flex items-start gap-3 rounded-xl border p-4 shadow-lg backdrop-blur-sm"
         [class]="toast.variant === 'error'
-          ? 'bg-red-50/95 text-red-800 border-red-200'
-          : 'bg-emerald-50/95 text-emerald-800 border-emerald-200'"
+          ? 'bg-danger-50/95 text-red-800 border-red-200'
+          : 'bg-success-50/95 text-success-700 border-success-100'"
       >
         
         <p class="flex-1 text-sm font-medium leading-relaxed">{{ toast.message }}</p>

@@ -12,10 +12,12 @@ import {
   labBookingStatusLabel,
 } from '../../../appointments/utils/booking-status.util';
 
+import { IconComponent } from '../../../../shared/components/icon/icon.component';
+
 @Component({
   selector: 'app-my-lab-tests-page',
   standalone: true,
-  imports: [RouterLink, DatePipe],
+  imports: [RouterLink, DatePipe, IconComponent],
   templateUrl: './my-lab-tests-page.component.html',
   styleUrl: './my-lab-tests-page.component.scss',
 })

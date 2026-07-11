@@ -16,7 +16,7 @@ import { NotificationsApiService } from '../../services/notifications-api.servic
         <button
           type="button"
           (click)="togglePanel()"
-          class="relative inline-flex items-center justify-center p-2 rounded-lg text-gray-600 hover:bg-gray-100 hover:text-brand-600 transition-colors"
+          class="relative btn-ghost p-2"
           aria-label="Notifications"
         >
           <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -38,7 +38,7 @@ import { NotificationsApiService } from '../../services/notifications-api.servic
 
         @if (panelOpen()) {
           <div
-            class="absolute right-0 top-full mt-2 w-80 max-h-96 overflow-y-auto rounded-2xl border border-gray-200 bg-white shadow-xl z-50"
+            class="nav-dropdown right-0 w-80 max-h-96 overflow-y-auto"
           >
             <div class="flex items-center justify-between border-b border-gray-100 px-4 py-3">
               <p class="text-sm font-bold text-gray-900">Notifications</p>

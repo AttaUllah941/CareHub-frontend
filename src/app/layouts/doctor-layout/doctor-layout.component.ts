@@ -4,16 +4,18 @@ import { AuthService } from '../../features/auth/services/auth.service';
 import { UserRole } from '../../core/models/auth.model';
 import { DoctorPortalService } from '../../features/doctor-portal/services/doctor-portal.service';
 import { NotificationBellComponent } from '../../core/components/notification-bell/notification-bell.component';
+import { IconComponent, IconName } from '../../shared/components/icon/icon.component';
+
 interface NavItem {
   label: string;
   path: string;
-  icon: string;
+  icon: IconName;
 }
 
 @Component({
   selector: 'app-doctor-layout',
   standalone: true,
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, NotificationBellComponent],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, NotificationBellComponent, IconComponent],
   templateUrl: './doctor-layout.component.html',
   styleUrl: './doctor-layout.component.scss',
 })
@@ -24,14 +26,14 @@ export class DoctorLayoutComponent implements OnInit {
   private readonly router = inject(Router);
 
   readonly navItems: NavItem[] = [
-    { label: 'Dashboard', path: '/doctor/dashboard', icon: '📊' },
-    { label: 'Profile', path: '/doctor/profile', icon: '👤' },
-    { label: 'Appointments', path: '/doctor/appointments', icon: '📅' },
-    { label: 'Schedule', path: '/doctor/schedule', icon: '🕐' },
-    { label: 'Video Consultations', path: '/doctor/consultations', icon: '📹' },
-    { label: 'Prescriptions', path: '/doctor/prescriptions', icon: '💊' },
-    { label: 'Patients', path: '/doctor/patients', icon: '🩺' },
-    { label: 'Earnings', path: '/doctor/earnings', icon: '💰' },
+    { label: 'Dashboard', path: '/doctor/dashboard', icon: 'dashboard' },
+    { label: 'Profile', path: '/doctor/profile', icon: 'profile' },
+    { label: 'Appointments', path: '/doctor/appointments', icon: 'appointments' },
+    { label: 'Schedule', path: '/doctor/schedule', icon: 'schedule' },
+    { label: 'Video Consultations', path: '/doctor/consultations', icon: 'consultations' },
+    { label: 'Prescriptions', path: '/doctor/prescriptions', icon: 'prescriptions' },
+    { label: 'Patients', path: '/doctor/patients', icon: 'patients' },
+    { label: 'Earnings', path: '/doctor/earnings', icon: 'earnings' },
   ];
 
   ngOnInit(): void {

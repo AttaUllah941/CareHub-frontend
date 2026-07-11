@@ -1,7 +1,7 @@
 <div class="bg-gray-50 min-h-full">
   <!-- Page header -->
   <div class="bg-white border-b border-gray-200">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <div class="page-container py-6">
       <nav class="text-sm text-gray-500 mb-3">
         <a routerLink="/" class="hover:text-brand-600">CareHub</a>
         <span class="mx-2">&gt;</span>
@@ -13,12 +13,12 @@
 
   <!-- Filter bar -->
   <div class="bg-white border-b border-gray-200 sticky top-16 lg:top-[72px] z-40 shadow-sm">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 space-y-3">
+    <div class="page-container py-4 space-y-3">
       <div class="flex flex-col lg:flex-row gap-3">
         <select
           [ngModel]="selectedCity()"
           (ngModelChange)="onCityChange($event)"
-          class="rounded-lg border border-gray-300 px-3 py-2.5 text-sm bg-white min-w-[140px]"
+          class="select-field min-w-[140px]"
         >
           @for (city of cities; track city.slug) {
             <option [value]="city.name">{{ city.name }}</option>
@@ -31,13 +31,13 @@
             [ngModel]="searchName()"
             (ngModelChange)="searchName.set($event)"
             placeholder="Search by Doctors"
-            class="flex-1 rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-[#0B4F6C] focus:outline-none focus:ring-2 focus:ring-sky-100"
+            class="input-field flex-1"
             (keyup.enter)="onSearch()"
           />
           <button
             type="button"
             (click)="onSearch()"
-            class="inline-flex items-center justify-center rounded-lg bg-[#0B4F6C] px-5 text-white hover:bg-[#093f56] transition-colors"
+            class="btn-clinical px-5"
             aria-label="Search"
           >
             <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -53,7 +53,7 @@
           (click)="clearFilters()"
           class="rounded-full border px-3 py-1.5 text-xs font-medium transition-colors"
           [class]="activeFilters().length === 0 && !searchName()
-            ? 'border-[#0B4F6C] bg-sky-50 text-[#0B4F6C]'
+            ? 'border-primary-600 bg-sky-50 text-primary-600'
             : 'border-gray-200 text-gray-600 hover:border-gray-300'"
         >
           Clear Filters
@@ -64,7 +64,7 @@
             (click)="toggleFilter(filter)"
             class="rounded-full border px-3 py-1.5 text-xs font-medium transition-colors"
             [class]="isFilterActive(filter)
-              ? 'border-[#0B4F6C] bg-sky-50 text-[#0B4F6C]'
+              ? 'border-primary-600 bg-sky-50 text-primary-600'
               : 'border-gray-200 text-gray-600 hover:border-gray-300'"
           >
             {{ filter }}
@@ -91,7 +91,7 @@
   </div>
 
   <!-- Results -->
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="page-container py-8">
     @if (error()) {
       <div class="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 mb-6">{{ error() }}</div>
     }

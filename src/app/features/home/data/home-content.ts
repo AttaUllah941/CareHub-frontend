@@ -144,7 +144,7 @@ export const TESTIMONIALS: Testimonial[] = [
 
 export const TRUST_BADGES: TrustBadge[] = [
   { number: '1', title: 'PMC Verified Doctors', subtitle: '10,000+ doctors available' },
-  { number: '2', title: '15/7 Customer Support', subtitle: 'Well-trained & supportive team' },
+  { number: '2', title: '24/7 Customer Support', subtitle: 'Well-trained & supportive team' },
   { number: '3', title: 'Secure Online Payments', subtitle: 'SSL-encrypted transactions' },
   { number: '4.5', title: 'Trusted by Patients', subtitle: 'Thousands of happy reviews' },
 ];

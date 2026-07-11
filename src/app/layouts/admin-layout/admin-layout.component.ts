@@ -2,17 +2,18 @@ import { Component, inject } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { AuthService } from '../../features/auth/services/auth.service';
 import { NotificationBellComponent } from '../../core/components/notification-bell/notification-bell.component';
+import { IconComponent, IconName } from '../../shared/components/icon/icon.component';
 
 interface NavItem {
   label: string;
   path: string;
-  icon: string;
+  icon: IconName;
 }
 
 @Component({
   selector: 'app-admin-layout',
   standalone: true,
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, NotificationBellComponent],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, NotificationBellComponent, IconComponent],
   templateUrl: './admin-layout.component.html',
   styleUrl: './admin-layout.component.scss',
 })
@@ -21,9 +22,9 @@ export class AdminLayoutComponent {
   private readonly router = inject(Router);
 
   readonly navItems: NavItem[] = [
-    { label: 'Dashboard', path: '/admin/dashboard', icon: '📊' },
-    { label: 'Users', path: '/admin/users', icon: '👥' },
-    { label: 'Doctor Applications', path: '/admin/doctor-applications', icon: '🩺' },
+    { label: 'Dashboard', path: '/admin/dashboard', icon: 'dashboard' },
+    { label: 'Users', path: '/admin/users', icon: 'users' },
+    { label: 'Doctor Applications', path: '/admin/doctor-applications', icon: 'applications' },
   ];
 
   logout(): void {

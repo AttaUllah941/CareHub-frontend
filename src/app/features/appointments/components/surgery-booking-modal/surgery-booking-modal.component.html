@@ -14,7 +14,7 @@
       (click)="$event.stopPropagation()"
     >
       <!-- Header -->
-      <div class="shrink-0 bg-gradient-to-r from-[#0B4F6C] to-rose-700 px-5 sm:px-6 pt-5 pb-4 text-white">
+      <div class="shrink-0 bg-gradient-to-r from-primary-600 to-rose-700 px-5 sm:px-6 pt-5 pb-4 text-white">
         <div class="flex items-start justify-between gap-4">
           <div class="min-w-0 flex items-start gap-3">
             <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/15 backdrop-blur">
@@ -74,7 +74,7 @@
             </div>
             <div class="text-right shrink-0">
               <p class="text-xs text-gray-500">Estimated cost</p>
-              <p class="text-lg font-bold text-[#0B4F6C]">{{ formatPrice(surgery().priceFrom, surgery().priceTo) }}</p>
+              <p class="text-lg font-bold text-primary-600">{{ formatPrice(surgery().priceFrom, surgery().priceTo) }}</p>
             </div>
           </div>
 
@@ -98,7 +98,7 @@
             <span
               class="flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold shrink-0 transition-colors text-white"
               [class.bg-emerald-500]="surgeonSelected()"
-              [class.bg-[#0B4F6C]]="!surgeonSelected()"
+              [class.bg-primary-600]="!surgeonSelected()"
             >
               @if (surgeonSelected()) {
                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
@@ -116,7 +116,7 @@
                 type="button"
                 (click)="selectSurgeon(surgeon.id)"
                 class="w-full text-left rounded-xl border-2 p-4 transition-all"
-                [class.border-[#0B4F6C]]="selectedSurgeonId() === surgeon.id"
+                [class.border-primary-600]="selectedSurgeonId() === surgeon.id"
                 [class.bg-sky-50/60]="selectedSurgeonId() === surgeon.id"
                 [class.shadow-sm]="selectedSurgeonId() === surgeon.id"
                 [class.border-gray-200]="selectedSurgeonId() !== surgeon.id"
@@ -153,7 +153,7 @@
             <span
               class="flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold shrink-0 transition-colors text-white"
               [class.bg-emerald-500]="scheduleComplete()"
-              [class.bg-[#0B4F6C]]="!scheduleComplete()"
+              [class.bg-primary-600]="!scheduleComplete()"
             >
               @if (scheduleComplete()) {
                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
@@ -183,9 +183,9 @@
                 type="button"
                 (click)="selectDate(i)"
                 class="shrink-0 flex flex-col items-center rounded-xl border-2 px-3.5 py-2.5 min-w-[58px] transition-all"
-                [class.bg-[#0B4F6C]]="selectedDateIndex() === i"
+                [class.bg-primary-600]="selectedDateIndex() === i"
                 [class.text-white]="selectedDateIndex() === i"
-                [class.border-[#0B4F6C]]="selectedDateIndex() === i"
+                [class.border-primary-600]="selectedDateIndex() === i"
                 [class.shadow-md]="selectedDateIndex() === i"
                 [class.border-gray-200]="selectedDateIndex() !== i"
                 [class.text-gray-700]="selectedDateIndex() !== i"
@@ -208,9 +208,9 @@
                 type="button"
                 (click)="selectTimeSlot(slot)"
                 class="rounded-xl border-2 px-2 py-2.5 text-xs font-semibold transition-all"
-                [class.bg-[#0B4F6C]]="selectedTimeSlot() === slot"
+                [class.bg-primary-600]="selectedTimeSlot() === slot"
                 [class.text-white]="selectedTimeSlot() === slot"
-                [class.border-[#0B4F6C]]="selectedTimeSlot() === slot"
+                [class.border-primary-600]="selectedTimeSlot() === slot"
                 [class.shadow-sm]="selectedTimeSlot() === slot"
                 [class.border-gray-200]="selectedTimeSlot() !== slot"
                 [class.text-gray-700]="selectedTimeSlot() !== slot"
@@ -229,7 +229,7 @@
             <span
               class="flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold shrink-0 transition-colors text-white"
               [class.bg-emerald-500]="requirementsAcknowledged()"
-              [class.bg-[#0B4F6C]]="!requirementsAcknowledged()"
+              [class.bg-primary-600]="!requirementsAcknowledged()"
             >
               @if (requirementsAcknowledged()) {
                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
@@ -257,7 +257,7 @@
           >
             <input
               type="checkbox"
-              class="mt-0.5 h-4 w-4 rounded border-gray-300 text-[#0B4F6C] focus:ring-[#0B4F6C]"
+              class="mt-0.5 h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-600"
               [checked]="requirementsAcknowledged()"
               (change)="requirementsAcknowledged.set($any($event.target).checked)"
             />
@@ -277,7 +277,7 @@
             <span
               class="flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold shrink-0 transition-colors text-white"
               [class.bg-emerald-500]="patientFormComplete()"
-              [class.bg-[#0B4F6C]]="!patientFormComplete()"
+              [class.bg-primary-600]="!patientFormComplete()"
             >
               @if (patientFormComplete()) {
                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
@@ -419,7 +419,7 @@
           [class.bg-sky-50/30]="!canConfirm()"
         >
           <div class="flex items-center gap-3 mb-3">
-            <span class="flex h-8 w-8 items-center justify-center rounded-full bg-[#0B4F6C] text-white text-sm font-bold shrink-0">5</span>
+            <span class="flex h-8 w-8 items-center justify-center rounded-full bg-primary-600 text-white text-sm font-bold shrink-0">5</span>
             <div>
               <h3 class="text-sm font-bold text-gray-900">Review booking request</h3>
               <p class="text-xs text-gray-500">Confirm all details before submitting</p>
@@ -433,7 +433,7 @@
             </div>
             <div class="flex justify-between gap-4 py-1.5 border-b border-gray-200/60">
               <dt class="text-gray-500">Estimated cost</dt>
-              <dd class="font-bold text-[#0B4F6C] text-right">{{ formatPrice(surgery().priceFrom, surgery().priceTo) }}</dd>
+              <dd class="font-bold text-primary-600 text-right">{{ formatPrice(surgery().priceFrom, surgery().priceTo) }}</dd>
             </div>
             <div class="flex justify-between gap-4 py-1.5 border-b border-gray-200/60">
               <dt class="text-gray-500">Hospital</dt>

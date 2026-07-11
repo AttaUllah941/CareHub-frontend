@@ -1,6 +1,13 @@
-<div class="max-w-3xl mx-auto px-4 sm:px-6 py-10">
-  <h1 class="text-2xl font-bold text-gray-900 mb-2">My Lab Tests</h1>
-  <p class="text-sm text-gray-600 mb-6">View and manage your lab test bookings.</p>
+<div class="page-container max-w-3xl py-10">
+  <div class="section-header mb-6">
+    <div>
+      <h1 class="section-title">
+        <app-icon name="lab-tests" size="lg" />
+        My Lab Tests
+      </h1>
+      <p class="section-subtitle">View and manage your lab test bookings.</p>
+    </div>
+  </div>
 
   <div class="flex flex-wrap gap-2 mb-6">
     @for (f of ['all', 'pending', 'confirmed', 'sample_collected', 'report_ready', 'cancelled']; track f) {
@@ -24,7 +31,7 @@
   } @else {
     <div class="space-y-4">
       @for (booking of bookings(); track booking.id) {
-        <div class="rounded-2xl border border-gray-200 bg-white p-5">
+        <div class="card card-body">
           <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
             <div>
               <div class="flex items-center gap-2 mb-1 flex-wrap">
@@ -72,7 +79,7 @@
           </div>
         </div>
       } @empty {
-        <div class="rounded-2xl border border-gray-200 bg-white p-12 text-center">
+        <div class="empty-state">
           <p class="text-gray-600">No lab test bookings found.</p>
           <a routerLink="/labs/lahore" class="inline-flex mt-4 text-sm font-semibold text-brand-600 hover:text-brand-700">
             Browse labs
