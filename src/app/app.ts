@@ -10,7 +10,7 @@ import { ReferenceDataService } from './core/services/reference-data.service';
   templateUrl: './app.html',
 })
 export class App implements OnInit {
-  protected readonly title = signal('CareHub');
+  protected readonly title = signal('CareHub | Doctor Appointments');
   private readonly authService = inject(AuthService);
   private readonly referenceData = inject(ReferenceDataService);
 
