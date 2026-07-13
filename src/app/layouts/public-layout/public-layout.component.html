@@ -9,8 +9,15 @@
 
         <nav class="hidden lg:flex items-center gap-1">
           <!-- Find Doctors -->
-          <div class="relative">
-            <button type="button" (click)="toggleDoctorsDropdown()" class="nav-link" [class.nav-link-active]="doctorsDropdownOpen()">
+          <div class="relative" data-nav-dropdown>
+            <button
+              type="button"
+              (click)="toggleDoctorsDropdown()"
+              class="nav-link"
+              [class.nav-link-active]="doctorsDropdownOpen()"
+              [attr.aria-expanded]="doctorsDropdownOpen()"
+              aria-haspopup="true"
+            >
               <app-icon name="doctors" size="sm" />
               Find Doctors
               <span class="transition-transform" [class.rotate-180]="doctorsDropdownOpen()">
@@ -18,30 +25,41 @@
               </span>
             </button>
             @if (doctorsDropdownOpen()) {
-              <div class="nav-dropdown left-0 w-[640px] p-5">
-                <p class="text-xs font-semibold uppercase tracking-wide text-gray-500 mb-3 flex items-center gap-2">
-                  <app-icon name="stethoscope" size="xs" />
-                  Browse by Specialty
+              <div class="nav-dropdown left-0 w-[min(22rem,calc(100vw-2rem))] p-2" role="menu">
+                <p class="px-2.5 pb-1.5 pt-1 text-[11px] font-semibold uppercase tracking-wide text-gray-400">
+                  Browse by specialty
                 </p>
-                <div class="grid grid-cols-2 gap-1 max-h-[360px] overflow-y-auto scrollbar-hide">
+                <div class="grid grid-cols-1 gap-0.5 max-h-64 overflow-y-auto overscroll-contain">
                   @for (specialty of referenceData.specialtyChips(); track specialty.slug) {
-                    <a [routerLink]="['/find-doctors', specialty.slug]" (click)="closeDoctorsDropdown()" class="nav-dropdown-item">
-                      <span>{{ specialty.icon }}</span>
-                      <span class="font-medium">{{ specialty.name }}</span>
+                    <a
+                      [routerLink]="['/find-doctors', specialty.slug]"
+                      (click)="closeDoctorsDropdown()"
+                      class="nav-dropdown-item"
+                      role="menuitem"
+                    >
+                      <span class="text-base leading-none shrink-0" aria-hidden="true">{{ specialty.icon }}</span>
+                      <span class="font-medium truncate">{{ specialty.name }}</span>
                     </a>
                   }
                 </div>
-                <div class="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between">
-                  <a routerLink="/find-doctors/general-practitioner" (click)="closeDoctorsDropdown()" class="text-sm font-semibold text-brand-600 hover:text-brand-700">All Specialities →</a>
-                  <a routerLink="/join-as-doctor" (click)="closeDoctorsDropdown()" class="text-sm text-gray-500 hover:text-gray-700">Join as Doctor</a>
+                <div class="mt-1.5 flex items-center justify-between gap-2 border-t border-gray-100 px-2.5 pt-2 pb-1">
+                  <a routerLink="/find-doctors/general-practitioner" (click)="closeDoctorsDropdown()" class="text-xs font-semibold text-brand-600 hover:text-brand-700">All specialities →</a>
+                  <a routerLink="/join-as-doctor" (click)="closeDoctorsDropdown()" class="text-xs text-gray-500 hover:text-gray-700">Join as doctor</a>
                 </div>
               </div>
             }
           </div>
 
           <!-- Hospitals -->
-          <div class="relative">
-            <button type="button" (click)="toggleHospitalsDropdown()" class="nav-link" [class.nav-link-active]="hospitalsDropdownOpen()">
+          <div class="relative" data-nav-dropdown>
+            <button
+              type="button"
+              (click)="toggleHospitalsDropdown()"
+              class="nav-link"
+              [class.nav-link-active]="hospitalsDropdownOpen()"
+              [attr.aria-expanded]="hospitalsDropdownOpen()"
+              aria-haspopup="true"
+            >
               <app-icon name="hospitals" size="sm" />
               Hospitals
               <span class="transition-transform" [class.rotate-180]="hospitalsDropdownOpen()">
@@ -49,27 +67,40 @@
               </span>
             </button>
             @if (hospitalsDropdownOpen()) {
-              <div class="nav-dropdown left-0 w-72 p-3">
-                <p class="text-xs font-semibold uppercase tracking-wide text-gray-500 px-3 py-2 flex items-center gap-2">
-                  <app-icon name="location" size="xs" />
-                  Browse by City
+              <div class="nav-dropdown left-0 w-56 p-1.5" role="menu">
+                <p class="px-2.5 pb-1 pt-1 text-[11px] font-semibold uppercase tracking-wide text-gray-400">
+                  Browse by city
                 </p>
-                @for (city of hospitalCities; track city.slug) {
-                  <a [routerLink]="['/hospitals', city.slug]" (click)="closeHospitalsDropdown()" class="nav-dropdown-item py-3">
-                    <span class="icon-box-primary"><app-icon name="hospitals" size="sm" /></span>
-                    <span class="font-medium">Hospitals in {{ city.name }}</span>
-                  </a>
-                }
-                <div class="mt-2 pt-2 border-t border-gray-100 px-3">
-                  <a routerLink="/hospitals/lahore" (click)="closeHospitalsDropdown()" class="text-sm font-semibold text-brand-600 hover:text-brand-700">All Hospitals →</a>
+                <div class="max-h-64 overflow-y-auto overscroll-contain">
+                  @for (city of hospitalCities; track city.slug) {
+                    <a
+                      [routerLink]="['/hospitals', city.slug]"
+                      (click)="closeHospitalsDropdown()"
+                      class="nav-dropdown-item"
+                      role="menuitem"
+                    >
+                      <app-icon name="location" size="xs" />
+                      <span class="font-medium">{{ city.name }}</span>
+                    </a>
+                  }
+                </div>
+                <div class="mt-1 border-t border-gray-100 px-2.5 pt-2 pb-1">
+                  <a routerLink="/hospitals/lahore" (click)="closeHospitalsDropdown()" class="text-xs font-semibold text-brand-600 hover:text-brand-700">View all hospitals →</a>
                 </div>
               </div>
             }
           </div>
 
           <!-- Labs -->
-          <div class="relative">
-            <button type="button" (click)="toggleLabsDropdown()" class="nav-link" [class.nav-link-active]="labsDropdownOpen()">
+          <div class="relative" data-nav-dropdown>
+            <button
+              type="button"
+              (click)="toggleLabsDropdown()"
+              class="nav-link"
+              [class.nav-link-active]="labsDropdownOpen()"
+              [attr.aria-expanded]="labsDropdownOpen()"
+              aria-haspopup="true"
+            >
               <app-icon name="labs" size="sm" />
               Labs
               <span class="transition-transform" [class.rotate-180]="labsDropdownOpen()">
@@ -77,27 +108,40 @@
               </span>
             </button>
             @if (labsDropdownOpen()) {
-              <div class="nav-dropdown left-0 w-72 p-3">
-                <p class="text-xs font-semibold uppercase tracking-wide text-gray-500 px-3 py-2 flex items-center gap-2">
-                  <app-icon name="location" size="xs" />
-                  Browse by City
+              <div class="nav-dropdown left-0 w-56 p-1.5" role="menu">
+                <p class="px-2.5 pb-1 pt-1 text-[11px] font-semibold uppercase tracking-wide text-gray-400">
+                  Browse by city
                 </p>
-                @for (city of labCities; track city.slug) {
-                  <a [routerLink]="['/labs', city.slug]" (click)="closeLabsDropdown()" class="nav-dropdown-item py-3">
-                    <span class="icon-box bg-violet-50 text-violet-600"><app-icon name="labs" size="sm" /></span>
-                    <span class="font-medium">Labs in {{ city.name }}</span>
-                  </a>
-                }
-                <div class="mt-2 pt-2 border-t border-gray-100 px-3">
-                  <a routerLink="/labs/lahore" (click)="closeLabsDropdown()" class="text-sm font-semibold text-brand-600 hover:text-brand-700">All Labs →</a>
+                <div class="max-h-64 overflow-y-auto overscroll-contain">
+                  @for (city of labCities; track city.slug) {
+                    <a
+                      [routerLink]="['/labs', city.slug]"
+                      (click)="closeLabsDropdown()"
+                      class="nav-dropdown-item"
+                      role="menuitem"
+                    >
+                      <app-icon name="location" size="xs" />
+                      <span class="font-medium">{{ city.name }}</span>
+                    </a>
+                  }
+                </div>
+                <div class="mt-1 border-t border-gray-100 px-2.5 pt-2 pb-1">
+                  <a routerLink="/labs/lahore" (click)="closeLabsDropdown()" class="text-xs font-semibold text-brand-600 hover:text-brand-700">View all labs →</a>
                 </div>
               </div>
             }
           </div>
 
           <!-- Surgery -->
-          <div class="relative">
-            <button type="button" (click)="toggleSurgeryDropdown()" class="nav-link" [class.nav-link-active]="surgeryDropdownOpen()">
+          <div class="relative" data-nav-dropdown>
+            <button
+              type="button"
+              (click)="toggleSurgeryDropdown()"
+              class="nav-link"
+              [class.nav-link-active]="surgeryDropdownOpen()"
+              [attr.aria-expanded]="surgeryDropdownOpen()"
+              aria-haspopup="true"
+            >
               <app-icon name="surgery" size="sm" />
               Surgery
               <span class="transition-transform" [class.rotate-180]="surgeryDropdownOpen()">
@@ -105,19 +149,25 @@
               </span>
             </button>
             @if (surgeryDropdownOpen()) {
-              <div class="nav-dropdown left-0 w-72 p-3">
-                <p class="text-xs font-semibold uppercase tracking-wide text-gray-500 px-3 py-2 flex items-center gap-2">
-                  <app-icon name="location" size="xs" />
-                  Browse by City
+              <div class="nav-dropdown left-0 w-56 p-1.5" role="menu">
+                <p class="px-2.5 pb-1 pt-1 text-[11px] font-semibold uppercase tracking-wide text-gray-400">
+                  Browse by city
                 </p>
-                @for (city of surgeryCities; track city.slug) {
-                  <a [routerLink]="['/surgery', city.slug]" (click)="closeSurgeryDropdown()" class="nav-dropdown-item py-3">
-                    <span class="icon-box bg-rose-50 text-rose-600"><app-icon name="surgery" size="sm" /></span>
-                    <span class="font-medium">Surgery in {{ city.name }}</span>
-                  </a>
-                }
-                <div class="mt-2 pt-2 border-t border-gray-100 px-3">
-                  <a routerLink="/surgery/lahore" (click)="closeSurgeryDropdown()" class="text-sm font-semibold text-brand-600 hover:text-brand-700">All Surgical Hospitals →</a>
+                <div class="max-h-64 overflow-y-auto overscroll-contain">
+                  @for (city of surgeryCities; track city.slug) {
+                    <a
+                      [routerLink]="['/surgery', city.slug]"
+                      (click)="closeSurgeryDropdown()"
+                      class="nav-dropdown-item"
+                      role="menuitem"
+                    >
+                      <app-icon name="location" size="xs" />
+                      <span class="font-medium">{{ city.name }}</span>
+                    </a>
+                  }
+                </div>
+                <div class="mt-1 border-t border-gray-100 px-2.5 pt-2 pb-1">
+                  <a routerLink="/surgery/lahore" (click)="closeSurgeryDropdown()" class="text-xs font-semibold text-brand-600 hover:text-brand-700">View all →</a>
                 </div>
               </div>
             }
@@ -155,8 +205,15 @@
                 Doctor Dashboard
               </a>
             } @else {
-              <div class="relative">
-                <button type="button" (click)="toggleRecordDropdown()" class="nav-link font-semibold text-brand-600" [class.nav-link-active]="recordDropdownOpen()">
+              <div class="relative" data-nav-dropdown>
+                <button
+                  type="button"
+                  (click)="toggleRecordDropdown()"
+                  class="nav-link font-semibold text-brand-600"
+                  [class.nav-link-active]="recordDropdownOpen()"
+                  [attr.aria-expanded]="recordDropdownOpen()"
+                  aria-haspopup="true"
+                >
                   <app-icon name="record" size="sm" />
                   Record
                   <span class="transition-transform" [class.rotate-180]="recordDropdownOpen()">
@@ -164,11 +221,16 @@
                   </span>
                 </button>
                 @if (recordDropdownOpen()) {
-                  <div class="nav-dropdown right-0 w-60 p-2">
-                    <p class="text-xs font-semibold uppercase tracking-wide text-gray-500 px-3 py-2">Your records</p>
+                  <div class="nav-dropdown right-0 w-52 p-1.5" role="menu">
+                    <p class="px-2.5 pb-1 pt-1 text-[11px] font-semibold uppercase tracking-wide text-gray-400">Your records</p>
                     @for (item of recordLinks; track item.href) {
-                      <a [routerLink]="item.href" (click)="closeRecordDropdown()" class="nav-dropdown-item py-3">
-                        <span class="icon-box-brand"><app-icon [name]="item.icon" size="sm" /></span>
+                      <a
+                        [routerLink]="item.href"
+                        (click)="closeRecordDropdown()"
+                        class="nav-dropdown-item"
+                        role="menuitem"
+                      >
+                        <app-icon [name]="item.icon" size="sm" />
                         <span class="font-medium">{{ item.label }}</span>
                       </a>
                     }
@@ -188,7 +250,7 @@
           }
         </div>
 
-        <div class="flex items-center gap-1 lg:hidden">
+        <div class="flex items-center gap-1 lg:hidden" data-mobile-nav>
           @if (authService.hasRole(UserRole.PATIENT, UserRole.ADMIN, UserRole.SUPER_ADMIN, UserRole.DOCTOR)) {
             <app-notification-bell></app-notification-bell>
           }
@@ -200,7 +262,7 @@
               </span>
             }
           </a>
-          <button type="button" class="btn-ghost p-2" (click)="toggleMobileMenu()" aria-label="Toggle menu">
+          <button type="button" class="btn-ghost p-2" (click)="toggleMobileMenu()" aria-label="Toggle menu" [attr.aria-expanded]="mobileMenuOpen()">
             @if (mobileMenuOpen()) {
               <app-icon name="close" size="lg" />
             } @else {
@@ -211,7 +273,7 @@
       </div>
 
       @if (mobileMenuOpen()) {
-        <nav class="lg:hidden pb-4 border-t border-gray-100 pt-3 space-y-1 max-h-[70vh] overflow-y-auto">
+        <nav class="lg:hidden pb-4 border-t border-gray-100 pt-3 space-y-1 max-h-[70vh] overflow-y-auto" data-mobile-nav>
           <p class="px-3 pt-2 pb-1 text-xs font-semibold uppercase tracking-wide text-gray-400 flex items-center gap-2">
             <app-icon name="doctors" size="xs" /> Find Doctors
           </p>

@@ -1,4 +1,4 @@
-import { Component, ElementRef, HostListener, inject, OnInit, signal } from '@angular/core';
+import { Component, HostListener, inject, OnInit, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { NotificationBellComponent } from '../../core/components/notification-bell/notification-bell.component';
 import { IconComponent, IconName } from '../../shared/components/icon/icon.component';
@@ -40,20 +40,32 @@ export class PublicLayoutComponent implements OnInit {
     { label: 'My Surgery', href: '/my-surgery-requests', icon: 'surgery' },
   ];
 
-  private readonly elementRef = inject(ElementRef);
-
   ngOnInit(): void {
     this.referenceData.loadSpecialties();
   }
 
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {
-    if (!this.elementRef.nativeElement.contains(event.target)) {
+    const target = event.target as HTMLElement | null;
+    if (!target) return;
+
+    if (!target.closest('[data-nav-dropdown]')) {
       this.closeDropdowns();
+    }
+
+    if (this.mobileMenuOpen() && !target.closest('[data-mobile-nav]')) {
+      this.closeMobileMenu();
     }
   }
 
+  @HostListener('document:keydown.escape')
+  onEscape(): void {
+    this.closeDropdowns();
+    this.closeMobileMenu();
+  }
+
   toggleMobileMenu(): void {
+    this.closeDropdowns();
     this.mobileMenuOpen.update((open) => !open);
   }
 
@@ -62,6 +74,7 @@ export class PublicLayoutComponent implements OnInit {
   }
 
   toggleDoctorsDropdown(): void {
+    this.mobileMenuOpen.set(false);
     this.hospitalsDropdownOpen.set(false);
     this.labsDropdownOpen.set(false);
     this.surgeryDropdownOpen.set(false);
@@ -70,6 +83,7 @@ export class PublicLayoutComponent implements OnInit {
   }
 
   toggleHospitalsDropdown(): void {
+    this.mobileMenuOpen.set(false);
     this.doctorsDropdownOpen.set(false);
     this.labsDropdownOpen.set(false);
     this.surgeryDropdownOpen.set(false);
@@ -78,6 +92,7 @@ export class PublicLayoutComponent implements OnInit {
   }
 
   toggleLabsDropdown(): void {
+    this.mobileMenuOpen.set(false);
     this.doctorsDropdownOpen.set(false);
     this.hospitalsDropdownOpen.set(false);
     this.surgeryDropdownOpen.set(false);
@@ -86,6 +101,7 @@ export class PublicLayoutComponent implements OnInit {
   }
 
   toggleSurgeryDropdown(): void {
+    this.mobileMenuOpen.set(false);
     this.doctorsDropdownOpen.set(false);
     this.hospitalsDropdownOpen.set(false);
     this.labsDropdownOpen.set(false);
@@ -94,6 +110,7 @@ export class PublicLayoutComponent implements OnInit {
   }
 
   toggleRecordDropdown(): void {
+    this.mobileMenuOpen.set(false);
     this.doctorsDropdownOpen.set(false);
     this.hospitalsDropdownOpen.set(false);
     this.labsDropdownOpen.set(false);
