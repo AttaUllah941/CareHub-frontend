@@ -132,7 +132,7 @@
         </nav>
 
         <div class="hidden lg:flex items-center gap-2.5">
-          @if (authService.hasRole(UserRole.ADMIN, UserRole.SUPER_ADMIN, UserRole.DOCTOR)) {
+          @if (authService.hasRole(UserRole.PATIENT, UserRole.ADMIN, UserRole.SUPER_ADMIN, UserRole.DOCTOR)) {
             <app-notification-bell></app-notification-bell>
           }
           @if (cartService.itemCount() > 0) {
@@ -189,6 +189,9 @@
         </div>
 
         <div class="flex items-center gap-1 lg:hidden">
+          @if (authService.hasRole(UserRole.PATIENT, UserRole.ADMIN, UserRole.SUPER_ADMIN, UserRole.DOCTOR)) {
+            <app-notification-bell></app-notification-bell>
+          }
           <a routerLink="/medicines/cart" class="btn-ghost relative p-2" aria-label="Shopping cart" (click)="closeMobileMenu()">
             <app-icon name="cart" size="lg" />
             @if (cartService.itemCount() > 0) {
