@@ -16,12 +16,16 @@ export interface Hospital {
   citySlug: string;
   description?: string;
   address?: string;
+  phone?: string;
+  email?: string;
+  website?: string;
   images?: string[];
   facilities?: string[];
   doctorIds: string[];
   doctorCount: number;
   rating?: number;
   reviewCount?: number;
+  offersSurgeries?: boolean;
   doctors?: HospitalDoctorSummary[];
 }
 
@@ -32,6 +36,7 @@ export interface PublicHospitalView extends Hospital {
   is24Hours: boolean;
   phone: string;
   email: string;
+  website: string;
   country: string;
 }
 

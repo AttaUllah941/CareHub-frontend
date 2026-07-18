@@ -24,8 +24,10 @@ export interface PublicLab {
   address?: string;
   phone?: string;
   email?: string;
+  website?: string;
   timings?: string;
   description?: string;
+  images?: string[];
   imageUrl?: string;
   rating?: number;
   testCount?: number;
