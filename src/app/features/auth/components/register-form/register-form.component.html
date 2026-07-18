@@ -1,33 +1,33 @@
-    <form [formGroup]="form()" (ngSubmit)="submitted.emit()" class="space-y-5">
-      <div class="text-center mb-6">
-        <h2 class="text-2xl font-bold text-gray-900">Create account</h2>
-        <p class="mt-1 text-sm text-gray-500">Join CareHub as a patient</p>
-      </div>
+<form [formGroup]="form()" (ngSubmit)="submitted.emit()" class="w-full space-y-5">
+  <div class="text-center mb-6">
+    <h2 class="text-2xl font-bold text-gray-900">Create account</h2>
+    <p class="mt-1 text-sm text-gray-500">Join CareHub as a patient</p>
+  </div>
 
-      <app-alert [message]="error()" />
+  <app-alert [message]="error()" />
 
-      <div class="grid grid-cols-2 gap-4">
-        <app-input label="First Name" formControlName="firstName" [required]="true" />
-        <app-input label="Last Name" formControlName="lastName" [required]="true" />
-      </div>
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <app-input label="First Name" formControlName="firstName" [required]="true" />
+    <app-input label="Last Name" formControlName="lastName" [required]="true" />
+  </div>
 
-      <app-input label="Email" type="email" formControlName="email" [required]="true" />
-      <app-input label="Phone" type="tel" placeholder="+923001234567" formControlName="phone" [required]="true" />
-      <app-input label="Password" type="password" formControlName="password" [required]="true" />
+  <app-input label="Email" type="email" formControlName="email" [required]="true" />
+  <app-input label="Phone" type="tel" placeholder="+923001234567" formControlName="phone" [required]="true" />
+  <app-input label="Password" type="password" formControlName="password" [required]="true" />
 
-      <app-button type="submit" [loading]="loading()" [fullWidth]="true">
-        Create Account
-      </app-button>
+  <app-button type="submit" [loading]="loading()" [fullWidth]="true">
+    Create Account
+  </app-button>
 
-      <p class="text-center text-sm text-gray-500 mt-4">
-        Are you a doctor?
-        <a routerLink="/join-as-doctor" class="font-medium text-brand-600 hover:text-brand-500">Apply via doctor onboarding</a>
-      </p>
+  <p class="text-center text-sm text-gray-500 mt-4">
+    Are you a doctor?
+    <a routerLink="/join-as-doctor" class="font-medium text-brand-600 hover:text-brand-500">Apply via doctor onboarding</a>
+  </p>
 
-      <p class="text-center text-sm text-gray-500">
-        Already have an account?
-        <a routerLink="/auth/login" class="font-medium text-brand-600 hover:text-brand-500">
-          Sign In
-        </a>
-      </p>
-    </form>
+  <p class="text-center text-sm text-gray-500">
+    Already have an account?
+    <a routerLink="/auth/login" class="font-medium text-brand-600 hover:text-brand-500">
+      Sign In
+    </a>
+  </p>
+</form>
