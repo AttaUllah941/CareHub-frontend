@@ -1,4 +1,4 @@
-    <div class="space-y-1">
+    <div class="space-y-1.5">
       @if (label()) {
         <label [for]="inputId" class="block text-sm font-medium text-gray-700">
           {{ label() }}
@@ -17,9 +17,10 @@
         (blur)="onTouched()"
         class="input-field"
         [class.border-red-500]="error()"
+        [class.input-field-error]="error()"
       />
       @if (error()) {
         <p class="text-xs text-red-500">{{ error() }}</p>
       }
     </div>
-  
+
