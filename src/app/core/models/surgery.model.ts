@@ -25,6 +25,7 @@ export interface SurgeryHospitalView {
   description: string;
   phone: string;
   email: string;
+  website?: string;
   address: string;
   city: string;
   citySlug: string;
