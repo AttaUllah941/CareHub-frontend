@@ -1,42 +1,37 @@
-# CareHub frontend — Netlify static hosting
+# CareHub frontend — Netlify (Angular SSR via @netlify/angular-runtime)
 #
 # Before first deploy:
-# 1. Host the CareHub-Backend (Render, Railway, Fly.io, etc.)
-# 2. Set CAREHUB_API_ORIGIN below to that origin (no trailing slash), e.g. https://carehub-api.onrender.com
-# 3. On the backend, set:
+# 1. Host CareHub-Backend (Render, Railway, Fly.io, etc.)
+# 2. Replace YOUR_BACKEND_URL below with that origin (no trailing slash)
+# 3. On the backend set:
 #      NODE_ENV=production
 #      CORS_ORIGIN=https://YOUR_SITE.netlify.app
 #      FRONTEND_URL=https://YOUR_SITE.netlify.app
 #      JWT_SECRET / JWT_REFRESH_SECRET to strong unique values
-# 4. Re-seed pharmacies if needed: npm run seed (in backend) so phone/email/images are populated
+#
+# Do NOT also enable a second Angular Runtime plugin from the Netlify UI —
+# this file already installs it. If the UI plugin is enabled, keep versions
+# aligned (package.json must include @netlify/angular-runtime@^4).
 
 [build]
   command = "npm run build:netlify"
   publish = "dist/CareHub-frontend/browser"
 
 [build.environment]
-  NODE_VERSION = "20"
+  NODE_VERSION = "22"
 
-# --- Replace this with your real API origin ---
-# Used by redirects below. Must match your hosted backend.
-# Example: https://carehub-api.onrender.com
+[[plugins]]
+  package = "@netlify/angular-runtime"
 
-# Proxy API calls so the browser can use relative /api/v1 (see environment.production.ts)
+# Proxy API to your hosted backend (relative /api/v1 in environment.production.ts)
 [[redirects]]
   from = "/api/*"
   to = "https://YOUR_BACKEND_URL/api/:splat"
   status = 200
   force = true
 
-# Proxy local upload paths (Cloudinary absolute URLs do not need this)
 [[redirects]]
   from = "/uploads/*"
   to = "https://YOUR_BACKEND_URL/uploads/:splat"
   status = 200
   force = true
-
-# Angular SPA fallback (keep last)
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
