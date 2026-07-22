@@ -144,16 +144,17 @@ export const toPublicPharmacyView = (
   medicines: Medicine[],
 ): PublicPharmacyView => ({
   ...pharmacy,
-  phone: '—',
-  email: '—',
-  description: `Trusted pharmacy in ${pharmacy.city}.`,
-  imageUrl: DEFAULT_PHARMACY_IMAGE,
-  rating: 4.5,
+  phone: pharmacy.phone?.trim() || '—',
+  email: pharmacy.email?.trim() || '—',
+  description:
+    pharmacy.description?.trim() || `Trusted pharmacy in ${pharmacy.city}.`,
+  imageUrl: pharmacy.images?.[0] || DEFAULT_PHARMACY_IMAGE,
+  rating: pharmacy.rating ?? 4.5,
   medicineCount: medicines.length,
-  timings: 'Mon–Sun: 9:00 AM – 10:00 PM',
-  isHomeDelivery: true,
-  deliveryFee: 150,
-  deliveryTime: '45–90 min',
+  timings: pharmacy.timings?.trim() || 'Mon–Sun: 9:00 AM – 10:00 PM',
+  isHomeDelivery: pharmacy.isHomeDelivery !== false,
+  deliveryFee: pharmacy.deliveryFee ?? 150,
+  deliveryTime: pharmacy.deliveryTime?.trim() || '45–90 min',
   medicines: medicines.map(medicineToPharmacyMedicine),
 });
 

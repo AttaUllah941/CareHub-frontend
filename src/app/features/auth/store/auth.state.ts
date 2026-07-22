@@ -31,6 +31,6 @@ export const ROLE_DASHBOARD_ROUTES: Record<UserRole, string> = {
   [UserRole.DOCTOR]: '/doctor/dashboard',
   [UserRole.PATIENT]: '/',
   [UserRole.CLINIC_MANAGER]: '/',
-  [UserRole.PHARMACY]: '/',
+  [UserRole.PHARMACY]: '/pharmacy/orders',
   [UserRole.LAB]: '/',
 };

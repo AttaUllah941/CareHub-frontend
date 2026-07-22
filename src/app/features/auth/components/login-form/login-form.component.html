@@ -4,7 +4,12 @@
         <p class="mt-1 text-sm text-gray-500">Sign in to your CareHub account</p>
       </div>
 
-      <app-alert [message]="error()" />
+      @if (error()) {
+        <app-alert [message]="error()" variant="error" />
+      }
+      @if (successMessage()) {
+        <app-alert [message]="successMessage()" variant="success" />
+      }
 
       <app-input
         label="Email"

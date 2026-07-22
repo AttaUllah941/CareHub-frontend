@@ -47,6 +47,15 @@
                   <p class="text-gray-600">{{ h.email }}</p>
                 </div>
               </div>
+              @if (h.website) {
+                <div class="flex items-start gap-2">
+                  <span class="text-gray-400">🌐</span>
+                  <div>
+                    <p class="font-medium text-gray-900">Website</p>
+                    <a [href]="h.website" target="_blank" rel="noopener noreferrer" class="text-brand-600 hover:underline break-all">{{ h.website }}</a>
+                  </div>
+                </div>
+              }
               <div class="flex items-start gap-2">
                 <span class="text-gray-400">🏥</span>
                 <div>
