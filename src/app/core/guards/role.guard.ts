@@ -42,6 +42,9 @@ export const roleGuard = (...allowedRoles: UserRole[]): CanActivateFn => {
 /** Doctor portal — JWT + DOCTOR role required */
 export const doctorPortalGuard = roleGuard(UserRole.DOCTOR);
 
+/** Pharmacy portal — JWT + PHARMACY role required */
+export const pharmacyPortalGuard = roleGuard(UserRole.PHARMACY);
+
 /** Admin area — ADMIN or SUPER_ADMIN (for future /admin routes) */
 export const adminGuard = roleGuard(UserRole.ADMIN, UserRole.SUPER_ADMIN);
 

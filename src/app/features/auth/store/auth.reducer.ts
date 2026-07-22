@@ -19,7 +19,7 @@ export const authReducer = createReducer(
     }),
   ),
 
-  on(AuthActions.loginSuccess, AuthActions.registerSuccess, (state, { response }) => ({
+  on(AuthActions.loginSuccess, (state, { response }) => ({
     ...state,
     user: response.user,
     accessToken: response.accessToken,
@@ -28,6 +28,13 @@ export const authReducer = createReducer(
     loading: false,
     error: null,
     successMessage: null,
+  })),
+
+  on(AuthActions.registerSuccess, (state) => ({
+    ...state,
+    loading: false,
+    error: null,
+    successMessage: 'Account created successfully. Please sign in.',
   })),
 
   on(

@@ -122,7 +122,7 @@ export class AuthEffects {
   authSuccess$ = createEffect(
     () =>
       this.actions$.pipe(
-        ofType(AuthActions.loginSuccess, AuthActions.registerSuccess),
+        ofType(AuthActions.loginSuccess),
         tap(({ response }) => {
           this.tokenStorage.setTokens(response.accessToken, response.refreshToken);
           this.referenceData.loadSpecialties();
@@ -136,6 +136,15 @@ export class AuthEffects {
           );
           this.router.navigateByUrl(destination);
         }),
+      ),
+    { dispatch: false },
+  );
+
+  registerSuccess$ = createEffect(
+    () =>
+      this.actions$.pipe(
+        ofType(AuthActions.registerSuccess),
+        tap(() => this.router.navigate(['/auth/login'])),
       ),
     { dispatch: false },
   );

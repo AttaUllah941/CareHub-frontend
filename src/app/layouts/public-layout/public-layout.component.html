@@ -204,6 +204,11 @@
                 <app-icon name="dashboard" size="sm" />
                 Doctor Dashboard
               </a>
+            } @else if (authService.hasRole(UserRole.PHARMACY)) {
+              <a routerLink="/pharmacy/orders" class="btn-primary btn-sm">
+                <app-icon name="cart" size="sm" />
+                Pharmacy Orders
+              </a>
             } @else {
               <div class="relative" data-nav-dropdown>
                 <button
@@ -323,6 +328,8 @@
                 <a routerLink="/admin/dashboard" (click)="closeMobileMenu()" class="btn-primary w-full">Admin</a>
               } @else if (authService.hasRole(UserRole.DOCTOR)) {
                 <a routerLink="/doctor/dashboard" (click)="closeMobileMenu()" class="btn-primary w-full">Doctor Dashboard</a>
+              } @else if (authService.hasRole(UserRole.PHARMACY)) {
+                <a routerLink="/pharmacy/orders" (click)="closeMobileMenu()" class="btn-primary w-full">Pharmacy Orders</a>
               } @else {
                 <button type="button" (click)="toggleRecordDropdown()" class="btn-outline-brand w-full">
                   <app-icon name="record" size="sm" /> Record

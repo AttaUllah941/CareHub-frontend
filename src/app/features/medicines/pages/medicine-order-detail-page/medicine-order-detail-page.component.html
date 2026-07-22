@@ -37,6 +37,24 @@
             <dt class="text-gray-500">Payment</dt>
             <dd class="text-gray-900 uppercase">{{ o.paymentMethod }}</dd>
           </div>
+          @if (o.patientName) {
+            <div class="flex justify-between gap-4">
+              <dt class="text-gray-500">Patient</dt>
+              <dd class="text-gray-900 text-right">{{ o.patientName }}@if (o.patientPhone) { · {{ o.patientPhone }} }</dd>
+            </div>
+          }
+          @if (o.scheduledDate || o.scheduledTimeSlot) {
+            <div class="flex justify-between gap-4">
+              <dt class="text-gray-500">Scheduled</dt>
+              <dd class="text-gray-900 text-right">{{ o.scheduledDate }}@if (o.scheduledTimeSlot) { · {{ o.scheduledTimeSlot }} }</dd>
+            </div>
+          }
+          @if (o.notes) {
+            <div class="flex justify-between gap-4">
+              <dt class="text-gray-500">Notes</dt>
+              <dd class="text-gray-900 text-right max-w-md">{{ o.notes }}</dd>
+            </div>
+          }
           @if (o.createdAt) {
             <div class="flex justify-between gap-4">
               <dt class="text-gray-500">Placed</dt>

@@ -9,6 +9,16 @@ export interface PharmacySummary {
   city: string;
   citySlug: string;
   address?: string;
+  description?: string;
+  phone?: string;
+  email?: string;
+  website?: string;
+  images?: string[];
+  rating?: number;
+  timings?: string;
+  isHomeDelivery?: boolean;
+  deliveryFee?: number;
+  deliveryTime?: string;
 }
 
 export interface Medicine {
@@ -40,6 +50,7 @@ export interface PharmacyMedicine {
 export interface PublicPharmacyView extends PharmacySummary {
   phone: string;
   email?: string;
+  website?: string;
   description?: string;
   imageUrl?: string;
   rating?: number;
@@ -71,6 +82,11 @@ export interface CreateMedicineOrderRequest {
   deliveryType: 'home_delivery' | 'store_pickup';
   address: string;
   paymentMethod: 'cod' | 'card' | 'jazzcash' | 'easypaisa';
+  patientName?: string;
+  patientPhone?: string;
+  notes?: string;
+  scheduledDate?: string;
+  scheduledTimeSlot?: string;
   couponCode?: string;
   prescriptionUrls?: string[];
 }
@@ -103,6 +119,11 @@ export interface MedicineOrder {
   deliveryType: string;
   address: string;
   paymentMethod: string;
+  patientName?: string;
+  patientPhone?: string;
+  notes?: string;
+  scheduledDate?: string;
+  scheduledTimeSlot?: string;
   couponCode?: string;
   prescriptionUrls?: string[];
   items?: MedicineOrderItem[];

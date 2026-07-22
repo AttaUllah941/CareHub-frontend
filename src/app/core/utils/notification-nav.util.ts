@@ -30,6 +30,7 @@ export function resolveNotificationRoute(
       if (typeof fromData === 'string' && fromData.startsWith('/')) return fromData;
       if (role === UserRole.ADMIN || role === UserRole.SUPER_ADMIN) return '/admin/dashboard';
       if (role === UserRole.DOCTOR) return '/doctor/dashboard';
+      if (role === UserRole.PHARMACY) return '/pharmacy/orders';
       return '/my-appointments';
   }
 }

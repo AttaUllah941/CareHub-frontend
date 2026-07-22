@@ -78,6 +78,14 @@ export const serverRoutes: ServerRoute[] = [
     renderMode: RenderMode.Server,
   },
   {
+    path: 'pharmacy/orders/:orderId',
+    renderMode: RenderMode.Server,
+  },
+  {
+    path: 'pharmacy/**',
+    renderMode: RenderMode.Server,
+  },
+  {
     path: 'consultation/**',
     renderMode: RenderMode.Server,
   },

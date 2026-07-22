@@ -1,0 +1,42 @@
+# CareHub frontend — Netlify static hosting
+#
+# Before first deploy:
+# 1. Host the CareHub-Backend (Render, Railway, Fly.io, etc.)
+# 2. Set CAREHUB_API_ORIGIN below to that origin (no trailing slash), e.g. https://carehub-api.onrender.com
+# 3. On the backend, set:
+#      NODE_ENV=production
+#      CORS_ORIGIN=https://YOUR_SITE.netlify.app
+#      FRONTEND_URL=https://YOUR_SITE.netlify.app
+#      JWT_SECRET / JWT_REFRESH_SECRET to strong unique values
+# 4. Re-seed pharmacies if needed: npm run seed (in backend) so phone/email/images are populated
+
+[build]
+  command = "npm run build:netlify"
+  publish = "dist/CareHub-frontend/browser"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+# --- Replace this with your real API origin ---
+# Used by redirects below. Must match your hosted backend.
+# Example: https://carehub-api.onrender.com
+
+# Proxy API calls so the browser can use relative /api/v1 (see environment.production.ts)
+[[redirects]]
+  from = "/api/*"
+  to = "https://YOUR_BACKEND_URL/api/:splat"
+  status = 200
+  force = true
+
+# Proxy local upload paths (Cloudinary absolute URLs do not need this)
+[[redirects]]
+  from = "/uploads/*"
+  to = "https://YOUR_BACKEND_URL/uploads/:splat"
+  status = 200
+  force = true
+
+# Angular SPA fallback (keep last)
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

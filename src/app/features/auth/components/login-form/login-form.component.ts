@@ -19,5 +19,6 @@ export class LoginFormComponent {
   readonly form = input.required<FormGroup>();
   readonly loading = input(false);
   readonly error = input('');
+  readonly successMessage = input('');
   readonly submitted = output<void>();
 }
