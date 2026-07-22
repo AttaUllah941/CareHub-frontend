@@ -1,2 +1,2 @@
-/api/*  https://YOUR_BACKEND_URL/api/:splat  200!
-/uploads/*  https://YOUR_BACKEND_URL/uploads/:splat  200!
+# SPA fallback is handled by @netlify/angular-runtime when SSR is enabled.
+# Keep this file empty of API proxies — the app calls Render via API_URL / SOCKET_URL.
