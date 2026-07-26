@@ -1,4 +1,4 @@
-import { Component, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 
 /**
  * Dumb (presentational) component for displaying API error alerts.
@@ -7,7 +7,8 @@ import { Component, input } from '@angular/core';
   selector: 'app-alert',
   standalone: true,
   templateUrl: './alert.component.html',
-  styleUrl: './alert.component.scss'
+  styleUrl: './alert.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AlertComponent {
   readonly message = input<string>('');

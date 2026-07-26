@@ -1,6 +1,7 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AuthService } from '../../services/auth.service';
 import { ResetPasswordFormComponent } from '../../components/reset-password-form/reset-password-form.component';
 
@@ -9,7 +10,8 @@ import { ResetPasswordFormComponent } from '../../components/reset-password-form
   standalone: true,
   imports: [ReactiveFormsModule, ResetPasswordFormComponent],
   templateUrl: './reset-password-page.component.html',
-  styleUrl: './reset-password-page.component.scss'
+  styleUrl: './reset-password-page.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ResetPasswordPageComponent implements OnInit {
   protected readonly authService = inject(AuthService);
@@ -23,13 +25,15 @@ export class ResetPasswordPageComponent implements OnInit {
     confirmPassword: ['', [Validators.required]],
   });
 
+  constructor() {
+    this.route.queryParamMap.pipe(takeUntilDestroyed()).subscribe((params) => {
+      this.token.set(params.get('token') ?? '');
+    });
+  }
+
   ngOnInit(): void {
     this.authService.clearError();
     this.authService.clearSuccessMessage();
-
-    this.route.queryParamMap.subscribe((params) => {
-      this.token.set(params.get('token') ?? '');
-    });
   }
 
   onSubmit(): void {

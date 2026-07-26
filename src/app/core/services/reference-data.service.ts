@@ -27,6 +27,7 @@ export class ReferenceDataService {
   private readonly languagesError = signal<string | null>(null);
 
   private languagesLoaded = false;
+  private specialtiesLoaded = false;
 
   readonly specialtyList = this.specialties.asReadonly();
   readonly languageList = this.languages.asReadonly();
@@ -50,8 +51,9 @@ export class ReferenceDataService {
     this.loadLanguages();
   }
 
-  loadSpecialties(): void {
+  loadSpecialties(force = false): void {
     if (!this.isBrowser) return;
+    if (this.specialtiesLoaded && !force) return;
     if (this.specialtiesLoading()) return;
 
     this.specialtiesLoading.set(true);
@@ -62,6 +64,7 @@ export class ReferenceDataService {
       .pipe(
         tap((response) => {
           this.specialties.set(response.data.specialties.filter((item) => item.isActive));
+          this.specialtiesLoaded = true;
           this.specialtiesLoading.set(false);
         }),
         catchError(() => {

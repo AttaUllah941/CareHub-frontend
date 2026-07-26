@@ -7,8 +7,10 @@
         <a [routerLink]="doctorProfileLink()" [queryParams]="doctorProfileQueryParams()" class="shrink-0 self-start">
           @if (d.profileImageUrl) {
             <img
-              [src]="d.profileImageUrl"
+              [ngSrc]="d.profileImageUrl"
               [alt]="doctorName(d)"
+              width="96"
+              height="96"
               class="h-20 w-20 sm:h-24 sm:w-24 rounded-full object-cover border-2 border-gray-100 hover:border-brand-300 transition-colors"
             />
           } @else {
@@ -154,18 +156,23 @@
     </div>
   </article>
 
-  <app-video-consultation-modal
-    [open]="videoModalOpen()"
-    [doctor]="doctor()"
-    [city]="city()"
-    (closed)="closeVideoModal()"
-  />
+  <!-- Defer heavy booking modals until first open — keeps listing chunk lean. -->
+  @defer (when videoModalOpen()) {
+    <app-video-consultation-modal
+      [open]="videoModalOpen()"
+      [doctor]="doctor()"
+      [city]="city()"
+      (closed)="closeVideoModal()"
+    />
+  }
 
-  <app-clinic-appointment-modal
-    [open]="appointmentModalOpen()"
-    [doctor]="doctor()"
-    [city]="city()"
-    [initialClinicId]="preselectedClinicId()"
-    (closed)="closeAppointmentModal()"
-  />
+  @defer (when appointmentModalOpen()) {
+    <app-clinic-appointment-modal
+      [open]="appointmentModalOpen()"
+      [doctor]="doctor()"
+      [city]="city()"
+      [initialClinicId]="preselectedClinicId()"
+      (closed)="closeAppointmentModal()"
+    />
+  }
 }
