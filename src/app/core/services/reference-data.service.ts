@@ -27,7 +27,7 @@ export class ReferenceDataService {
   private readonly languagesError = signal<string | null>(null);
 
   private languagesLoaded = false;
-  private specialtiesLoaded = false;
+  private readonly specialtiesLoaded = signal(false);
 
   readonly specialtyList = this.specialties.asReadonly();
   readonly languageList = this.languages.asReadonly();
@@ -35,6 +35,12 @@ export class ReferenceDataService {
   readonly languagesLoadingState = this.languagesLoading.asReadonly();
   readonly specialtiesErrorState = this.specialtiesError.asReadonly();
   readonly languagesErrorState = this.languagesError.asReadonly();
+  readonly specialtiesLoadedState = this.specialtiesLoaded.asReadonly();
+
+  /** True until the first successful specialty fetch finishes (covers SSR/pre-load empty UI). */
+  readonly specialtiesPending = computed(
+    () => !this.specialtiesLoaded() && !this.specialtiesError(),
+  );
 
   readonly specialtyChips = computed<SpecialtyChip[]>(() =>
     this.specialties().map((specialty) => ({
@@ -53,7 +59,7 @@ export class ReferenceDataService {
 
   loadSpecialties(force = false): void {
     if (!this.isBrowser) return;
-    if (this.specialtiesLoaded && !force) return;
+    if (this.specialtiesLoaded() && !force) return;
     if (this.specialtiesLoading()) return;
 
     this.specialtiesLoading.set(true);
@@ -64,7 +70,7 @@ export class ReferenceDataService {
       .pipe(
         tap((response) => {
           this.specialties.set(response.data.specialties.filter((item) => item.isActive));
-          this.specialtiesLoaded = true;
+          this.specialtiesLoaded.set(true);
           this.specialtiesLoading.set(false);
         }),
         catchError(() => {
