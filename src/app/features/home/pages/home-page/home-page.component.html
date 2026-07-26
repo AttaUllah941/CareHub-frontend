@@ -80,26 +80,26 @@
     </div>
 
     <!-- Specialty chips -->
-    @if (referenceData.specialtiesLoadingState()) {
-      <app-specialty-chips-skeleton />
-    } @else if (referenceData.specialtiesErrorState()) {
+    @if (referenceData.specialtiesErrorState()) {
       <p class="mt-10 text-center text-sm text-red-600">{{ referenceData.specialtiesErrorState() }}</p>
+    } @else if (referenceData.specialtiesPending()) {
+      <app-specialty-chips-skeleton />
     } @else {
-    <div class="mt-10 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 max-w-6xl mx-auto">
-      @for (specialty of referenceData.specialtyChips(); track specialty.slug) {
-        <button
-          type="button"
-          (click)="browseSpecialty(specialty.slug)"
-          class="card-interactive clickable text-left p-4"
-        >
-          <span class="text-2xl">{{ specialty.icon }}</span>
-          <p class="mt-2 font-semibold text-gray-900 group-hover:text-brand-600">{{ specialty.name }}</p>
-          @if (specialty.description) {
-            <p class="text-xs text-gray-500 mt-0.5 leading-relaxed line-clamp-2">{{ specialty.description }}</p>
-          }
-        </button>
-      }
-    </div>
+      <div class="mt-10 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 max-w-6xl mx-auto">
+        @for (specialty of referenceData.specialtyChips(); track specialty.slug) {
+          <button
+            type="button"
+            (click)="browseSpecialty(specialty.slug)"
+            class="card-interactive clickable text-left p-4"
+          >
+            <span class="text-2xl">{{ specialty.icon }}</span>
+            <p class="mt-2 font-semibold text-gray-900 group-hover:text-brand-600">{{ specialty.name }}</p>
+            @if (specialty.description) {
+              <p class="text-xs text-gray-500 mt-0.5 leading-relaxed line-clamp-2">{{ specialty.description }}</p>
+            }
+          </button>
+        }
+      </div>
     }
   </div>
 </section>
