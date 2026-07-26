@@ -1,10 +1,11 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { PharmacyMedicine, PublicPharmacyView } from '../../../../core/models/medicine.model';
 import { ApiErrorService } from '../../../../core/services/api-error.service';
 import { PaginationComponent } from '../../../../shared/components/pagination/pagination.component';
+import { FacilityDetailSkeletonComponent } from '../../../../shared/components/skeleton';
 import { PublicMedicineCardComponent } from '../../components/public-medicine-card/public-medicine-card.component';
 import {
   cityNameFromSlug,
@@ -19,9 +20,10 @@ const MEDICINES_PER_PAGE = 9;
 @Component({
   selector: 'app-pharmacy-detail-page',
   standalone: true,
-  imports: [RouterLink, FormsModule, PublicMedicineCardComponent, PaginationComponent],
+  imports: [RouterLink, FormsModule, PublicMedicineCardComponent, PaginationComponent, FacilityDetailSkeletonComponent],
   templateUrl: './pharmacy-detail-page.component.html',
   styleUrl: './pharmacy-detail-page.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PharmacyDetailPageComponent {
   private readonly route = inject(ActivatedRoute);

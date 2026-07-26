@@ -27,7 +27,12 @@
   }
 
   @if (loading()) {
-    <div class="py-16 text-center"><div class="spinner mx-auto mb-3"></div><p class="text-gray-500">Loading appointments...</p></div>
+    <div class="space-y-3" aria-busy="true" aria-live="polite">
+      <span class="sr-only">Loading appointments…</span>
+      @for (i of [1, 2, 3, 4]; track i) {
+        <app-list-row-skeleton [showAvatar]="true" />
+      }
+    </div>
   } @else {
     <div class="space-y-4">
       @for (apt of appointments(); track apt.id) {

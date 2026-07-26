@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { DecimalPipe } from '@angular/common';
@@ -23,15 +23,25 @@ import { AppointmentsApiService } from '../../../appointments/services/appointme
 import { CreateAppointmentRequest } from '../../../../core/models/appointment.model';
 import { VideoConsultationModalComponent } from '../../../appointments/components/video-consultation-modal/video-consultation-modal.component';
 import { ClinicAppointmentModalComponent } from '../../../appointments/components/clinic-appointment-modal/clinic-appointment-modal.component';
+import { DoctorProfileSkeletonComponent, ListRowSkeletonComponent } from '../../../../shared/components/skeleton';
 
 interface DateOption extends BookingDateOption {}
 
 @Component({
   selector: 'app-doctor-detail-page',
   standalone: true,
-  imports: [RouterLink, FormsModule, DecimalPipe, VideoConsultationModalComponent, ClinicAppointmentModalComponent],
+  imports: [
+    RouterLink,
+    FormsModule,
+    DecimalPipe,
+    VideoConsultationModalComponent,
+    ClinicAppointmentModalComponent,
+    DoctorProfileSkeletonComponent,
+    ListRowSkeletonComponent,
+  ],
   templateUrl: './doctor-detail-page.component.html',
   styleUrl: './doctor-detail-page.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DoctorDetailPageComponent {
   private readonly route = inject(ActivatedRoute);

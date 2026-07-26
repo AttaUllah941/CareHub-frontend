@@ -14,13 +14,14 @@ import {
 } from '../../data/home-content';
 import { ReferenceDataService } from '../../../../core/services/reference-data.service';
 import { IconComponent } from '../../../../shared/components/icon/icon.component';
+import { SpecialtyChipsSkeletonComponent } from '../../../../shared/components/skeleton';
 import { navigateToHealthTopic } from '../../utils/health-topic-navigation.util';
 import { AskQuestionModalComponent } from '../../components/ask-question-modal/ask-question-modal.component';
 
 @Component({
   selector: 'app-home-page',
   standalone: true,
-  imports: [RouterLink, FormsModule, IconComponent, AskQuestionModalComponent],
+  imports: [RouterLink, FormsModule, IconComponent, AskQuestionModalComponent, SpecialtyChipsSkeletonComponent],
   templateUrl: './home-page.component.html',
   styleUrl: './home-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -1,8 +1,9 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { SurgeryHospitalView, SurgeryProcedure } from '../../../../core/models/surgery.model';
+import { SurgeryHospitalView } from '../../../../core/models/surgery.model';
 import { ApiErrorService } from '../../../../core/services/api-error.service';
+import { FacilityDetailSkeletonComponent } from '../../../../shared/components/skeleton';
 import { PublicDoctorListingCardComponent } from '../../../doctors/components/public-doctor-listing-card/public-doctor-listing-card.component';
 import { PublicSurgeryCardComponent } from '../../components/public-surgery-card/public-surgery-card.component';
 import {
@@ -16,7 +17,12 @@ import { SurgeriesApiService } from '../../services/surgeries-api.service';
 @Component({
   selector: 'app-surgery-hospital-detail-page',
   standalone: true,
-  imports: [RouterLink, PublicSurgeryCardComponent, PublicDoctorListingCardComponent],
+  imports: [
+    RouterLink,
+    PublicSurgeryCardComponent,
+    PublicDoctorListingCardComponent,
+    FacilityDetailSkeletonComponent,
+  ],
   templateUrl: './surgery-hospital-detail-page.component.html',
   styleUrl: './surgery-hospital-detail-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

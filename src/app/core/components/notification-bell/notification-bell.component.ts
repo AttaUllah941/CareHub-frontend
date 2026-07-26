@@ -16,6 +16,7 @@ import { AuthService } from '../../../features/auth/services/auth.service';
 import { UserRole } from '../../models/auth.model';
 import { ApiErrorService } from '../../services/api-error.service';
 import { NotificationsApiService } from '../../services/notifications-api.service';
+import { ListRowSkeletonComponent } from '../../../shared/components/skeleton';
 import {
   notificationTypeLabel,
   resolveNotificationRoute,
@@ -24,7 +25,7 @@ import {
 @Component({
   selector: 'app-notification-bell',
   standalone: true,
-  imports: [DatePipe, NgClass],
+  imports: [DatePipe, NgClass, ListRowSkeletonComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (authService.isAuthenticated() && canSeeBell()) {
@@ -83,7 +84,12 @@ import {
 
             <div class="overflow-y-auto flex-1">
               @if (loading()) {
-                <p class="px-4 py-8 text-sm text-gray-500 text-center">Loading…</p>
+                <div class="space-y-2 p-3" aria-busy="true" aria-live="polite">
+                  <span class="sr-only">Loading notifications…</span>
+                  @for (i of [1, 2, 3]; track i) {
+                    <app-list-row-skeleton [showAvatar]="true" />
+                  }
+                </div>
               } @else if (error()) {
                 <p class="px-4 py-8 text-sm text-red-600 text-center">{{ error() }}</p>
               } @else if (notifications().length) {

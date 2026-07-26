@@ -1,10 +1,11 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { LabTest, PublicLab } from '../../../../core/models/lab.model';
 import { ApiErrorService } from '../../../../core/services/api-error.service';
 import { PaginationComponent } from '../../../../shared/components/pagination/pagination.component';
+import { FacilityDetailSkeletonComponent } from '../../../../shared/components/skeleton';
 import { PublicLabTestCardComponent } from '../../components/public-lab-test-card/public-lab-test-card.component';
 import { cityNameFromSlug, toPublicLabView } from '../../../marketplace/utils/marketplace-display.util';
 import { LabsApiService } from '../../services/labs-api.service';
@@ -14,9 +15,10 @@ const TESTS_PER_PAGE = 9;
 @Component({
   selector: 'app-lab-detail-page',
   standalone: true,
-  imports: [RouterLink, FormsModule, PublicLabTestCardComponent, PaginationComponent],
+  imports: [RouterLink, FormsModule, PublicLabTestCardComponent, PaginationComponent, FacilityDetailSkeletonComponent],
   templateUrl: './lab-detail-page.component.html',
   styleUrl: './lab-detail-page.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LabDetailPageComponent {
   private readonly route = inject(ActivatedRoute);

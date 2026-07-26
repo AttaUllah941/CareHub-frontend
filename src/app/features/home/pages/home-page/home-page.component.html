@@ -81,7 +81,7 @@
 
     <!-- Specialty chips -->
     @if (referenceData.specialtiesLoadingState()) {
-      <p class="mt-10 text-center text-sm text-gray-500">Loading specialties…</p>
+      <app-specialty-chips-skeleton />
     } @else if (referenceData.specialtiesErrorState()) {
       <p class="mt-10 text-center text-sm text-red-600">{{ referenceData.specialtiesErrorState() }}</p>
     } @else {

@@ -1,5 +1,5 @@
 import { TitleCasePipe } from '@angular/common';
-import { Component, inject, OnInit, PLATFORM_ID, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit, PLATFORM_ID, signal } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { Appointment, AppointmentStatus } from '../../../../core/models/appointment.model';
@@ -9,13 +9,15 @@ import { AppointmentsApiService } from '../../services/appointments-api.service'
 import { formatAppointmentDateTime } from '../../utils/appointment-schedule.util';
 
 import { IconComponent } from '../../../../shared/components/icon/icon.component';
+import { ListRowSkeletonComponent } from '../../../../shared/components/skeleton';
 
 @Component({
   selector: 'app-my-appointments-page',
   standalone: true,
-  imports: [RouterLink, TitleCasePipe, IconComponent],
+  imports: [RouterLink, TitleCasePipe, IconComponent, ListRowSkeletonComponent],
   templateUrl: './my-appointments-page.component.html',
   styleUrl: './my-appointments-page.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MyAppointmentsPageComponent implements OnInit {
   private readonly appointmentsApi = inject(AppointmentsApiService);
