@@ -1,13 +1,12 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Hospital } from '../../../../core/models/hospital.model';
 import { SurgeryHospitalView } from '../../../../core/models/surgery.model';
 import { ApiErrorService } from '../../../../core/services/api-error.service';
+import { FacilityCardSkeletonComponent } from '../../../../shared/components/skeleton';
 import { citySlugFromParamMap } from '../../../../shared/utils/city-route.util';
 import {
   cityNameFromSlug,
-  toPublicHospitalView,
   toSurgeryHospitalView,
   toSurgeryProcedureView,
 } from '../../../marketplace/utils/marketplace-display.util';
@@ -17,9 +16,10 @@ import { SurgeriesApiService } from '../../services/surgeries-api.service';
 @Component({
   selector: 'app-surgery-city-page',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, FacilityCardSkeletonComponent],
   templateUrl: './surgery-city-page.component.html',
   styleUrl: './surgery-city-page.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SurgeryCityPageComponent {
   private readonly route = inject(ActivatedRoute);

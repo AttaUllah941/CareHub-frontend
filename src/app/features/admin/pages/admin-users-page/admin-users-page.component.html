@@ -29,7 +29,7 @@
 }
 
 @if (loading()) {
-  <p class="text-gray-500">Loading users…</p>
+  <app-table-skeleton [columnCount]="5" [rowCount]="8" />
 } @else {
   <div class="overflow-x-auto rounded-2xl border border-gray-200 bg-white shadow-sm">
     <table class="min-w-full text-sm">

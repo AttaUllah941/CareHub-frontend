@@ -1,9 +1,6 @@
 <div class="bg-gray-50 min-h-full">
   @if (loading()) {
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
-      <div class="inline-block h-10 w-10 animate-spin rounded-full border-4 border-brand-600 border-t-transparent"></div>
-      <p class="mt-4 text-gray-600">Loading doctor profile...</p>
-    </div>
+    <app-doctor-profile-skeleton />
   } @else if (doctor(); as d) {
     <!-- Breadcrumbs -->
     <div class="bg-white border-b border-gray-200">
@@ -149,7 +146,12 @@
             <!-- Individual Reviews -->
             <div class="divide-y divide-gray-100">
               @if (reviewsLoading()) {
-                <div class="p-6 text-center text-sm text-gray-500">Loading reviews...</div>
+                <div class="p-4 space-y-3" aria-busy="true" aria-live="polite">
+                  <span class="sr-only">Loading reviews…</span>
+                  @for (i of [1, 2, 3]; track i) {
+                    <app-list-row-skeleton [showAvatar]="true" />
+                  }
+                </div>
               } @else if (reviews().length === 0) {
                 <div class="p-6 text-center text-sm text-gray-500">No patient reviews yet.</div>
               } @else {

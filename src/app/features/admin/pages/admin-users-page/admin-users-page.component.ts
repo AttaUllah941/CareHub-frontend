@@ -4,13 +4,14 @@ import { FormsModule } from '@angular/forms';
 import { UserRole } from '../../../../core/models/auth.model';
 import { ApiErrorService } from '../../../../core/services/api-error.service';
 import { NotificationService } from '../../../../core/services/notification.service';
+import { TableSkeletonComponent } from '../../../../shared/components/skeleton';
 import { AdminUser } from '../../models/admin.model';
 import { AdminApiService } from '../../services/admin-api.service';
 
 @Component({
   selector: 'app-admin-users-page',
   standalone: true,
-  imports: [FormsModule, DatePipe],
+  imports: [FormsModule, DatePipe, TableSkeletonComponent],
   templateUrl: './admin-users-page.component.html',
   styleUrl: './admin-users-page.component.scss',
 })

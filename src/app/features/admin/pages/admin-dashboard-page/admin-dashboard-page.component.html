@@ -7,9 +7,7 @@
 </div>
 
 @if (loading()) {
-  <div class="rounded-2xl border border-dashed border-gray-200 bg-white px-6 py-12 text-center text-gray-500">
-    Loading dashboard…
-  </div>
+  <app-dashboard-stats-skeleton variant="admin" />
 } @else if (error()) {
   <div class="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{{ error() }}</div>
 } @else if (stats(); as s) {

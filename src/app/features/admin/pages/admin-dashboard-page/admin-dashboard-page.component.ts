@@ -1,11 +1,13 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { AdminDashboardStats } from '../../models/admin.model';
 import { ApiErrorService } from '../../../../core/services/api-error.service';
+import { DashboardStatsSkeletonComponent } from '../../../../shared/components/skeleton';
 import { AdminApiService } from '../../services/admin-api.service';
 
 @Component({
   selector: 'app-admin-dashboard-page',
   standalone: true,
+  imports: [DashboardStatsSkeletonComponent],
   templateUrl: './admin-dashboard-page.component.html',
   styleUrl: './admin-dashboard-page.component.scss',
 })

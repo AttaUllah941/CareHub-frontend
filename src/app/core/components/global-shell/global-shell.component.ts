@@ -39,9 +39,11 @@ import { LoadingService } from '../../services/loading.service';
   @if (loadingService.isLoading()) {
     <div
       class="fixed top-0 left-0 right-0 z-[90] h-1 bg-brand-100 overflow-hidden"
-      aria-hidden="true"
+      role="progressbar"
+      aria-label="Loading"
+      aria-busy="true"
     >
-      <div class="h-full w-1/3 bg-brand-600 animate-pulse"></div>
+      <div class="h-full w-1/3 bg-brand-600 rounded-full animate-route-progress"></div>
     </div>
   }
   `,
@@ -59,6 +61,16 @@ import { LoadingService } from '../../services/loading.service';
 
     .animate-toast-in {
       animation: toast-in 0.25s ease-out;
+    }
+
+    @keyframes route-progress {
+      0% { transform: translateX(-100%); }
+      50% { transform: translateX(150%); }
+      100% { transform: translateX(350%); }
+    }
+
+    .animate-route-progress {
+      animation: route-progress 1.2s ease-in-out infinite;
     }
   `,
 })

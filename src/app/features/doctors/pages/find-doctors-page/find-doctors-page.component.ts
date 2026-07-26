@@ -10,10 +10,11 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { DecimalPipe } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { catchError, combineLatest, of, Subject, switchMap, tap } from 'rxjs';
+import { catchError, combineLatest, of, ReplaySubject, switchMap, tap } from 'rxjs';
 import { PublicDoctorApiService } from '../../services/public-doctor-api.service';
 import { PublicDoctorListingCardComponent } from '../../components/public-doctor-listing-card/public-doctor-listing-card.component';
 import { PaginationComponent } from '../../../../shared/components/pagination/pagination.component';
+import { DoctorCardSkeletonComponent } from '../../../../shared/components/skeleton';
 import { PAKISTAN_CITIES } from '../../../home/data/home-content';
 import { ReferenceDataService } from '../../../../core/services/reference-data.service';
 import { ApiErrorService } from '../../../../core/services/api-error.service';
@@ -22,7 +23,14 @@ import { DoctorSearchResult, PaginationMeta } from '../../../../core/models/doct
 @Component({
   selector: 'app-find-doctors-page',
   standalone: true,
-  imports: [RouterLink, FormsModule, DecimalPipe, PublicDoctorListingCardComponent, PaginationComponent],
+  imports: [
+    RouterLink,
+    FormsModule,
+    DecimalPipe,
+    PublicDoctorListingCardComponent,
+    PaginationComponent,
+    DoctorCardSkeletonComponent,
+  ],
   templateUrl: './find-doctors-page.component.html',
   styleUrl: './find-doctors-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -34,8 +42,8 @@ export class FindDoctorsPageComponent implements OnInit {
   private readonly referenceData = inject(ReferenceDataService);
   private readonly apiErrorService = inject(ApiErrorService);
 
-  /** Cancels in-flight search when filters/page change quickly. */
-  private readonly searchPage$ = new Subject<number>();
+  /** Replay buffer avoids dropping the first search if route emits before subscribe. */
+  private readonly searchPage$ = new ReplaySubject<number>(1);
 
   readonly cities = PAKISTAN_CITIES;
   readonly specialtySlug = signal('');
@@ -43,7 +51,7 @@ export class FindDoctorsPageComponent implements OnInit {
   readonly searchName = signal('');
   readonly healthCondition = signal('');
   readonly maxFee = signal('');
-  readonly loading = signal(false);
+  readonly loading = signal(true);
   readonly error = signal<string | null>(null);
   readonly doctors = signal<DoctorSearchResult[]>([]);
   readonly pagination = signal<PaginationMeta>({ page: 1, limit: 10, total: 0, totalPages: 1 });
@@ -67,32 +75,7 @@ export class FindDoctorsPageComponent implements OnInit {
   });
 
   constructor() {
-    combineLatest([this.route.paramMap, this.route.queryParamMap])
-      .pipe(takeUntilDestroyed())
-      .subscribe(([params, queryParams]) => {
-        const rawSlug = params.get('specialtySlug') ?? 'all';
-        this.specialtySlug.set(rawSlug === 'all' ? '' : rawSlug);
-
-        const city = queryParams.get('city');
-        if (city) {
-          this.selectedCity.set(city);
-        }
-
-        const condition = queryParams.get('condition');
-        if (condition) {
-          this.healthCondition.set(condition);
-          this.searchName.set('');
-        } else {
-          this.healthCondition.set('');
-          const name = queryParams.get('q') ?? queryParams.get('name');
-          if (name != null) {
-            this.searchName.set(name);
-          }
-        }
-
-        this.loadDoctors(1);
-      });
-
+    // Subscribe to search pipeline BEFORE route listener so the first loadDoctors() is never dropped.
     this.searchPage$
       .pipe(
         tap(() => {
@@ -136,6 +119,32 @@ export class FindDoctorsPageComponent implements OnInit {
         this.doctors.set(res.data.doctors);
         this.pagination.set(res.data.pagination);
         this.loading.set(false);
+      });
+
+    combineLatest([this.route.paramMap, this.route.queryParamMap])
+      .pipe(takeUntilDestroyed())
+      .subscribe(([params, queryParams]) => {
+        const rawSlug = params.get('specialtySlug') ?? 'all';
+        this.specialtySlug.set(rawSlug === 'all' ? '' : rawSlug);
+
+        const city = queryParams.get('city');
+        if (city) {
+          this.selectedCity.set(city);
+        }
+
+        const condition = queryParams.get('condition');
+        if (condition) {
+          this.healthCondition.set(condition);
+          this.searchName.set('');
+        } else {
+          this.healthCondition.set('');
+          const name = queryParams.get('q') ?? queryParams.get('name');
+          if (name != null) {
+            this.searchName.set(name);
+          }
+        }
+
+        this.loadDoctors(1);
       });
   }
 
