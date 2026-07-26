@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DoctorSearchResult } from '../../../../core/models/doctor.model';
@@ -18,6 +18,7 @@ import { HospitalsApiService } from '../../services/hospitals-api.service';
   imports: [RouterLink, PublicDoctorListingCardComponent],
   templateUrl: './hospital-detail-page.component.html',
   styleUrl: './hospital-detail-page.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HospitalDetailPageComponent {
   private readonly route = inject(ActivatedRoute);

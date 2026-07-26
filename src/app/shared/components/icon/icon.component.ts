@@ -1,4 +1,4 @@
-import { Component, computed, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 
 export type IconName =
   | 'doctors'
@@ -121,6 +121,7 @@ const ICON_PATHS: Record<IconName, string> = {
       <path [attr.d]="path()" />
     </svg>
   `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class IconComponent {
   readonly name = input.required<IconName>();

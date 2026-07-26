@@ -1,9 +1,16 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  OnInit,
+  signal,
+} from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { DecimalPipe } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { combineLatest } from 'rxjs';
+import { catchError, combineLatest, of, Subject, switchMap, tap } from 'rxjs';
 import { PublicDoctorApiService } from '../../services/public-doctor-api.service';
 import { PublicDoctorListingCardComponent } from '../../components/public-doctor-listing-card/public-doctor-listing-card.component';
 import { PaginationComponent } from '../../../../shared/components/pagination/pagination.component';
@@ -18,6 +25,7 @@ import { DoctorSearchResult, PaginationMeta } from '../../../../core/models/doct
   imports: [RouterLink, FormsModule, DecimalPipe, PublicDoctorListingCardComponent, PaginationComponent],
   templateUrl: './find-doctors-page.component.html',
   styleUrl: './find-doctors-page.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FindDoctorsPageComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
@@ -25,6 +33,9 @@ export class FindDoctorsPageComponent implements OnInit {
   private readonly publicDoctorApi = inject(PublicDoctorApiService);
   private readonly referenceData = inject(ReferenceDataService);
   private readonly apiErrorService = inject(ApiErrorService);
+
+  /** Cancels in-flight search when filters/page change quickly. */
+  private readonly searchPage$ = new Subject<number>();
 
   readonly cities = PAKISTAN_CITIES;
   readonly specialtySlug = signal('');
@@ -81,6 +92,51 @@ export class FindDoctorsPageComponent implements OnInit {
 
         this.loadDoctors(1);
       });
+
+    this.searchPage$
+      .pipe(
+        tap(() => {
+          this.loading.set(true);
+          this.error.set(null);
+        }),
+        switchMap((page) => {
+          const query: Record<string, string | number> = {
+            page,
+            limit: 10,
+            city: this.selectedCity(),
+            sortBy: this.activeFilters().includes('Top Reviewed') ? 'averageRating' : 'yearsOfExperience',
+            sortOrder: 'desc',
+          };
+
+          const specialtySlug = this.specialtySlug().trim();
+          if (specialtySlug) {
+            query['specialtySlug'] = specialtySlug;
+          }
+
+          const name = this.searchName().trim();
+          if (name) query['name'] = name;
+
+          const fee = this.maxFee();
+          if (fee) query['maxFee'] = fee;
+
+          return this.publicDoctorApi.searchDoctors(query).pipe(
+            catchError((err) => {
+              this.doctors.set([]);
+              this.pagination.set({ page: 1, limit: 10, total: 0, totalPages: 0 });
+              this.error.set(this.apiErrorService.getMessage(err));
+              this.loading.set(false);
+              return of(null);
+            }),
+          );
+        }),
+        takeUntilDestroyed(),
+      )
+      .subscribe((res) => {
+        if (!res) return;
+        this.doctors.set(res.data.doctors);
+        this.pagination.set(res.data.pagination);
+        this.loading.set(false);
+      });
   }
 
   ngOnInit(): void {
@@ -88,41 +144,7 @@ export class FindDoctorsPageComponent implements OnInit {
   }
 
   loadDoctors(page = 1): void {
-    this.loading.set(true);
-    this.error.set(null);
-
-    const query: Record<string, string | number> = {
-      page,
-      limit: 10,
-      city: this.selectedCity(),
-      sortBy: this.activeFilters().includes('Top Reviewed') ? 'averageRating' : 'yearsOfExperience',
-      sortOrder: 'desc',
-    };
-
-    const specialtySlug = this.specialtySlug().trim();
-    if (specialtySlug) {
-      query['specialtySlug'] = specialtySlug;
-    }
-
-    const name = this.searchName().trim();
-    if (name) query['name'] = name;
-
-    const fee = this.maxFee();
-    if (fee) query['maxFee'] = fee;
-
-    this.publicDoctorApi.searchDoctors(query).subscribe({
-      next: (res) => {
-        this.doctors.set(res.data.doctors);
-        this.pagination.set(res.data.pagination);
-        this.loading.set(false);
-      },
-      error: (err) => {
-        this.doctors.set([]);
-        this.pagination.set({ page: 1, limit: 10, total: 0, totalPages: 0 });
-        this.error.set(this.apiErrorService.getMessage(err));
-        this.loading.set(false);
-      },
-    });
+    this.searchPage$.next(page);
   }
 
   onSearch(): void {

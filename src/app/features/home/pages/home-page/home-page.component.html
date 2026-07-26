@@ -206,11 +206,13 @@
   </div>
 </section>
 
-<app-ask-question-modal
-  [open]="askQuestionOpen()"
-  [defaultCity]="selectedCity()"
-  (closed)="closeAskQuestion()"
-/>
+@defer (when askQuestionOpen()) {
+  <app-ask-question-modal
+    [open]="askQuestionOpen()"
+    [defaultCity]="selectedCity()"
+    (closed)="closeAskQuestion()"
+  />
+}
 
 <!-- Symptoms & Diseases -->
 <section class="page-section bg-gray-50">

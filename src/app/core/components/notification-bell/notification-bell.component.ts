@@ -1,5 +1,15 @@
 import { DatePipe, isPlatformBrowser, NgClass } from '@angular/common';
-import { Component, computed, HostListener, inject, OnDestroy, OnInit, PLATFORM_ID, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  HostListener,
+  inject,
+  OnDestroy,
+  OnInit,
+  PLATFORM_ID,
+  signal,
+} from '@angular/core';
 import { Router } from '@angular/router';
 import { AppNotification } from '../../models/notification.model';
 import { AuthService } from '../../../features/auth/services/auth.service';
@@ -15,6 +25,7 @@ import {
   selector: 'app-notification-bell',
   standalone: true,
   imports: [DatePipe, NgClass],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (authService.isAuthenticated() && canSeeBell()) {
       <div class="relative" data-notification-bell>

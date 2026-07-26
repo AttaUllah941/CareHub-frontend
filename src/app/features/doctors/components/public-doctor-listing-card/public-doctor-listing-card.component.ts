@@ -1,5 +1,5 @@
-import { DecimalPipe } from '@angular/common';
-import { Component, input, signal } from '@angular/core';
+import { DecimalPipe, NgOptimizedImage } from '@angular/common';
+import { ChangeDetectionStrategy, Component, input, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { DoctorSearchResult } from '../../../../core/models/doctor.model';
 import { VideoConsultationModalComponent } from '../../../appointments/components/video-consultation-modal/video-consultation-modal.component';
@@ -8,9 +8,16 @@ import { ClinicAppointmentModalComponent } from '../../../appointments/component
 @Component({
   selector: 'app-public-doctor-listing-card',
   standalone: true,
-  imports: [RouterLink, DecimalPipe, VideoConsultationModalComponent, ClinicAppointmentModalComponent],
+  imports: [
+    RouterLink,
+    DecimalPipe,
+    NgOptimizedImage,
+    VideoConsultationModalComponent,
+    ClinicAppointmentModalComponent,
+  ],
   templateUrl: './public-doctor-listing-card.component.html',
   styleUrl: './public-doctor-listing-card.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PublicDoctorListingCardComponent {
   readonly doctor = input.required<DoctorSearchResult>();

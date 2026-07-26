@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { NotificationService } from '../../services/notification.service';
 import { LoadingService } from '../../services/loading.service';
 
@@ -6,6 +6,7 @@ import { LoadingService } from '../../services/loading.service';
   selector: 'app-global-shell',
   standalone: true,
   imports: [],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
   @if (notificationService.notification(); as toast) {
     <div

@@ -1,6 +1,6 @@
 /**
  * Writes production environment values from Netlify (or CI) env vars
- * before `ng build`. Set these in Netlify → Site settings → Environment variables:
+ * before `ng build`. Set these in Netlify ? Site settings ? Environment variables:
  *
  *   API_URL    = https://YOUR_SERVICE.onrender.com/api/v1
  *   SOCKET_URL = https://YOUR_SERVICE.onrender.com
@@ -8,8 +8,12 @@
 const fs = require('fs');
 const path = require('path');
 
-const apiUrl = (process.env.API_URL || '/api/v1').replace(/\/$/, '');
-const socketUrl = (process.env.SOCKET_URL || '').replace(/\/$/, '');
+const apiUrl = (
+  process.env.API_URL || 'https://carehub-backend-rh3r.onrender.com/api/v1'
+).replace(/\/$/, '');
+const socketUrl = (
+  process.env.SOCKET_URL || 'https://carehub-backend-rh3r.onrender.com'
+).replace(/\/$/, '');
 const apiTimeoutMs = Number(process.env.API_TIMEOUT_MS || 30000);
 
 const target = path.join(__dirname, '..', 'src', 'environments', 'environment.production.ts');

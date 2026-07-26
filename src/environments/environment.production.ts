@@ -1,7 +1,8 @@
 export const environment = {
   production: true,
   // Overwritten at Netlify build time by scripts/set-env.js (API_URL / SOCKET_URL).
-  apiUrl: '/api/v1',
-  socketUrl: '',
+  // Defaults point at the production Render API so a missing Netlify env still works.
+  apiUrl: 'https://carehub-backend-rh3r.onrender.com/api/v1',
+  socketUrl: 'https://carehub-backend-rh3r.onrender.com',
   apiTimeoutMs: 30000,
 };

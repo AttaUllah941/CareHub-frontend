@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import {
@@ -23,6 +23,7 @@ import { AskQuestionModalComponent } from '../../components/ask-question-modal/a
   imports: [RouterLink, FormsModule, IconComponent, AskQuestionModalComponent],
   templateUrl: './home-page.component.html',
   styleUrl: './home-page.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HomePageComponent implements OnInit {
   protected readonly referenceData = inject(ReferenceDataService);
