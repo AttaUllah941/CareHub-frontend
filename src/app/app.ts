@@ -17,6 +17,8 @@ export class App implements OnInit {
 
   ngOnInit(): void {
     this.authService.initSession();
-    this.referenceData.loadAll();
+    // Specialties are needed for the home shell; languages load on demand
+    // (e.g. doctor registration) to avoid competing with Render cold starts.
+    this.referenceData.loadCritical();
   }
 }

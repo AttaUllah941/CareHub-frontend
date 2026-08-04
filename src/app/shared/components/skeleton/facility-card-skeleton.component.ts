@@ -8,24 +8,20 @@ import { SkeletonBlockComponent } from './skeleton-block.component';
   imports: [SkeletonBlockComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div
-      class="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm"
-      aria-hidden="true"
-      role="presentation"
-    >
-      <app-skeleton-block class="block h-44 w-full rounded-none" />
-      <div class="p-5 space-y-3">
+    <div class="skeleton-card" aria-hidden="true" role="presentation">
+      <app-skeleton-block class="block h-40 sm:h-44 w-full !rounded-none" />
+      <div class="p-4 sm:p-5 skeleton-stack">
         <div class="flex items-start justify-between gap-3">
           <app-skeleton-block class="h-5 w-2/3" />
-          <app-skeleton-block class="h-5 w-12 rounded-full" />
+          <app-skeleton-block class="h-5 w-12 rounded-full shrink-0" />
         </div>
         <app-skeleton-block class="h-4 w-full" />
-        <app-skeleton-block class="h-3 w-4/5" />
-        <div class="flex items-center gap-3 pt-1">
-          <app-skeleton-block class="h-4 w-16" />
-          <app-skeleton-block class="h-4 w-24" />
+        <app-skeleton-block class="h-3.5 w-4/5" />
+        <div class="flex items-center gap-3 pt-0.5">
+          <app-skeleton-block class="h-4 w-16 rounded-full" />
+          <app-skeleton-block class="h-4 w-24 rounded-full" />
         </div>
-        <div class="flex flex-wrap gap-1.5 pt-1">
+        <div class="flex flex-wrap gap-2 pt-0.5">
           <app-skeleton-block class="h-5 w-16 rounded-full" />
           <app-skeleton-block class="h-5 w-20 rounded-full" />
           <app-skeleton-block class="h-5 w-14 rounded-full" />

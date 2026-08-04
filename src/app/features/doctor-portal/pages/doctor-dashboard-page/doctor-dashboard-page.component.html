@@ -10,7 +10,7 @@
     <a routerLink="/doctor/appointments" class="btn-primary btn-sm w-fit">Review appointments</a>
   </div>
 
-  <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-8">
     @for (card of [
       { label: 'Total Consultations', value: portal.stats().totalConsultations, icon: '🩺', color: 'bg-sky-50 text-sky-700' },
       { label: 'This Month', value: portal.stats().completedThisMonth, icon: '📅', color: 'bg-emerald-50 text-emerald-700' },

@@ -16,6 +16,7 @@ export const authReducer = createReducer(
       loading: true,
       error: null,
       successMessage: null,
+      devResetToken: null,
     }),
   ),
 

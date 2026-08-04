@@ -1,36 +1,36 @@
 @if (open()) {
   <div
-    class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4"
+    class="modal-overlay"
     data-backdrop="true"
     (click)="onBackdropClick($event)"
     role="dialog"
     aria-modal="true"
     aria-labelledby="clinic-appointment-title"
   >
-    <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" data-backdrop="true"></div>
+    <div class="modal-backdrop" data-backdrop="true"></div>
 
     <div
-      class="relative w-full sm:max-w-2xl max-h-[95vh] sm:max-h-[90vh] overflow-hidden bg-white rounded-t-3xl sm:rounded-2xl shadow-2xl flex flex-col"
+      class="modal-panel"
       (click)="$event.stopPropagation()"
     >
       <!-- Header -->
-      <div class="shrink-0 bg-gradient-to-r from-orange-500 to-orange-600 px-5 sm:px-6 pt-5 pb-4 text-white">
-        <div class="flex items-start justify-between gap-4">
-          <div class="min-w-0 flex items-start gap-3">
-            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/15 backdrop-blur">
+      <div class="modal-header">
+        <div class="modal-header-row">
+          <div class="modal-header-leading">
+            <div class="modal-header-icon">
               <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
               </svg>
             </div>
             <div class="min-w-0">
-              <h2 id="clinic-appointment-title" class="text-lg font-bold">Book In-Clinic Appointment</h2>
-              <p class="mt-0.5 text-sm text-orange-100">Select location, pick a slot, and confirm</p>
+              <h2 id="clinic-appointment-title" class="modal-header-title">Book In-Clinic Appointment</h2>
+              <p class="modal-header-subtitle">Select location, pick a slot, and confirm</p>
             </div>
           </div>
           <button
             type="button"
             (click)="close()"
-            class="shrink-0 rounded-xl p-2 text-white/70 hover:bg-white/15 hover:text-white transition-colors"
+            class="modal-close-btn"
             aria-label="Close"
           >
             <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -40,14 +40,14 @@
         </div>
 
         @if (!loading()) {
-          <div class="mt-4">
-            <div class="flex items-center justify-between text-xs text-orange-100 mb-1.5">
+          <div class="modal-progress">
+            <div class="modal-progress-meta">
               <span>Progress</span>
               <span class="font-semibold text-white">{{ completionPercent() }}% complete</span>
             </div>
-            <div class="h-1.5 rounded-full bg-white/20 overflow-hidden">
+            <div class="modal-progress-track">
               <div
-                class="h-full rounded-full bg-white transition-all duration-300 ease-out"
+                class="modal-progress-fill"
                 [style.width.%]="completionPercent()"
               ></div>
             </div>
@@ -56,38 +56,38 @@
       </div>
 
       <!-- Body -->
-      <div class="flex-1 overflow-y-auto px-5 sm:px-6 py-5 bg-slate-50/50">
+      <div class="modal-body">
         @if (loading()) {
           <div class="py-14 text-center">
-            <div class="inline-block h-9 w-9 animate-spin rounded-full border-4 border-orange-500 border-t-transparent"></div>
+            <div class="spinner"></div>
             <p class="mt-4 text-sm font-medium text-gray-700">Loading clinic details...</p>
             <p class="mt-1 text-xs text-gray-500">This will only take a moment</p>
           </div>
         } @else {
           @if (doctor(); as d) {
             <!-- Doctor summary -->
-            <div class="flex gap-4 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
+            <div class="modal-summary">
               @if (d.profileImageUrl) {
-                <img [src]="d.profileImageUrl" [alt]="doctorName(d)" class="h-16 w-16 rounded-2xl object-cover border-2 border-orange-100 shadow-sm shrink-0" />
+                <img [src]="d.profileImageUrl" [alt]="doctorName(d)" class="modal-avatar" />
               } @else {
-                <div class="h-16 w-16 rounded-2xl bg-gradient-to-br from-orange-100 to-amber-50 text-orange-700 flex items-center justify-center text-lg font-bold shrink-0">
+                <div class="modal-avatar-fallback">
                   {{ d.user?.firstName?.charAt(0) }}{{ d.user?.lastName?.charAt(0) }}
                 </div>
               }
               <div class="min-w-0 flex-1">
                 <p class="font-bold text-gray-900">{{ doctorName(d) }}</p>
-                <p class="text-sm text-gray-600 mt-0.5">{{ specialtyLine(d) }}</p>
+                <p class="text-sm text-gray-600 mt-0.5 line-clamp-2 break-words">{{ specialtyLine(d) }}</p>
                 @if (selectedClinic(); as clinic) {
                   <div class="mt-2 flex flex-wrap gap-2">
-                    <span class="inline-flex items-center rounded-lg bg-orange-50 px-2.5 py-1 text-xs text-orange-800">
+                    <span class="modal-chip">
                       📍 {{ clinic.name }}
                     </span>
                     @if (clinicAddressLine(clinic)) {
-                      <span class="inline-flex items-center rounded-lg bg-slate-100 px-2.5 py-1 text-xs text-slate-700">
+                      <span class="modal-chip-muted">
                         {{ clinicAddressLine(clinic) }}
                       </span>
                     }
-                    <span class="inline-flex items-center rounded-lg bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-900">
+                    <span class="modal-chip-fee">
                       {{ formatFee(clinic.fee) }}
                     </span>
                   </div>
@@ -96,21 +96,20 @@
             </div>
 
             <!-- Step 1: Select clinic -->
-            <section class="mt-5 rounded-2xl border border-gray-200 bg-white p-4 sm:p-5 shadow-sm">
-              <div class="flex items-center gap-3 mb-4">
+            <section class="modal-section mt-5">
+              <div class="modal-section-header">
                 <span
-                  class="flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold shrink-0 transition-colors"
+                  class="flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold shrink-0 transition-colors text-white"
                   [class.bg-emerald-500]="clinicSelected()"
-                  [class.text-white]="clinicSelected()"
-                  [class.bg-orange-500]="!clinicSelected()"
+                  [class.bg-primary-600]="!clinicSelected()"
                 >
                   @if (clinicSelected()) {
                     <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
                   } @else { 1 }
                 </span>
                 <div>
-                  <h3 class="text-sm font-bold text-gray-900">Select clinic or hospital</h3>
-                  <p class="text-xs text-gray-500">Choose where you want to visit the doctor</p>
+                  <h3 class="modal-step-title">Select clinic or hospital</h3>
+                  <p class="modal-step-subtitle">Choose where you want to visit the doctor</p>
                 </div>
               </div>
 
@@ -120,11 +119,11 @@
                     type="button"
                     (click)="selectClinic(clinic.id)"
                     class="w-full text-left rounded-xl border-2 p-4 transition-all"
-                    [class.border-orange-500]="selectedClinicId() === clinic.id"
-                    [class.bg-orange-50/50]="selectedClinicId() === clinic.id"
+                    [class.border-primary-600]="selectedClinicId() === clinic.id"
+                    [class.bg-primary-50/60]="selectedClinicId() === clinic.id"
                     [class.shadow-sm]="selectedClinicId() === clinic.id"
                     [class.border-gray-200]="selectedClinicId() !== clinic.id"
-                    [class.hover:border-orange-300]="selectedClinicId() !== clinic.id"
+                    [class.hover:border-primary-300]="selectedClinicId() !== clinic.id"
                     [class.bg-white]="selectedClinicId() !== clinic.id"
                   >
                     <div class="flex justify-between items-start gap-3">
@@ -160,21 +159,20 @@
             </section>
 
             <!-- Step 2: Date & time -->
-            <section class="mt-4 rounded-2xl border border-gray-200 bg-white p-4 sm:p-5 shadow-sm">
-              <div class="flex items-center gap-3 mb-4">
+            <section class="modal-section mt-5">
+              <div class="modal-section-header">
                 <span
-                  class="flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold shrink-0 transition-colors"
+                  class="flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold shrink-0 transition-colors text-white"
                   [class.bg-emerald-500]="scheduleComplete()"
-                  [class.text-white]="scheduleComplete()"
-                  [class.bg-orange-500]="!scheduleComplete()"
+                  [class.bg-primary-600]="!scheduleComplete()"
                 >
                   @if (scheduleComplete()) {
                     <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
                   } @else { 2 }
                 </span>
                 <div>
-                  <h3 class="text-sm font-bold text-gray-900">Pick date &amp; time</h3>
-                  <p class="text-xs text-gray-500">Select your preferred appointment slot</p>
+                  <h3 class="modal-step-title">Pick date &amp; time</h3>
+                  <p class="modal-step-subtitle">Select your preferred appointment slot</p>
                 </div>
               </div>
 
@@ -196,39 +194,39 @@
                     type="button"
                     (click)="selectDate(i)"
                     class="shrink-0 flex flex-col items-center rounded-xl border-2 px-3.5 py-2.5 min-w-[58px] transition-all"
-                    [class.bg-orange-500]="selectedDateIndex() === i"
+                    [class.bg-primary-600]="selectedDateIndex() === i"
                     [class.text-white]="selectedDateIndex() === i"
-                    [class.border-orange-500]="selectedDateIndex() === i"
+                    [class.border-primary-600]="selectedDateIndex() === i"
                     [class.shadow-md]="selectedDateIndex() === i"
                     [class.border-gray-200]="selectedDateIndex() !== i"
                     [class.text-gray-700]="selectedDateIndex() !== i"
-                    [class.hover:border-orange-300]="selectedDateIndex() !== i"
+                    [class.hover:border-primary-300]="selectedDateIndex() !== i"
                     [class.bg-white]="selectedDateIndex() !== i"
                   >
                     <span class="text-[10px] font-medium uppercase">{{ dateOpt.label }}</span>
                     <span class="text-base font-bold leading-tight">{{ dateOpt.day }}</span>
                     @if (dateOpt.isToday) {
-                      <span class="text-[9px] font-semibold mt-0.5" [class.text-orange-100]="selectedDateIndex() === i" [class.text-emerald-600]="selectedDateIndex() !== i">Today</span>
+                      <span class="text-[9px] font-semibold mt-0.5" [class.text-primary-100]="selectedDateIndex() === i" [class.text-emerald-600]="selectedDateIndex() !== i">Today</span>
                     }
                   </button>
                 }
               </div>
 
               <p class="mt-3 text-xs font-medium text-gray-500 mb-2">Available slots</p>
-              <div class="grid grid-cols-3 sm:grid-cols-4 gap-2">
+              <div class="slot-grid">
                 @for (slot of timeSlots(); track slot) {
                   <button
                     type="button"
                     (click)="selectTimeSlot(slot)"
                     class="rounded-xl border-2 px-2 py-2.5 text-xs font-semibold transition-all"
-                    [class.bg-orange-500]="selectedTimeSlot() === slot"
+                    [class.bg-primary-600]="selectedTimeSlot() === slot"
                     [class.text-white]="selectedTimeSlot() === slot"
-                    [class.border-orange-500]="selectedTimeSlot() === slot"
+                    [class.border-primary-600]="selectedTimeSlot() === slot"
                     [class.shadow-sm]="selectedTimeSlot() === slot"
                     [class.border-gray-200]="selectedTimeSlot() !== slot"
                     [class.text-gray-700]="selectedTimeSlot() !== slot"
                     [class.bg-white]="selectedTimeSlot() !== slot"
-                    [class.hover:border-orange-300]="selectedTimeSlot() !== slot"
+                    [class.hover:border-primary-300]="selectedTimeSlot() !== slot"
                   >
                     {{ slot }}
                   </button>
@@ -237,21 +235,20 @@
             </section>
 
             <!-- Step 3: Patient details -->
-            <section class="mt-4 rounded-2xl border border-gray-200 bg-white p-4 sm:p-5 shadow-sm">
-              <div class="flex items-center gap-3 mb-4">
+            <section class="modal-section mt-5">
+              <div class="modal-section-header">
                 <span
-                  class="flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold shrink-0 transition-colors"
+                  class="flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold shrink-0 transition-colors text-white"
                   [class.bg-emerald-500]="patientFormComplete()"
-                  [class.text-white]="patientFormComplete()"
-                  [class.bg-orange-500]="!patientFormComplete()"
+                  [class.bg-primary-600]="!patientFormComplete()"
                 >
                   @if (patientFormComplete()) {
                     <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
                   } @else { 3 }
                 </span>
                 <div>
-                  <h3 class="text-sm font-bold text-gray-900">Patient information</h3>
-                  <p class="text-xs text-gray-500">Who is this appointment for?</p>
+                  <h3 class="modal-step-title">Patient information</h3>
+                  <p class="modal-step-subtitle">Who is this appointment for?</p>
                 </div>
               </div>
 
@@ -275,7 +272,7 @@
                   }
                 </div>
 
-                <div class="grid grid-cols-2 gap-3">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <label class="block text-xs font-semibold text-gray-700 mb-1.5" for="ca-patient-age">
                       Age <span class="text-red-500">*</span>
@@ -370,14 +367,14 @@
             <section class="mt-4 rounded-2xl border-2 border-dashed p-4 sm:p-5 transition-colors"
               [class.border-emerald-300]="canConfirm()"
               [class.bg-emerald-50/40]="canConfirm()"
-              [class.border-orange-200]="!canConfirm()"
-              [class.bg-orange-50/30]="!canConfirm()"
+              [class.border-primary-200]="!canConfirm()"
+              [class.bg-primary-50/40]="!canConfirm()"
             >
               <div class="flex items-center gap-3 mb-3">
-                <span class="flex h-8 w-8 items-center justify-center rounded-full bg-orange-500 text-white text-sm font-bold shrink-0">4</span>
+                <span class="flex h-8 w-8 items-center justify-center rounded-full bg-primary-600 text-white text-sm font-bold shrink-0">4</span>
                 <div>
-                  <h3 class="text-sm font-bold text-gray-900">Review your appointment</h3>
-                  <p class="text-xs text-gray-500">Double-check everything before confirming</p>
+                  <h3 class="modal-step-title">Review your appointment</h3>
+                  <p class="modal-step-subtitle">Double-check everything before confirming</p>
                 </div>
               </div>
 
@@ -401,7 +398,7 @@
                   </div>
                   <div class="flex justify-between gap-4 py-1.5 border-b border-gray-200/60">
                     <dt class="text-gray-500">Fee</dt>
-                    <dd class="font-bold text-orange-600 text-right">{{ formatFee(clinic.fee) }}</dd>
+                    <dd class="font-bold text-primary-600 text-right">{{ formatFee(clinic.fee) }}</dd>
                   </div>
                 }
                 <div class="flex justify-between gap-4 py-1.5 border-b border-gray-200/60">
@@ -431,7 +428,7 @@
 
       <!-- Footer -->
       @if (!loading()) {
-        <div class="shrink-0 border-t border-gray-200 bg-white px-5 sm:px-6 py-4">
+        <div class="modal-footer">
           <p class="mb-3 text-xs text-center sm:text-left transition-colors"
             [class.text-emerald-600]="canConfirm()"
             [class.font-medium]="canConfirm()"
@@ -439,11 +436,11 @@
           >
             {{ footerHint() }}
           </p>
-          <div class="flex flex-col-reverse sm:flex-row gap-3 sm:justify-end">
+          <div class="modal-footer-actions">
             <button
               type="button"
               (click)="close()"
-              class="w-full sm:w-auto inline-flex items-center justify-center rounded-xl border border-gray-300 bg-white px-5 py-3 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors"
+              class="modal-btn-cancel"
             >
               Cancel
             </button>
@@ -451,13 +448,7 @@
               type="button"
               (click)="confirmAppointment()"
               [disabled]="!canConfirm() || submitting()"
-              class="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold text-white transition-all shadow-sm"
-              [class.bg-orange-500]="canConfirm()"
-              [class.hover:bg-orange-600]="canConfirm()"
-              [class.hover:shadow-md]="canConfirm()"
-              [class.bg-gray-300]="!canConfirm()"
-              [class.cursor-not-allowed]="!canConfirm()"
-              [class.text-gray-500]="!canConfirm()"
+              class="modal-btn-confirm"
             >
               <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />

@@ -69,12 +69,12 @@
       </div>
     </header>
 
-    <div class="lg:hidden overflow-x-auto scrollbar-hide border-b border-gray-200 bg-white px-3 py-2.5 flex gap-2">
+    <div class="portal-mobile-nav">
       @for (item of navItems; track item.path) {
         <a
           [routerLink]="item.path"
           routerLinkActive="bg-brand-600 text-white shadow-sm"
-          class="shrink-0 inline-flex items-center gap-1.5 rounded-full px-3.5 py-2 text-xs font-medium text-gray-600 bg-gray-100 transition-colors hover:bg-gray-200"
+          class="portal-mobile-nav-item"
         >
           <app-icon [name]="item.icon" size="xs" />
           {{ item.label }}

@@ -121,8 +121,8 @@ export class DoctorRegisterPageComponent implements OnInit {
   );
 
   ngOnInit(): void {
+    // Languages are not used on this form; avoid competing with specialty load.
     this.referenceData.loadSpecialties();
-    this.referenceData.loadLanguages();
   }
 
   addQualification(): void {

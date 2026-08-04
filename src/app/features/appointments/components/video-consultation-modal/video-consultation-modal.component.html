@@ -1,36 +1,36 @@
 @if (open()) {
   <div
-    class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4"
+    class="modal-overlay"
     data-backdrop="true"
     (click)="onBackdropClick($event)"
     role="dialog"
     aria-modal="true"
     aria-labelledby="video-consultation-title"
   >
-    <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" data-backdrop="true"></div>
+    <div class="modal-backdrop" data-backdrop="true"></div>
 
     <div
-      class="relative w-full sm:max-w-2xl max-h-[95vh] sm:max-h-[90vh] overflow-hidden bg-white rounded-t-3xl sm:rounded-2xl shadow-2xl flex flex-col"
+      class="modal-panel"
       (click)="$event.stopPropagation()"
     >
       <!-- Header -->
-      <div class="shrink-0 bg-gradient-to-r from-primary-600 to-primary-500 px-5 sm:px-6 pt-5 pb-4 text-white">
-        <div class="flex items-start justify-between gap-4">
-          <div class="min-w-0 flex items-start gap-3">
-            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/15 backdrop-blur">
+      <div class="modal-header">
+        <div class="modal-header-row">
+          <div class="modal-header-leading">
+            <div class="modal-header-icon">
               <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
               </svg>
             </div>
             <div class="min-w-0">
-              <h2 id="video-consultation-title" class="text-lg font-bold">Book Video Consultation</h2>
-              <p class="mt-0.5 text-sm text-sky-100">Choose a slot, add patient details, and confirm</p>
+              <h2 id="video-consultation-title" class="modal-header-title">Book Video Consultation</h2>
+              <p class="modal-header-subtitle">Choose a slot, add patient details, and confirm</p>
             </div>
           </div>
           <button
             type="button"
             (click)="close()"
-            class="shrink-0 rounded-xl p-2 text-white/70 hover:bg-white/15 hover:text-white transition-colors"
+            class="modal-close-btn"
             aria-label="Close"
           >
             <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -40,14 +40,14 @@
         </div>
 
         @if (!loading()) {
-          <div class="mt-4">
-            <div class="flex items-center justify-between text-xs text-sky-100 mb-1.5">
+          <div class="modal-progress">
+            <div class="modal-progress-meta">
               <span>Progress</span>
               <span class="font-semibold text-white">{{ completionPercent() }}% complete</span>
             </div>
-            <div class="h-1.5 rounded-full bg-white/20 overflow-hidden">
+            <div class="modal-progress-track">
               <div
-                class="h-full rounded-full bg-emerald-400 transition-all duration-300 ease-out"
+                class="modal-progress-fill"
                 [style.width.%]="completionPercent()"
               ></div>
             </div>
@@ -56,21 +56,21 @@
       </div>
 
       <!-- Body -->
-      <div class="flex-1 overflow-y-auto px-5 sm:px-6 py-5 bg-slate-50/50">
+      <div class="modal-body">
         @if (loading()) {
           <div class="py-14 text-center">
-            <div class="inline-block h-9 w-9 animate-spin rounded-full border-4 border-primary-600 border-t-transparent"></div>
+            <div class="spinner"></div>
             <p class="mt-4 text-sm font-medium text-gray-700">Loading doctor schedule...</p>
             <p class="mt-1 text-xs text-gray-500">This will only take a moment</p>
           </div>
         } @else {
           @if (doctor(); as d) {
             <!-- Doctor summary -->
-            <div class="flex gap-4 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
+            <div class="modal-summary">
               @if (d.profileImageUrl) {
-                <img [src]="d.profileImageUrl" [alt]="doctorName(d)" class="h-16 w-16 rounded-2xl object-cover border-2 border-sky-100 shadow-sm shrink-0" />
+                <img [src]="d.profileImageUrl" [alt]="doctorName(d)" class="modal-avatar" />
               } @else {
-                <div class="h-16 w-16 rounded-2xl bg-gradient-to-br from-sky-100 to-slate-100 text-slate-600 flex items-center justify-center text-lg font-bold shrink-0">
+                <div class="modal-avatar-fallback">
                   {{ d.user?.firstName?.charAt(0) }}{{ d.user?.lastName?.charAt(0) }}
                 </div>
               }
@@ -82,12 +82,12 @@
                     Online now
                   </span>
                 </div>
-                <p class="text-sm text-gray-600 mt-0.5">{{ specialtyLine(d) }}</p>
+                <p class="text-sm text-gray-600 mt-0.5 line-clamp-2 break-words">{{ specialtyLine(d) }}</p>
                 <div class="mt-2 flex flex-wrap gap-2">
-                  <span class="inline-flex items-center rounded-lg bg-sky-50 px-2.5 py-1 text-xs text-sky-800">
+                  <span class="modal-chip">
                     🕐 {{ consultationHours() }}
                   </span>
-                  <span class="inline-flex items-center rounded-lg bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-900">
+                  <span class="modal-chip-fee">
                     {{ formatFee(consultationFee()) }}
                   </span>
                 </div>
@@ -95,8 +95,8 @@
             </div>
 
             <!-- Step 1: Date & time -->
-            <section class="mt-5 rounded-2xl border border-gray-200 bg-white p-4 sm:p-5 shadow-sm">
-              <div class="flex items-center gap-3 mb-4">
+            <section class="modal-section mt-5">
+              <div class="modal-section-header">
                 <span
                   class="flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold shrink-0 transition-colors"
                   [class.bg-emerald-500]="scheduleComplete()"
@@ -109,8 +109,8 @@
                   } @else { 1 }
                 </span>
                 <div>
-                  <h3 class="text-sm font-bold text-gray-900">Pick a date &amp; time</h3>
-                  <p class="text-xs text-gray-500">Select when you'd like to meet the doctor</p>
+                  <h3 class="modal-step-title">Pick a date &amp; time</h3>
+                  <p class="modal-step-subtitle">Select when you'd like to meet the doctor</p>
                 </div>
               </div>
 
@@ -151,7 +151,7 @@
               </div>
 
               <p class="mt-3 text-xs font-medium text-gray-500 mb-2">Available slots</p>
-              <div class="grid grid-cols-3 gap-2">
+              <div class="slot-grid">
                 @for (slot of timeSlots(); track slot) {
                   <button
                     type="button"
@@ -173,8 +173,8 @@
             </section>
 
             <!-- Step 2: Patient details -->
-            <section class="mt-4 rounded-2xl border border-gray-200 bg-white p-4 sm:p-5 shadow-sm">
-              <div class="flex items-center gap-3 mb-4">
+            <section class="modal-section mt-5">
+              <div class="modal-section-header">
                 <span
                   class="flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold shrink-0 transition-colors"
                   [class.bg-emerald-500]="patientFormComplete()"
@@ -187,8 +187,8 @@
                   } @else { 2 }
                 </span>
                 <div>
-                  <h3 class="text-sm font-bold text-gray-900">Patient details</h3>
-                  <p class="text-xs text-gray-500">Who is this consultation for?</p>
+                  <h3 class="modal-step-title">Patient details</h3>
+                  <p class="modal-step-subtitle">Who is this consultation for?</p>
                 </div>
               </div>
 
@@ -217,7 +217,7 @@
                   }
                 </div>
 
-                <div class="grid grid-cols-2 gap-3">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <label class="block text-xs font-semibold text-gray-700 mb-1.5" for="vc-patient-age">
                       Age <span class="text-red-500">*</span>
@@ -313,13 +313,13 @@
               [class.border-emerald-300]="canConfirm()"
               [class.bg-emerald-50/40]="canConfirm()"
               [class.border-primary-200]="!canConfirm()"
-              [class.bg-sky-50/30]="!canConfirm()"
+              [class.bg-primary-50/30]="!canConfirm()"
             >
               <div class="flex items-center gap-3 mb-3">
                 <span class="flex h-8 w-8 items-center justify-center rounded-full bg-primary-600 text-white text-sm font-bold shrink-0">3</span>
                 <div>
-                  <h3 class="text-sm font-bold text-gray-900">Review your booking</h3>
-                  <p class="text-xs text-gray-500">Double-check everything before confirming</p>
+                  <h3 class="modal-step-title">Review your booking</h3>
+                  <p class="modal-step-subtitle">Double-check everything before confirming</p>
                 </div>
               </div>
 
@@ -362,7 +362,7 @@
 
       <!-- Footer -->
       @if (!loading()) {
-        <div class="shrink-0 border-t border-gray-200 bg-white px-5 sm:px-6 py-4">
+        <div class="modal-footer">
           <p class="mb-3 text-xs text-center sm:text-left transition-colors"
             [class.text-emerald-600]="canConfirm()"
             [class.font-medium]="canConfirm()"
@@ -370,11 +370,11 @@
           >
             {{ footerHint() }}
           </p>
-          <div class="flex flex-col-reverse sm:flex-row gap-3 sm:justify-end">
+          <div class="modal-footer-actions">
             <button
               type="button"
               (click)="close()"
-              class="w-full sm:w-auto inline-flex items-center justify-center rounded-xl border border-gray-300 bg-white px-5 py-3 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors"
+              class="modal-btn-cancel"
             >
               Cancel
             </button>
@@ -382,13 +382,7 @@
               type="button"
               (click)="confirmConsultation()"
               [disabled]="!canConfirm() || submitting()"
-              class="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold text-white transition-all shadow-sm"
-              [class.bg-primary-600]="canConfirm()"
-              [class.hover:bg-primary-700]="canConfirm()"
-              [class.hover:shadow-md]="canConfirm()"
-              [class.bg-gray-300]="!canConfirm()"
-              [class.cursor-not-allowed]="!canConfirm()"
-              [class.text-gray-500]="!canConfirm()"
+              class="modal-btn-confirm"
             >
               <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />

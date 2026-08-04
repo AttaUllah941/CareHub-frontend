@@ -1,8 +1,8 @@
 @if (doctor(); as d) {
-  <article class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+  <article class="w-full max-w-4xl mx-auto bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden hover:shadow-md transition-shadow">
     <!-- Profile header -->
-    <div class="p-5 sm:p-6">
-      <div class="flex flex-col lg:flex-row gap-5">
+    <div class="p-4 sm:p-5 lg:p-6">
+      <div class="flex flex-col md:flex-row gap-4 md:gap-5">
         <!-- Avatar -->
         <a [routerLink]="doctorProfileLink()" [queryParams]="doctorProfileQueryParams()" class="shrink-0 self-start">
           @if (d.profileImageUrl) {
@@ -26,7 +26,7 @@
             <a
               [routerLink]="doctorProfileLink()"
               [queryParams]="doctorProfileQueryParams()"
-              class="text-lg sm:text-xl font-bold text-gray-900 hover:text-brand-600 transition-colors"
+              class="text-lg sm:text-xl font-bold text-gray-900 hover:text-brand-600 transition-colors break-words"
             >
               {{ doctorName(d) }}
             </a>
@@ -44,9 +44,9 @@
             PMC Verified
           </p>
 
-          <p class="mt-1 text-sm text-gray-700">{{ specialtyLine(d) }}</p>
+          <p class="mt-1 text-sm text-gray-700 line-clamp-2 break-words">{{ specialtyLine(d) }}</p>
           @if (degreeLine(d)) {
-            <p class="mt-0.5 text-sm text-gray-500">{{ degreeLine(d) }}</p>
+            <p class="mt-0.5 text-sm text-gray-500 line-clamp-2 break-words">{{ degreeLine(d) }}</p>
           }
 
           <div class="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-gray-600">
@@ -66,21 +66,21 @@
         </div>
 
         <!-- Actions -->
-        <div class="flex flex-row lg:flex-col gap-2 shrink-0 lg:w-48">
+        <div class="flex flex-col sm:flex-row md:flex-col gap-2 shrink-0 w-full md:w-44 lg:w-48">
           <button
             type="button"
             (click)="openVideoModal()"
-            class="flex-1 lg:flex-none inline-flex items-center justify-center gap-2 rounded-lg border-2 border-primary-600 bg-white px-4 py-2.5 text-sm font-semibold text-primary-600 hover:bg-sky-50 transition-colors text-center"
+            class="w-full inline-flex items-center justify-center gap-2 rounded-lg border-2 border-primary-600 bg-white px-4 py-2.5 text-sm font-semibold text-primary-600 hover:bg-sky-50 transition-colors text-center min-h-11"
           >
             <svg class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
             </svg>
-            Video Consultation
+            <span class="truncate">Video Consultation</span>
           </button>
           <button
             type="button"
             (click)="openAppointmentModal()"
-            class="flex-1 lg:flex-none inline-flex items-center justify-center rounded-lg bg-orange-500 px-4 py-2.5 text-sm font-semibold text-white hover:bg-orange-600 transition-colors text-center shadow-sm"
+            class="w-full inline-flex items-center justify-center rounded-lg bg-orange-500 px-4 py-2.5 text-sm font-semibold text-white hover:bg-orange-600 transition-colors text-center shadow-sm min-h-11"
           >
             Book Appointment
           </button>
@@ -89,66 +89,67 @@
     </div>
 
     <!-- Consultation slots -->
-    <div class="border-t border-gray-100 bg-gray-50/60 px-5 sm:px-6 py-4">
-      <div class="flex gap-3 overflow-x-auto pb-1 scrollbar-hide">
+    <div class="border-t border-gray-100 bg-gray-50/60 px-4 sm:px-5 lg:px-6 py-4">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 items-start">
         <!-- Video consultation -->
         <button
           type="button"
           (click)="openVideoModal()"
-          class="shrink-0 w-56 sm:w-60 rounded-lg border-2 border-primary-200 bg-white overflow-hidden text-left hover:border-primary-300 hover:shadow-sm transition-all cursor-pointer"
+          class="relative w-full rounded-lg border-2 border-primary-200 bg-white p-3.5 sm:p-4 text-left hover:border-primary-300 hover:shadow-sm transition-all cursor-pointer"
         >
-          <div class="p-3 relative">
-            <p class="text-sm font-semibold text-gray-900 pr-2">Online Video Consultation</p>
-            <p class="mt-2 flex items-center gap-1.5 text-xs text-emerald-600 font-medium">
-              <span class="h-2 w-2 rounded-full bg-emerald-500 shrink-0"></span>
-              Available Today
-            </p>
-            <p class="mt-2 text-sm font-bold text-gray-900">{{ formatFee(d) }}</p>
-          </div>
           @if (showDiscount(rank())) {
-            <div class="bg-primary-600 px-3 py-1.5 text-center text-[10px] font-semibold text-white">
-              Upto 15% OFF
-            </div>
+            <span class="absolute top-2.5 right-2.5 z-10 rounded-md bg-primary-600 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">
+              15% OFF
+            </span>
           }
+          <p class="text-sm font-semibold text-gray-900 line-clamp-2 pr-14">Online Video Consultation</p>
+          <p class="mt-1 text-xs text-gray-500 line-clamp-2">Consult online with PMC verified doctors</p>
+          <p class="mt-2.5 flex items-center gap-1.5 text-xs text-emerald-600 font-medium">
+            <span class="h-2 w-2 rounded-full bg-emerald-500 shrink-0"></span>
+            Available Today
+          </p>
+          <p class="mt-1.5 text-sm font-bold text-gray-900">{{ formatFee(d) }}</p>
         </button>
 
         @for (clinic of d.clinics ?? []; track clinic.id; let ci = $index) {
           <button
             type="button"
             (click)="openAppointmentModal(clinic.id)"
-            class="shrink-0 w-64 sm:w-72 rounded-lg border-2 border-primary-200 bg-white overflow-hidden text-left hover:border-orange-300 hover:shadow-sm transition-all cursor-pointer"
+            class="relative w-full rounded-lg border-2 border-primary-200 bg-white p-3.5 sm:p-4 text-left hover:border-orange-300 hover:shadow-sm transition-all cursor-pointer"
           >
-            <div class="p-3">
-              <p class="text-sm font-semibold text-gray-900 line-clamp-2">{{ clinic.name }}</p>
-              @if (clinic.address) {
-                <p class="mt-1 text-xs text-gray-500 line-clamp-2">{{ clinic.address }}</p>
-              }
-              <p class="mt-1 text-xs text-gray-500">{{ clinic.city }}</p>
-              <p class="mt-2 flex items-center gap-1.5 text-xs text-emerald-600 font-medium">
-                <span class="h-2 w-2 rounded-full bg-emerald-500 shrink-0"></span>
-                Available Today
-              </p>
-              <p class="mt-2 text-sm font-bold text-gray-900">{{ formatFee(d) }}</p>
-            </div>
             @if (showDiscount(ci + 1)) {
-              <div class="bg-primary-600 px-3 py-1.5 text-center text-[10px] font-semibold text-white">
-                Upto 15% OFF
-              </div>
+              <span class="absolute top-2.5 right-2.5 z-10 rounded-md bg-primary-600 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">
+                15% OFF
+              </span>
             }
+            <p class="text-sm font-semibold text-gray-900 line-clamp-2 pr-14">{{ clinic.name }}</p>
+            <p class="mt-1 text-xs text-gray-500 line-clamp-2 break-words">
+              @if (clinic.address) {
+                {{ clinic.address }}{{ clinic.city ? ', ' + clinic.city : '' }}
+              } @else {
+                {{ clinic.city || 'Clinic visit' }}
+              }
+            </p>
+            <p class="mt-2.5 flex items-center gap-1.5 text-xs text-emerald-600 font-medium">
+              <span class="h-2 w-2 rounded-full bg-emerald-500 shrink-0"></span>
+              Available Today
+            </p>
+            <p class="mt-1.5 text-sm font-bold text-gray-900">{{ formatFee(d) }}</p>
           </button>
         } @empty {
           @if (d.city) {
             <button
               type="button"
               (click)="openAppointmentModal()"
-              class="shrink-0 w-56 sm:w-60 rounded-lg border-2 border-primary-200 bg-white p-3 text-left hover:border-orange-300 hover:shadow-sm transition-all cursor-pointer"
+              class="relative w-full rounded-lg border-2 border-primary-200 bg-white p-3.5 sm:p-4 text-left hover:border-orange-300 hover:shadow-sm transition-all cursor-pointer"
             >
-              <p class="text-sm font-semibold text-gray-900">{{ d.city }} Clinic</p>
-              <p class="mt-2 flex items-center gap-1.5 text-xs text-emerald-600 font-medium">
+              <p class="text-sm font-semibold text-gray-900 line-clamp-2">{{ d.city }} Clinic</p>
+              <p class="mt-1 text-xs text-gray-500 line-clamp-2">In-clinic appointment in {{ d.city }}</p>
+              <p class="mt-2.5 flex items-center gap-1.5 text-xs text-emerald-600 font-medium">
                 <span class="h-2 w-2 rounded-full bg-emerald-500 shrink-0"></span>
                 Available Today
               </p>
-              <p class="mt-2 text-sm font-bold text-gray-900">{{ formatFee(d) }}</p>
+              <p class="mt-1.5 text-sm font-bold text-gray-900">{{ formatFee(d) }}</p>
             </button>
           }
         }

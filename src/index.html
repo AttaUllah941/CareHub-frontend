@@ -8,9 +8,24 @@
   <meta name="description" content="Find the best doctor near you. Book in-clinic appointments, video consultations, lab tests, and medicines across Pakistan.">
   <link rel="icon" type="image/png" href="brand/favicon-64.png">
   <!-- <link rel="apple-touch-icon" href="brand/carehub-icon-256.png"> -->
+  <!-- Warm DNS/TLS to the production API host (Render) as early as possible -->
+  <link rel="preconnect" href="https://carehub-backend-rh3r.onrender.com" crossorigin>
+  <link rel="dns-prefetch" href="https://carehub-backend-rh3r.onrender.com">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script>
+    /* Earliest possible API wake for production deploys (overlaps HTML/CSS download). */
+    (function () {
+      try {
+        var host = location.hostname;
+        if (host === 'localhost' || host === '127.0.0.1') return;
+        var origin = 'https://carehub-backend-rh3r.onrender.com';
+        var opts = { method: 'GET', mode: 'cors', credentials: 'omit', cache: 'no-store' };
+        fetch(origin + '/health', opts).catch(function () {});
+      } catch (e) {}
+    })();
+  </script>
 </head>
 <body>
   <app-root></app-root>

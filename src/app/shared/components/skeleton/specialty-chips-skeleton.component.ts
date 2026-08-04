@@ -9,15 +9,15 @@ import { SkeletonBlockComponent } from './skeleton-block.component';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div
-      class="mt-10 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 max-w-6xl mx-auto"
+      class="mt-8 sm:mt-10 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-4 max-w-6xl mx-auto"
       aria-busy="true"
       aria-live="polite"
     >
       <span class="sr-only">Loading specialties…</span>
       @for (i of chips(); track i) {
-        <div class="card text-left p-4 space-y-2">
-          <app-skeleton-block class="h-8 w-8 rounded-lg" />
-          <app-skeleton-block class="h-4 w-28 mt-2" />
+        <div class="skeleton-card p-4 sm:p-5 skeleton-stack-sm">
+          <app-skeleton-block class="h-8 w-8 rounded-xl" />
+          <app-skeleton-block class="h-4 w-24 sm:w-28 mt-1" />
           <app-skeleton-block class="h-3 w-full" />
           <app-skeleton-block class="h-3 w-4/5" />
         </div>

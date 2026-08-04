@@ -1,36 +1,36 @@
 @if (open()) {
   <div
-    class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4"
+    class="modal-overlay"
     data-backdrop="true"
     (click)="onBackdropClick($event)"
     role="dialog"
     aria-modal="true"
     aria-labelledby="surgery-booking-title"
   >
-    <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" data-backdrop="true"></div>
+    <div class="modal-backdrop" data-backdrop="true"></div>
 
     <div
-      class="relative w-full sm:max-w-2xl max-h-[95vh] sm:max-h-[90vh] overflow-hidden bg-white rounded-t-3xl sm:rounded-2xl shadow-2xl flex flex-col"
+      class="modal-panel"
       (click)="$event.stopPropagation()"
     >
       <!-- Header -->
-      <div class="shrink-0 bg-gradient-to-r from-primary-600 to-rose-700 px-5 sm:px-6 pt-5 pb-4 text-white">
-        <div class="flex items-start justify-between gap-4">
-          <div class="min-w-0 flex items-start gap-3">
-            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/15 backdrop-blur">
+      <div class="modal-header">
+        <div class="modal-header-row">
+          <div class="modal-header-leading">
+            <div class="modal-header-icon">
               <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
               </svg>
             </div>
             <div class="min-w-0">
-              <h2 id="surgery-booking-title" class="text-lg font-bold">Book Surgery Consultation</h2>
-              <p class="mt-0.5 text-sm text-rose-100 line-clamp-1">{{ surgery().name }}</p>
+              <h2 id="surgery-booking-title" class="modal-header-title">Book Surgery Consultation</h2>
+              <p class="modal-header-subtitle">{{ surgery().name }}</p>
             </div>
           </div>
           <button
             type="button"
             (click)="close()"
-            class="shrink-0 rounded-xl p-2 text-white/70 hover:bg-white/15 hover:text-white transition-colors"
+            class="modal-close-btn"
             aria-label="Close"
           >
             <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -39,14 +39,14 @@
           </button>
         </div>
 
-        <div class="mt-4">
-          <div class="flex items-center justify-between text-xs text-rose-100 mb-1.5">
+        <div class="modal-progress">
+          <div class="modal-progress-meta">
             <span>Progress</span>
             <span class="font-semibold text-white">{{ completionPercent() }}% complete</span>
           </div>
-          <div class="h-1.5 rounded-full bg-white/25 overflow-hidden">
+          <div class="modal-progress-track">
             <div
-              class="h-full rounded-full bg-rose-200 transition-all duration-300 ease-out"
+              class="modal-progress-fill"
               [style.width.%]="completionPercent()"
             ></div>
           </div>
@@ -54,12 +54,12 @@
       </div>
 
       <!-- Body -->
-      <div class="flex-1 overflow-y-auto px-5 sm:px-6 py-5 bg-slate-50/50">
+      <div class="modal-body">
         <!-- Surgery & hospital summary -->
-        <div class="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
+        <div class="modal-section">
           <div class="flex flex-wrap items-start justify-between gap-3">
             <div class="min-w-0 flex-1">
-              <span class="inline-flex rounded-full bg-rose-50 border border-rose-200 px-2.5 py-0.5 text-[10px] font-semibold text-rose-700 uppercase tracking-wide">
+              <span class="inline-flex rounded-full bg-primary-50 border border-primary-200 px-2.5 py-0.5 text-[10px] font-semibold text-primary-700 uppercase tracking-wide">
                 {{ surgery().category }}
               </span>
               <h3 class="mt-2 text-base font-bold text-gray-900">{{ surgery().name }}</h3>
@@ -93,8 +93,8 @@
         </div>
 
         <!-- Step 1: Surgeon -->
-        <section class="mt-5 rounded-2xl border border-gray-200 bg-white p-4 sm:p-5 shadow-sm">
-          <div class="flex items-center gap-3 mb-4">
+        <section class="modal-section mt-5">
+          <div class="modal-section-header">
             <span
               class="flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold shrink-0 transition-colors text-white"
               [class.bg-emerald-500]="surgeonSelected()"
@@ -105,8 +105,8 @@
               } @else { 1 }
             </span>
             <div>
-              <h3 class="text-sm font-bold text-gray-900">Select surgeon</h3>
-              <p class="text-xs text-gray-500">Choose a specialist for your surgical consultation</p>
+              <h3 class="modal-step-title">Select surgeon</h3>
+              <p class="modal-step-subtitle">Choose a specialist for your surgical consultation</p>
             </div>
           </div>
 
@@ -117,7 +117,7 @@
                 (click)="selectSurgeon(surgeon.id)"
                 class="w-full text-left rounded-xl border-2 p-4 transition-all"
                 [class.border-primary-600]="selectedSurgeonId() === surgeon.id"
-                [class.bg-sky-50/60]="selectedSurgeonId() === surgeon.id"
+                [class.bg-primary-50/60]="selectedSurgeonId() === surgeon.id"
                 [class.shadow-sm]="selectedSurgeonId() === surgeon.id"
                 [class.border-gray-200]="selectedSurgeonId() !== surgeon.id"
                 [class.hover:border-sky-300]="selectedSurgeonId() !== surgeon.id"
@@ -148,8 +148,8 @@
         </section>
 
         <!-- Step 2: Consultation date & time -->
-        <section class="mt-4 rounded-2xl border border-gray-200 bg-white p-4 sm:p-5 shadow-sm">
-          <div class="flex items-center gap-3 mb-4">
+        <section class="modal-section mt-5">
+          <div class="modal-section-header">
             <span
               class="flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold shrink-0 transition-colors text-white"
               [class.bg-emerald-500]="scheduleComplete()"
@@ -160,8 +160,8 @@
               } @else { 2 }
             </span>
             <div>
-              <h3 class="text-sm font-bold text-gray-900">Schedule consultation</h3>
-              <p class="text-xs text-gray-500">Pick a date and time for your pre-surgery consultation</p>
+              <h3 class="modal-step-title">Schedule consultation</h3>
+              <p class="modal-step-subtitle">Pick a date and time for your pre-surgery consultation</p>
             </div>
           </div>
 
@@ -202,7 +202,7 @@
           </div>
 
           <p class="mt-3 text-xs font-medium text-gray-500 mb-2">Available consultation slots</p>
-          <div class="grid grid-cols-3 sm:grid-cols-4 gap-2">
+          <div class="slot-grid">
             @for (slot of consultationSlots; track slot) {
               <button
                 type="button"
@@ -224,8 +224,8 @@
         </section>
 
         <!-- Step 3: Pre-surgery requirements -->
-        <section class="mt-4 rounded-2xl border border-gray-200 bg-white p-4 sm:p-5 shadow-sm">
-          <div class="flex items-center gap-3 mb-4">
+        <section class="modal-section mt-5">
+          <div class="modal-section-header">
             <span
               class="flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold shrink-0 transition-colors text-white"
               [class.bg-emerald-500]="requirementsAcknowledged()"
@@ -236,8 +236,8 @@
               } @else { 3 }
             </span>
             <div>
-              <h3 class="text-sm font-bold text-gray-900">Pre-surgery requirements</h3>
-              <p class="text-xs text-gray-500">Please review before submitting your request</p>
+              <h3 class="modal-step-title">Pre-surgery requirements</h3>
+              <p class="modal-step-subtitle">Please review before submitting your request</p>
             </div>
           </div>
 
@@ -272,8 +272,8 @@
         </section>
 
         <!-- Step 4: Patient details -->
-        <section class="mt-4 rounded-2xl border border-gray-200 bg-white p-4 sm:p-5 shadow-sm">
-          <div class="flex items-center gap-3 mb-4">
+        <section class="modal-section mt-5">
+          <div class="modal-section-header">
             <span
               class="flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold shrink-0 transition-colors text-white"
               [class.bg-emerald-500]="patientFormComplete()"
@@ -284,8 +284,8 @@
               } @else { 4 }
             </span>
             <div>
-              <h3 class="text-sm font-bold text-gray-900">Patient information</h3>
-              <p class="text-xs text-gray-500">Who is this surgery consultation for?</p>
+              <h3 class="modal-step-title">Patient information</h3>
+              <p class="modal-step-subtitle">Who is this surgery consultation for?</p>
             </div>
           </div>
 
@@ -309,7 +309,7 @@
               }
             </div>
 
-            <div class="grid grid-cols-2 gap-3">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label class="block text-xs font-semibold text-gray-700 mb-1.5" for="sg-patient-age">
                   Age <span class="text-red-500">*</span>
@@ -416,13 +416,13 @@
           [class.border-emerald-300]="canConfirm()"
           [class.bg-emerald-50/40]="canConfirm()"
           [class.border-sky-200]="!canConfirm()"
-          [class.bg-sky-50/30]="!canConfirm()"
+          [class.bg-primary-50/40]="!canConfirm()"
         >
           <div class="flex items-center gap-3 mb-3">
             <span class="flex h-8 w-8 items-center justify-center rounded-full bg-primary-600 text-white text-sm font-bold shrink-0">5</span>
             <div>
-              <h3 class="text-sm font-bold text-gray-900">Review booking request</h3>
-              <p class="text-xs text-gray-500">Confirm all details before submitting</p>
+              <h3 class="modal-step-title">Review booking request</h3>
+              <p class="modal-step-subtitle">Confirm all details before submitting</p>
             </div>
           </div>
 
@@ -470,7 +470,7 @@
       </div>
 
       <!-- Footer -->
-      <div class="shrink-0 border-t border-gray-200 bg-white px-5 sm:px-6 py-4">
+      <div class="modal-footer">
         <p class="mb-3 text-xs text-center sm:text-left transition-colors"
           [class.text-emerald-600]="canConfirm()"
           [class.font-medium]="canConfirm()"
@@ -478,11 +478,11 @@
         >
           {{ footerHint() }}
         </p>
-        <div class="flex flex-col-reverse sm:flex-row gap-3 sm:justify-end">
+        <div class="modal-footer-actions">
           <button
             type="button"
             (click)="close()"
-            class="w-full sm:w-auto inline-flex items-center justify-center rounded-xl border border-gray-300 bg-white px-5 py-3 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors"
+            class="modal-btn-cancel"
           >
             Cancel
           </button>
@@ -490,13 +490,7 @@
             type="button"
             (click)="submitBooking()"
             [disabled]="!canConfirm() || submitting()"
-            class="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold text-white transition-all shadow-sm"
-            [class.bg-rose-600]="canConfirm()"
-            [class.hover:bg-rose-700]="canConfirm()"
-            [class.hover:shadow-md]="canConfirm()"
-            [class.bg-gray-300]="!canConfirm()"
-            [class.cursor-not-allowed]="!canConfirm()"
-            [class.text-gray-500]="!canConfirm()"
+            class="modal-btn-confirm"
           >
             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
