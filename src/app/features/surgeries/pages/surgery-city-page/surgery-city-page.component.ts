@@ -4,6 +4,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { SurgeryHospitalView } from '../../../../core/models/surgery.model';
 import { ApiErrorService } from '../../../../core/services/api-error.service';
 import { FacilityCardSkeletonComponent } from '../../../../shared/components/skeleton';
+import { FacilityImageComponent } from '../../../../shared/components/facility-image/facility-image.component';
 import { citySlugFromParamMap } from '../../../../shared/utils/city-route.util';
 import {
   cityNameFromSlug,
@@ -16,7 +17,7 @@ import { SurgeriesApiService } from '../../services/surgeries-api.service';
 @Component({
   selector: 'app-surgery-city-page',
   standalone: true,
-  imports: [RouterLink, FacilityCardSkeletonComponent],
+  imports: [RouterLink, FacilityCardSkeletonComponent, FacilityImageComponent],
   templateUrl: './surgery-city-page.component.html',
   styleUrl: './surgery-city-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

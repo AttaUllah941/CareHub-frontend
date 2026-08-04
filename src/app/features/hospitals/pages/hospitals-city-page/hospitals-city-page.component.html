@@ -31,7 +31,12 @@
             class="group bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-lg hover:border-brand-200 transition-all"
           >
             <div class="h-44 overflow-hidden bg-gray-100">
-              <img [src]="hospital.imageUrl" [alt]="hospital.name" class="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300" />
+              <app-facility-image
+                [src]="hospital.imageUrl"
+                [alt]="hospital.name"
+                kind="hospital"
+                [hoverZoom]="true"
+              />
             </div>
             <div class="p-5">
               <div class="flex items-start justify-between gap-3">

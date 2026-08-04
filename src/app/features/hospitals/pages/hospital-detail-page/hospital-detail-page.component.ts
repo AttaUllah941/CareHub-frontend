@@ -6,6 +6,7 @@ import { PublicHospitalView } from '../../../../core/models/hospital.model';
 import { ApiErrorService } from '../../../../core/services/api-error.service';
 import { PublicDoctorListingCardComponent } from '../../../doctors/components/public-doctor-listing-card/public-doctor-listing-card.component';
 import { FacilityDetailSkeletonComponent } from '../../../../shared/components/skeleton';
+import { FacilityImageComponent } from '../../../../shared/components/facility-image/facility-image.component';
 import {
   cityNameFromSlug,
   doctorSummaryToSearchResult,
@@ -16,7 +17,7 @@ import { HospitalsApiService } from '../../services/hospitals-api.service';
 @Component({
   selector: 'app-hospital-detail-page',
   standalone: true,
-  imports: [RouterLink, PublicDoctorListingCardComponent, FacilityDetailSkeletonComponent],
+  imports: [RouterLink, PublicDoctorListingCardComponent, FacilityDetailSkeletonComponent, FacilityImageComponent],
   templateUrl: './hospital-detail-page.component.html',
   styleUrl: './hospital-detail-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

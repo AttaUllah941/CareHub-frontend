@@ -4,6 +4,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { PublicLab } from '../../../../core/models/lab.model';
 import { ApiErrorService } from '../../../../core/services/api-error.service';
 import { FacilityCardSkeletonComponent } from '../../../../shared/components/skeleton';
+import { FacilityImageComponent } from '../../../../shared/components/facility-image/facility-image.component';
 import { citySlugFromParamMap } from '../../../../shared/utils/city-route.util';
 import { cityNameFromSlug, toPublicLabView } from '../../../marketplace/utils/marketplace-display.util';
 import { LabsApiService } from '../../services/labs-api.service';
@@ -11,7 +12,7 @@ import { LabsApiService } from '../../services/labs-api.service';
 @Component({
   selector: 'app-labs-city-page',
   standalone: true,
-  imports: [RouterLink, FacilityCardSkeletonComponent],
+  imports: [RouterLink, FacilityCardSkeletonComponent, FacilityImageComponent],
   templateUrl: './labs-city-page.component.html',
   styleUrl: './labs-city-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -4,6 +4,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { PublicPharmacyView } from '../../../../core/models/medicine.model';
 import { ApiErrorService } from '../../../../core/services/api-error.service';
 import { FacilityCardSkeletonComponent } from '../../../../shared/components/skeleton';
+import { FacilityImageComponent } from '../../../../shared/components/facility-image/facility-image.component';
 import { citySlugFromParamMap } from '../../../../shared/utils/city-route.util';
 import {
   cityNameFromSlug,
@@ -15,7 +16,7 @@ import { MedicinesApiService } from '../../services/medicines-api.service';
 @Component({
   selector: 'app-medicines-city-page',
   standalone: true,
-  imports: [RouterLink, FacilityCardSkeletonComponent],
+  imports: [RouterLink, FacilityCardSkeletonComponent, FacilityImageComponent],
   templateUrl: './medicines-city-page.component.html',
   styleUrl: './medicines-city-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

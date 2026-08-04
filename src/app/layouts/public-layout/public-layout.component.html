@@ -18,7 +18,7 @@
               [attr.aria-expanded]="doctorsDropdownOpen()"
               aria-haspopup="true"
             >
-              <app-icon name="doctors" size="sm" />
+              <app-icon name="doctors" size="lg" />
               Find Doctors
               <span class="transition-transform text-slate-400" [class.rotate-180]="doctorsDropdownOpen()">
                 <app-icon name="chevron-down" size="xs" />
@@ -60,7 +60,7 @@
               [attr.aria-expanded]="hospitalsDropdownOpen()"
               aria-haspopup="true"
             >
-              <app-icon name="hospitals" size="sm" />
+              <app-icon name="hospitals" size="lg" />
               Hospitals
               <span class="transition-transform text-slate-400" [class.rotate-180]="hospitalsDropdownOpen()">
                 <app-icon name="chevron-down" size="xs" />
@@ -101,7 +101,7 @@
               [attr.aria-expanded]="labsDropdownOpen()"
               aria-haspopup="true"
             >
-              <app-icon name="labs" size="sm" />
+              <app-icon name="labs" size="lg" />
               Labs
               <span class="transition-transform text-slate-400" [class.rotate-180]="labsDropdownOpen()">
                 <app-icon name="chevron-down" size="xs" />
@@ -142,7 +142,7 @@
               [attr.aria-expanded]="surgeryDropdownOpen()"
               aria-haspopup="true"
             >
-              <app-icon name="surgery" size="sm" />
+              <app-icon name="surgery" size="lg" />
               Surgery
               <span class="transition-transform text-slate-400" [class.rotate-180]="surgeryDropdownOpen()">
                 <app-icon name="chevron-down" size="xs" />
@@ -175,7 +175,7 @@
 
           @for (link of navLinks; track link.label) {
             <a [routerLink]="link.href" routerLinkActive="nav-link-active" class="nav-link">
-              <app-icon name="medicines" size="sm" />
+              <app-icon name="medicines" size="lg" />
               {{ link.label }}
             </a>
           }
