@@ -6,6 +6,7 @@ import { PharmacyMedicine, PublicPharmacyView } from '../../../../core/models/me
 import { ApiErrorService } from '../../../../core/services/api-error.service';
 import { PaginationComponent } from '../../../../shared/components/pagination/pagination.component';
 import { FacilityDetailSkeletonComponent } from '../../../../shared/components/skeleton';
+import { FacilityImageComponent } from '../../../../shared/components/facility-image/facility-image.component';
 import { PublicMedicineCardComponent } from '../../components/public-medicine-card/public-medicine-card.component';
 import {
   cityNameFromSlug,
@@ -20,7 +21,14 @@ const MEDICINES_PER_PAGE = 9;
 @Component({
   selector: 'app-pharmacy-detail-page',
   standalone: true,
-  imports: [RouterLink, FormsModule, PublicMedicineCardComponent, PaginationComponent, FacilityDetailSkeletonComponent],
+  imports: [
+    RouterLink,
+    FormsModule,
+    PublicMedicineCardComponent,
+    PaginationComponent,
+    FacilityDetailSkeletonComponent,
+    FacilityImageComponent,
+  ],
   templateUrl: './pharmacy-detail-page.component.html',
   styleUrl: './pharmacy-detail-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

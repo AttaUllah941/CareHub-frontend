@@ -18,9 +18,9 @@
               [attr.aria-expanded]="doctorsDropdownOpen()"
               aria-haspopup="true"
             >
-              <app-icon name="doctors" size="sm" />
+              <app-icon name="doctors" size="lg" />
               Find Doctors
-              <span class="transition-transform text-slate-400" [class.rotate-180]="doctorsDropdownOpen()">
+              <span class="nav-chevron transition-transform" [class.rotate-180]="doctorsDropdownOpen()">
                 <app-icon name="chevron-down" size="xs" />
               </span>
             </button>
@@ -60,9 +60,9 @@
               [attr.aria-expanded]="hospitalsDropdownOpen()"
               aria-haspopup="true"
             >
-              <app-icon name="hospitals" size="sm" />
+              <app-icon name="hospitals" size="lg" />
               Hospitals
-              <span class="transition-transform text-slate-400" [class.rotate-180]="hospitalsDropdownOpen()">
+              <span class="nav-chevron transition-transform" [class.rotate-180]="hospitalsDropdownOpen()">
                 <app-icon name="chevron-down" size="xs" />
               </span>
             </button>
@@ -101,9 +101,9 @@
               [attr.aria-expanded]="labsDropdownOpen()"
               aria-haspopup="true"
             >
-              <app-icon name="labs" size="sm" />
+              <app-icon name="labs" size="lg" />
               Labs
-              <span class="transition-transform text-slate-400" [class.rotate-180]="labsDropdownOpen()">
+              <span class="nav-chevron transition-transform" [class.rotate-180]="labsDropdownOpen()">
                 <app-icon name="chevron-down" size="xs" />
               </span>
             </button>
@@ -142,9 +142,9 @@
               [attr.aria-expanded]="surgeryDropdownOpen()"
               aria-haspopup="true"
             >
-              <app-icon name="surgery" size="sm" />
+              <app-icon name="surgery" size="lg" />
               Surgery
-              <span class="transition-transform text-slate-400" [class.rotate-180]="surgeryDropdownOpen()">
+              <span class="nav-chevron transition-transform" [class.rotate-180]="surgeryDropdownOpen()">
                 <app-icon name="chevron-down" size="xs" />
               </span>
             </button>
@@ -175,7 +175,7 @@
 
           @for (link of navLinks; track link.label) {
             <a [routerLink]="link.href" routerLinkActive="nav-link-active" class="nav-link">
-              <app-icon name="medicines" size="sm" />
+              <app-icon name="medicines" size="lg" />
               {{ link.label }}
             </a>
           }
@@ -206,7 +206,7 @@
             >
               <app-icon name="record" size="sm" />
               Records
-              <span class="transition-transform text-slate-400" [class.rotate-180]="recordDropdownOpen()">
+              <span class="nav-chevron transition-transform" [class.rotate-180]="recordDropdownOpen()">
                 <app-icon name="chevron-down" size="xs" />
               </span>
             </button>
@@ -343,7 +343,7 @@
               <span class="inline-flex items-center gap-2">
                 <app-icon name="record" size="sm" /> Records
               </span>
-              <span class="text-slate-400 transition-transform" [class.rotate-180]="recordDropdownOpen()">
+              <span class="nav-chevron transition-transform" [class.rotate-180]="recordDropdownOpen()">
                 <app-icon name="chevron-down" size="xs" />
               </span>
             </button>

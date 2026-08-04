@@ -6,6 +6,7 @@ import { LabTest, PublicLab } from '../../../../core/models/lab.model';
 import { ApiErrorService } from '../../../../core/services/api-error.service';
 import { PaginationComponent } from '../../../../shared/components/pagination/pagination.component';
 import { FacilityDetailSkeletonComponent } from '../../../../shared/components/skeleton';
+import { FacilityImageComponent } from '../../../../shared/components/facility-image/facility-image.component';
 import { PublicLabTestCardComponent } from '../../components/public-lab-test-card/public-lab-test-card.component';
 import { cityNameFromSlug, toPublicLabView } from '../../../marketplace/utils/marketplace-display.util';
 import { LabsApiService } from '../../services/labs-api.service';
@@ -15,7 +16,14 @@ const TESTS_PER_PAGE = 9;
 @Component({
   selector: 'app-lab-detail-page',
   standalone: true,
-  imports: [RouterLink, FormsModule, PublicLabTestCardComponent, PaginationComponent, FacilityDetailSkeletonComponent],
+  imports: [
+    RouterLink,
+    FormsModule,
+    PublicLabTestCardComponent,
+    PaginationComponent,
+    FacilityDetailSkeletonComponent,
+    FacilityImageComponent,
+  ],
   templateUrl: './lab-detail-page.component.html',
   styleUrl: './lab-detail-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -4,6 +4,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { SurgeryHospitalView } from '../../../../core/models/surgery.model';
 import { ApiErrorService } from '../../../../core/services/api-error.service';
 import { FacilityDetailSkeletonComponent } from '../../../../shared/components/skeleton';
+import { FacilityImageComponent } from '../../../../shared/components/facility-image/facility-image.component';
 import { PublicDoctorListingCardComponent } from '../../../doctors/components/public-doctor-listing-card/public-doctor-listing-card.component';
 import { PublicSurgeryCardComponent } from '../../components/public-surgery-card/public-surgery-card.component';
 import {
@@ -22,6 +23,7 @@ import { SurgeriesApiService } from '../../services/surgeries-api.service';
     PublicSurgeryCardComponent,
     PublicDoctorListingCardComponent,
     FacilityDetailSkeletonComponent,
+    FacilityImageComponent,
   ],
   templateUrl: './surgery-hospital-detail-page.component.html',
   styleUrl: './surgery-hospital-detail-page.component.scss',

@@ -9,9 +9,12 @@ import {
   PublicPharmacyView,
 } from '../../../core/models/medicine.model';
 import { SurgeryHospitalView, SurgeryProcedure } from '../../../core/models/surgery.model';
+import {
+  FACILITY_FALLBACK_IMAGES,
+  resolveFacilityImageUrl,
+} from '../../../core/utils/facility-image.util';
 
-const DEFAULT_HOSPITAL_IMAGE =
-  'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=800&auto=format&fit=crop';
+const DEFAULT_HOSPITAL_IMAGE = FACILITY_FALLBACK_IMAGES.hospital;
 
 const CITY_NAMES: Record<string, string> = {
   lahore: 'Lahore',
@@ -59,7 +62,7 @@ export const getStockClasses = (status: MedicineStockStatus): string => {
 
 export const toPublicHospitalView = (hospital: Hospital): PublicHospitalView => ({
   ...hospital,
-  imageUrl: hospital.images?.[0] ?? DEFAULT_HOSPITAL_IMAGE,
+  imageUrl: resolveFacilityImageUrl(hospital.images, DEFAULT_HOSPITAL_IMAGE),
   specialties: hospital.facilities?.length ? hospital.facilities : ['General Care'],
   is24Hours: (hospital.facilities || []).some((f) => /24|emergency/i.test(f)),
   phone: hospital.phone?.trim() || '—',
@@ -93,8 +96,7 @@ export const doctorSummaryToSearchResult = (
   };
 };
 
-const DEFAULT_PHARMACY_IMAGE =
-  'https://images.unsplash.com/photo-1587854692152-cf660a4e3718?w=800&auto=format&fit=crop';
+const DEFAULT_PHARMACY_IMAGE = FACILITY_FALLBACK_IMAGES.pharmacy;
 
 export const toLabTestView = (test: LabTest): LabTest => ({
   ...test,
@@ -105,8 +107,7 @@ export const toLabTestView = (test: LabTest): LabTest => ({
   turnaroundTime: test.turnaroundTime ?? '24 hours',
 });
 
-const DEFAULT_LAB_IMAGE =
-  'https://images.unsplash.com/photo-1579154204601-01588fcc3518?w=800&auto=format&fit=crop';
+const DEFAULT_LAB_IMAGE = FACILITY_FALLBACK_IMAGES.lab;
 
 export const toPublicLabView = (lab: PublicLab, tests: LabTest[] = []): PublicLab => {
   const mappedTests = tests.map(toLabTestView);
@@ -117,7 +118,7 @@ export const toPublicLabView = (lab: PublicLab, tests: LabTest[] = []): PublicLa
     email: lab.email?.trim() || '—',
     website: lab.website?.trim() || '',
     description: lab.description?.trim() || `Diagnostic laboratory in ${lab.city}.`,
-    imageUrl: lab.images?.[0] || lab.imageUrl || DEFAULT_LAB_IMAGE,
+    imageUrl: resolveFacilityImageUrl(lab.images, DEFAULT_LAB_IMAGE, lab.imageUrl),
     rating: lab.rating ?? 4.5,
     timings: lab.timings?.trim() || 'Mon–Sat: 8:00 AM – 8:00 PM',
     tests: mappedTests,
@@ -148,7 +149,7 @@ export const toPublicPharmacyView = (
   email: pharmacy.email?.trim() || '—',
   description:
     pharmacy.description?.trim() || `Trusted pharmacy in ${pharmacy.city}.`,
-  imageUrl: pharmacy.images?.[0] || DEFAULT_PHARMACY_IMAGE,
+  imageUrl: resolveFacilityImageUrl(pharmacy.images, DEFAULT_PHARMACY_IMAGE),
   rating: pharmacy.rating ?? 4.5,
   medicineCount: medicines.length,
   timings: pharmacy.timings?.trim() || 'Mon–Sun: 9:00 AM – 10:00 PM',
@@ -181,7 +182,7 @@ export const toSurgeryHospitalView = (
   city: hospital.city,
   citySlug: hospital.citySlug,
   country: 'Pakistan',
-  imageUrl: hospital.images?.[0] ?? DEFAULT_HOSPITAL_IMAGE,
+  imageUrl: resolveFacilityImageUrl(hospital.images, DEFAULT_HOSPITAL_IMAGE),
   rating: hospital.rating ?? 0,
   is24Hours: (hospital.facilities || []).some((f) => /24|emergency/i.test(f)),
   facilities: hospital.facilities ?? [],

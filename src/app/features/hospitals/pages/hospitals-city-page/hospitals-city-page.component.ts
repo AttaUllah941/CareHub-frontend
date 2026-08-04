@@ -5,6 +5,7 @@ import { PublicHospitalView } from '../../../../core/models/hospital.model';
 import { ApiErrorService } from '../../../../core/services/api-error.service';
 import { citySlugFromParamMap } from '../../../../shared/utils/city-route.util';
 import { FacilityCardSkeletonComponent } from '../../../../shared/components/skeleton';
+import { FacilityImageComponent } from '../../../../shared/components/facility-image/facility-image.component';
 import {
   cityNameFromSlug,
   toPublicHospitalView,
@@ -14,7 +15,7 @@ import { HospitalsApiService } from '../../services/hospitals-api.service';
 @Component({
   selector: 'app-hospitals-city-page',
   standalone: true,
-  imports: [RouterLink, FacilityCardSkeletonComponent],
+  imports: [RouterLink, FacilityCardSkeletonComponent, FacilityImageComponent],
   templateUrl: './hospitals-city-page.component.html',
   styleUrl: './hospitals-city-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
