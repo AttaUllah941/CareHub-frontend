@@ -8,21 +8,19 @@ import { SkeletonBlockComponent } from './skeleton-block.component';
   imports: [SkeletonBlockComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div
-      class="overflow-hidden rounded-2xl border border-gray-200 bg-white"
-      aria-busy="true"
-      aria-live="polite"
-    >
+    <div class="skeleton-card" aria-busy="true" aria-live="polite">
       <span class="sr-only">Loading table…</span>
-      <div class="border-b border-gray-100 bg-gray-50 px-4 py-3 flex gap-4">
+      <div class="border-b border-gray-100 bg-gray-50/80 px-4 sm:px-5 py-3.5 flex gap-3 sm:gap-4">
         @for (c of columns(); track c) {
-          <app-skeleton-block class="h-4 flex-1" />
+          <app-skeleton-block class="h-4 flex-1 rounded-md" />
         }
       </div>
       @for (r of rows(); track r) {
-        <div class="border-b border-gray-50 px-4 py-4 flex gap-4 items-center last:border-0">
+        <div
+          class="border-b border-gray-50 px-4 sm:px-5 py-4 flex gap-3 sm:gap-4 items-center last:border-0"
+        >
           @for (c of columns(); track c) {
-            <app-skeleton-block class="h-4 flex-1" />
+            <app-skeleton-block class="h-4 flex-1 rounded-md" />
           }
         </div>
       }

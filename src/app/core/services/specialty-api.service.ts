@@ -10,10 +10,7 @@ export class SpecialtyApiService {
 
   listPublic(search?: string): Observable<ApiResponse<{ specialties: MedicalSpecialty[] }>> {
     return this.api.get<{ specialties: MedicalSpecialty[] }>('/medical-specialties/public', {
-      params: {
-        ...(search ? { search } : {}),
-        _t: Date.now(),
-      },
+      params: search ? { search } : undefined,
       skipLoading: true,
     });
   }

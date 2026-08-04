@@ -111,7 +111,6 @@ export class PublicLayoutComponent implements OnInit {
   }
 
   toggleRecordDropdown(): void {
-    this.mobileMenuOpen.set(false);
     this.doctorsDropdownOpen.set(false);
     this.hospitalsDropdownOpen.set(false);
     this.labsDropdownOpen.set(false);

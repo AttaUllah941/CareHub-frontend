@@ -8,6 +8,7 @@ export interface ServiceCard {
   subtitle: string;
   icon: string;
   link: string;
+  queryParams?: Record<string, string>;
   accent: string;
 }
 
@@ -78,7 +79,7 @@ export const SERVICE_CARDS: ServiceCard[] = [
     title: 'Video Consultation',
     subtitle: 'PMC Verified Doctors — consult online',
     icon: '📹',
-    link: '/auth/register',
+    link: '/find-doctors/general-physician',
     accent: 'bg-sky-50 border-sky-100',
   },
   {
@@ -106,7 +107,7 @@ export const SERVICE_CARDS: ServiceCard[] = [
     title: 'Health Hub',
     subtitle: 'Articles & wellness tips',
     icon: '📰',
-    link: '/auth/register',
+    link: '/health-advice',
     accent: 'bg-rose-50 border-rose-100',
   },
   {
@@ -120,14 +121,15 @@ export const SERVICE_CARDS: ServiceCard[] = [
     title: 'Instant Relief',
     subtitle: 'Get help in a click',
     icon: '⚡',
-    link: '/auth/login',
+    link: '/symptoms',
     accent: 'bg-orange-50 border-orange-100',
   },
   {
     title: 'Weight Loss Clinic',
     subtitle: 'Healthy lifestyle programs',
     icon: '🏃',
-    link: '/auth/register',
+    link: '/find-doctors/general-physician',
+    queryParams: { condition: 'Weight Loss' },
     accent: 'bg-lime-50 border-lime-100',
   },
 ];

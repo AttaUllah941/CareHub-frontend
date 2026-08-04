@@ -1,11 +1,11 @@
 <div class="bg-gray-50 min-h-full">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <nav class="text-sm text-gray-500 mb-4">
-      <a routerLink="/" class="hover:text-brand-600">CareHub</a>
-      <span class="mx-2">&gt;</span>
-      <a routerLink="/medicines" class="hover:text-brand-600">Medicines</a>
-      <span class="mx-2">&gt;</span>
-      <span class="text-gray-800">Cart</span>
+  <div class="page-container py-6 sm:py-8">
+    <nav class="breadcrumb mb-4">
+      <a routerLink="/" class="hover:text-primary-700">CareHub</a>
+      <span class="text-gray-300" aria-hidden="true">/</span>
+      <a routerLink="/medicines" class="hover:text-primary-700">Medicines</a>
+      <span class="text-gray-300" aria-hidden="true">/</span>
+      <span class="breadcrumb-current">Cart</span>
     </nav>
 
     <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
@@ -13,17 +13,17 @@
         <h1 class="text-2xl font-bold text-gray-900">Shopping Cart</h1>
         <p class="mt-1 text-sm text-gray-600">{{ cart.itemCount() }} item(s) from {{ groupedItems().length }} pharmacy/pharmacies</p>
       </div>
-      <a routerLink="/medicines/orders" class="text-sm font-semibold text-brand-600 hover:text-brand-700">View order history →</a>
+      <a routerLink="/medicines/orders" class="text-sm font-semibold text-primary-700 hover:text-primary-800 min-h-11 inline-flex items-center">View order history →</a>
     </div>
 
     @if (cart.cartItems().length) {
-      <div class="grid lg:grid-cols-3 gap-6">
-        <div class="lg:col-span-2 space-y-5">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 lg:gap-6">
+        <div class="lg:col-span-2 space-y-5 min-w-0">
           @for (group of groupedItems(); track group.pharmacyId) {
             <section class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
               <div class="px-5 py-4 border-b border-gray-100 bg-gray-50/80">
                 <p class="font-semibold text-gray-900">{{ group.pharmacy.name }}</p>
-                <p class="text-xs text-gray-500 mt-0.5">📍 {{ group.pharmacy.address }}, {{ group.pharmacy.city }}</p>
+                <p class="text-xs text-gray-500 mt-0.5 break-words">📍 {{ group.pharmacy.address }}, {{ group.pharmacy.city }}</p>
               </div>
 
               <div class="divide-y divide-gray-100">
@@ -31,7 +31,7 @@
                   <div class="p-5 flex flex-col sm:flex-row gap-4">
                     <div class="flex-1 min-w-0">
                       <div class="flex flex-wrap items-center gap-2">
-                        <h3 class="font-semibold text-gray-900">{{ item.medicine.name }}</h3>
+                        <h3 class="font-semibold text-gray-900 break-words">{{ item.medicine.name }}</h3>
                         <span class="text-[10px] font-semibold uppercase tracking-wide text-amber-700 bg-amber-50 border border-amber-100 px-2 py-0.5 rounded-full">
                           {{ item.medicine.category }}
                         </span>
@@ -45,12 +45,12 @@
 
                     <div class="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center gap-3 shrink-0">
                       <div class="inline-flex items-center rounded-lg border border-gray-200 overflow-hidden">
-                        <button type="button" (click)="cart.updateQuantity(item.cartLineId, item.quantity - 1)" class="px-3 py-1.5 text-gray-600 hover:bg-gray-50">−</button>
-                        <span class="px-3 py-1.5 text-sm font-semibold min-w-[2rem] text-center">{{ item.quantity }}</span>
-                        <button type="button" (click)="cart.updateQuantity(item.cartLineId, item.quantity + 1)" class="px-3 py-1.5 text-gray-600 hover:bg-gray-50">+</button>
+                        <button type="button" (click)="cart.updateQuantity(item.cartLineId, item.quantity - 1)" class="px-3 py-2.5 min-h-11 min-w-11 text-gray-600 hover:bg-gray-50" aria-label="Decrease quantity">−</button>
+                        <span class="px-3 py-2.5 text-sm font-semibold min-w-[2rem] text-center">{{ item.quantity }}</span>
+                        <button type="button" (click)="cart.updateQuantity(item.cartLineId, item.quantity + 1)" class="px-3 py-2.5 min-h-11 min-w-11 text-gray-600 hover:bg-gray-50" aria-label="Increase quantity">+</button>
                       </div>
                       <p class="text-sm font-bold text-gray-900">{{ lineTotal(item.medicine.price, item.quantity) }}</p>
-                      <button type="button" (click)="cart.removeItem(item.cartLineId)" class="text-xs text-red-600 hover:text-red-700 font-medium">Remove</button>
+                      <button type="button" (click)="cart.removeItem(item.cartLineId)" class="text-xs text-red-600 hover:text-red-700 font-medium min-h-9 px-2">Remove</button>
                     </div>
                   </div>
                 }

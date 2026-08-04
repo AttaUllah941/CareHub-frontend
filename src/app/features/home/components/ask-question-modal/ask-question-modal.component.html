@@ -7,28 +7,29 @@
     aria-modal="true"
     aria-labelledby="ask-question-title"
   >
+    <div class="modal-backdrop" data-backdrop="true" aria-hidden="true"></div>
     <div
       class="modal-panel sm:max-w-lg"
       (click)="$event.stopPropagation()"
     >
       <div class="modal-header">
-        <div class="flex items-start justify-between gap-4">
-          <div class="flex items-start gap-3 min-w-0">
-            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/15">
+        <div class="modal-header-row">
+          <div class="modal-header-leading">
+            <div class="modal-header-icon">
               <app-icon name="clipboard" size="md" />
             </div>
             <div class="min-w-0">
-              <h2 id="ask-question-title" class="text-lg font-bold">Ask a Doctor</h2>
-              <p class="mt-0.5 text-sm text-primary-100">Text-based health question — no video required</p>
+              <h2 id="ask-question-title" class="modal-header-title">Ask a Doctor</h2>
+              <p class="modal-header-subtitle">Text-based health question — no video required</p>
             </div>
           </div>
-          <button type="button" (click)="close()" class="btn-ghost p-2 text-white hover:bg-white/10" aria-label="Close">
+          <button type="button" (click)="close()" class="modal-close-btn" aria-label="Close">
             <app-icon name="close" size="sm" />
           </button>
         </div>
       </div>
 
-      <div class="overflow-y-auto p-5 sm:p-6 space-y-4">
+      <div class="modal-body space-y-4">
         <div>
           <label for="ask-question-text" class="form-label">
             Your health question <span class="text-danger-600">*</span>
@@ -111,7 +112,7 @@
           </div>
         }
 
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label for="ask-question-age" class="form-label">Age <span class="text-gray-400 font-normal">(optional)</span></label>
             <input
@@ -152,24 +153,26 @@
         </div>
       </div>
 
-      <div class="shrink-0 border-t border-gray-100 bg-gray-50 px-5 sm:px-6 py-4 flex flex-col-reverse sm:flex-row gap-3 sm:justify-end">
-        <button type="button" (click)="close()" class="btn-outline w-full sm:w-auto" [disabled]="submitting()">
-          Cancel
-        </button>
-        <button
-          type="button"
-          (click)="submit()"
-          class="btn-clinical w-full sm:w-auto"
-          [disabled]="submitting()"
-        >
-          @if (submitting()) {
-            <span class="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></span>
-            Submitting...
-          } @else {
-            <app-icon name="clipboard" size="sm" />
-            Submit Question
-          }
-        </button>
+      <div class="modal-footer">
+        <div class="modal-footer-actions">
+          <button type="button" (click)="close()" class="modal-btn-cancel" [disabled]="submitting()">
+            Cancel
+          </button>
+          <button
+            type="button"
+            (click)="submit()"
+            class="modal-btn-confirm"
+            [disabled]="submitting()"
+          >
+            @if (submitting()) {
+              <span class="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></span>
+              Submitting...
+            } @else {
+              <app-icon name="clipboard" size="sm" />
+              Submit Question
+            }
+          </button>
+        </div>
       </div>
     </div>
   </div>
