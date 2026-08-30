@@ -1,7 +1,7 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { AdminDashboardStats } from '../../models/admin.model';
 import { ApiErrorService } from '../../../../core/services/api-error.service';
-import { DashboardStatsSkeletonComponent } from '../../../../shared/components/skeleton';
+import { DashboardStatsSkeletonComponent } from '../../../../shared/components/skeleton/dashboard-stats-skeleton.component';
 import { AdminApiService } from '../../services/admin-api.service';
 
 @Component({

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, HostListener, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, HostListener, inject, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { NotificationBellComponent } from '../../core/components/notification-bell/notification-bell.component';
 import { IconComponent, IconName } from '../../shared/components/icon/icon.component';
@@ -16,7 +16,7 @@ import { FOOTER_CITY_LINKS, NAV_LINKS, PAKISTAN_CITIES } from '../../features/ho
   styleUrl: './public-layout.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PublicLayoutComponent implements OnInit {
+export class PublicLayoutComponent {
   protected readonly authService = inject(AuthService);
   protected readonly referenceData = inject(ReferenceDataService);
   protected readonly UserRole = UserRole;
@@ -40,10 +40,6 @@ export class PublicLayoutComponent implements OnInit {
     { label: 'My Lab Tests', href: '/my-lab-tests', icon: 'lab-tests' },
     { label: 'My Surgery', href: '/my-surgery-requests', icon: 'surgery' },
   ];
-
-  ngOnInit(): void {
-    this.referenceData.loadSpecialties();
-  }
 
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {

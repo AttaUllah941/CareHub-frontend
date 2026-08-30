@@ -23,7 +23,8 @@ import { AppointmentsApiService } from '../../../appointments/services/appointme
 import { CreateAppointmentRequest } from '../../../../core/models/appointment.model';
 import { VideoConsultationModalComponent } from '../../../appointments/components/video-consultation-modal/video-consultation-modal.component';
 import { ClinicAppointmentModalComponent } from '../../../appointments/components/clinic-appointment-modal/clinic-appointment-modal.component';
-import { DoctorProfileSkeletonComponent, ListRowSkeletonComponent } from '../../../../shared/components/skeleton';
+import { DoctorProfileSkeletonComponent } from '../../../../shared/components/skeleton/doctor-profile-skeleton.component';
+import { ListRowSkeletonComponent } from '../../../../shared/components/skeleton/list-row-skeleton.component';
 
 interface DateOption extends BookingDateOption {}
 

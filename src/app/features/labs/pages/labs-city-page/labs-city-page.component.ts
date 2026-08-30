@@ -3,7 +3,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { PublicLab } from '../../../../core/models/lab.model';
 import { ApiErrorService } from '../../../../core/services/api-error.service';
-import { FacilityCardSkeletonComponent } from '../../../../shared/components/skeleton';
+import { FacilityCardSkeletonComponent } from '../../../../shared/components/skeleton/facility-card-skeleton.component';
 import { FacilityImageComponent } from '../../../../shared/components/facility-image/facility-image.component';
 import { citySlugFromParamMap } from '../../../../shared/utils/city-route.util';
 import { cityNameFromSlug, toPublicLabView } from '../../../marketplace/utils/marketplace-display.util';

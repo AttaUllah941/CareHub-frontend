@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { DashboardStatsSkeletonComponent } from '../../../../shared/components/skeleton';
+import { DashboardStatsSkeletonComponent } from '../../../../shared/components/skeleton/dashboard-stats-skeleton.component';
 import { DoctorPortalService } from '../../services/doctor-portal.service';
 
 @Component({

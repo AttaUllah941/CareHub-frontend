@@ -15,7 +15,7 @@ import { AppNotification } from '../../models/notification.model';
 import { AuthService } from '../../../features/auth/services/auth.service';
 import { ApiErrorService } from '../../services/api-error.service';
 import { NotificationsApiService } from '../../services/notifications-api.service';
-import { ListRowSkeletonComponent } from '../../../shared/components/skeleton';
+import { ListRowSkeletonComponent } from '../../../shared/components/skeleton/list-row-skeleton.component';
 import {
   notificationTypeLabel,
   resolveNotificationRoute,
@@ -150,6 +150,15 @@ export class NotificationBellComponent implements OnDestroy {
   private readonly isBrowser = isPlatformBrowser(this.platformId);
   private pollTimer: ReturnType<typeof setInterval> | null = null;
   private lastAuthState: boolean | null = null;
+  private readonly onVisibilityChange = (): void => {
+    if (!this.isBrowser || !this.authService.isAuthenticated()) return;
+    if (document.visibilityState === 'visible') {
+      this.loadNotifications(true);
+      this.startPolling();
+    } else {
+      this.stopPolling();
+    }
+  };
 
   readonly notifications = signal<AppNotification[]>([]);
   readonly loading = signal(false);
@@ -167,11 +176,19 @@ export class NotificationBellComponent implements OnDestroy {
       this.lastAuthState = isAuthenticated;
 
       if (isAuthenticated) {
-        this.loadNotifications();
-        this.startPolling();
+        // Defer first fetch slightly so marketplace content APIs win the cold-start race.
+        setTimeout(() => {
+          if (!this.authService.isAuthenticated()) return;
+          this.loadNotifications();
+          if (document.visibilityState !== 'hidden') {
+            this.startPolling();
+          }
+        }, 0);
+        document.addEventListener('visibilitychange', this.onVisibilityChange);
       } else {
         this.clearGuestState();
         this.stopPolling();
+        document.removeEventListener('visibilitychange', this.onVisibilityChange);
       }
     });
   }
@@ -186,18 +203,23 @@ export class NotificationBellComponent implements OnDestroy {
 
   ngOnDestroy(): void {
     this.stopPolling();
+    if (this.isBrowser) {
+      document.removeEventListener('visibilitychange', this.onVisibilityChange);
+    }
   }
 
   private startPolling(): void {
     if (!this.isBrowser || this.pollTimer) return;
 
     this.pollTimer = setInterval(() => {
-      if (this.authService.isAuthenticated()) {
-        this.loadNotifications(true);
-      } else {
+      if (!this.authService.isAuthenticated()) {
         this.clearGuestState();
         this.stopPolling();
+        return;
       }
+      // Skip background polls while the tab is hidden — same UX when visible.
+      if (document.visibilityState === 'hidden') return;
+      this.loadNotifications(true);
     }, 30000);
   }
 

@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { UserRole } from '../../../../core/models/auth.model';
 import { ApiErrorService } from '../../../../core/services/api-error.service';
 import { NotificationService } from '../../../../core/services/notification.service';
-import { TableSkeletonComponent } from '../../../../shared/components/skeleton';
+import { TableSkeletonComponent } from '../../../../shared/components/skeleton/table-skeleton.component';
 import { AdminUser } from '../../models/admin.model';
 import { AdminApiService } from '../../services/admin-api.service';
 
