@@ -5,7 +5,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { LabTest, PublicLab } from '../../../../core/models/lab.model';
 import { ApiErrorService } from '../../../../core/services/api-error.service';
 import { PaginationComponent } from '../../../../shared/components/pagination/pagination.component';
-import { FacilityDetailSkeletonComponent } from '../../../../shared/components/skeleton';
+import { FacilityDetailSkeletonComponent } from '../../../../shared/components/skeleton/facility-detail-skeleton.component';
 import { FacilityImageComponent } from '../../../../shared/components/facility-image/facility-image.component';
 import { PublicLabTestCardComponent } from '../../components/public-lab-test-card/public-lab-test-card.component';
 import { cityNameFromSlug, toPublicLabView } from '../../../marketplace/utils/marketplace-display.util';

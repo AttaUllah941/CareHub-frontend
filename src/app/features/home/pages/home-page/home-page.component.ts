@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import {
@@ -14,7 +14,7 @@ import {
 } from '../../data/home-content';
 import { ReferenceDataService } from '../../../../core/services/reference-data.service';
 import { IconComponent } from '../../../../shared/components/icon/icon.component';
-import { SpecialtyChipsSkeletonComponent } from '../../../../shared/components/skeleton';
+import { SpecialtyChipsSkeletonComponent } from '../../../../shared/components/skeleton/specialty-chips-skeleton.component';
 import { navigateToHealthTopic } from '../../utils/health-topic-navigation.util';
 import { AskQuestionModalComponent } from '../../components/ask-question-modal/ask-question-modal.component';
 
@@ -26,7 +26,7 @@ import { AskQuestionModalComponent } from '../../components/ask-question-modal/a
   styleUrl: './home-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class HomePageComponent implements OnInit {
+export class HomePageComponent {
   protected readonly referenceData = inject(ReferenceDataService);
   private readonly router = inject(Router);
 
@@ -45,10 +45,6 @@ export class HomePageComponent implements OnInit {
   readonly askQuestionOpen = signal(false);
   searchSpecialty = '';
   searchQuery = '';
-
-  ngOnInit(): void {
-    this.referenceData.loadSpecialties();
-  }
 
   selectCity(city: string): void {
     this.selectedCity.set(city);

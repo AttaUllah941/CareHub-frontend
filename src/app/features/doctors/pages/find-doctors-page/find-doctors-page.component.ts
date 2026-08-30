@@ -14,7 +14,7 @@ import { catchError, combineLatest, of, ReplaySubject, switchMap, tap } from 'rx
 import { PublicDoctorApiService } from '../../services/public-doctor-api.service';
 import { PublicDoctorListingCardComponent } from '../../components/public-doctor-listing-card/public-doctor-listing-card.component';
 import { PaginationComponent } from '../../../../shared/components/pagination/pagination.component';
-import { DoctorCardSkeletonComponent } from '../../../../shared/components/skeleton';
+import { DoctorCardSkeletonComponent } from '../../../../shared/components/skeleton/doctor-card-skeleton.component';
 import { PAKISTAN_CITIES } from '../../../home/data/home-content';
 import { ReferenceDataService } from '../../../../core/services/reference-data.service';
 import { ApiErrorService } from '../../../../core/services/api-error.service';

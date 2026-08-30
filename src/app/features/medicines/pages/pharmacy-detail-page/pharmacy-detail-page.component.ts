@@ -5,7 +5,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { PharmacyMedicine, PublicPharmacyView } from '../../../../core/models/medicine.model';
 import { ApiErrorService } from '../../../../core/services/api-error.service';
 import { PaginationComponent } from '../../../../shared/components/pagination/pagination.component';
-import { FacilityDetailSkeletonComponent } from '../../../../shared/components/skeleton';
+import { FacilityDetailSkeletonComponent } from '../../../../shared/components/skeleton/facility-detail-skeleton.component';
 import { FacilityImageComponent } from '../../../../shared/components/facility-image/facility-image.component';
 import { PublicMedicineCardComponent } from '../../components/public-medicine-card/public-medicine-card.component';
 import {

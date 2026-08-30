@@ -9,7 +9,7 @@ import { AppointmentsApiService } from '../../services/appointments-api.service'
 import { formatAppointmentDateTime } from '../../utils/appointment-schedule.util';
 
 import { IconComponent } from '../../../../shared/components/icon/icon.component';
-import { ListRowSkeletonComponent } from '../../../../shared/components/skeleton';
+import { ListRowSkeletonComponent } from '../../../../shared/components/skeleton/list-row-skeleton.component';
 
 @Component({
   selector: 'app-my-appointments-page',

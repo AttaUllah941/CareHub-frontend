@@ -3,7 +3,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { SurgeryHospitalView } from '../../../../core/models/surgery.model';
 import { ApiErrorService } from '../../../../core/services/api-error.service';
-import { FacilityDetailSkeletonComponent } from '../../../../shared/components/skeleton';
+import { FacilityDetailSkeletonComponent } from '../../../../shared/components/skeleton/facility-detail-skeleton.component';
 import { FacilityImageComponent } from '../../../../shared/components/facility-image/facility-image.component';
 import { PublicDoctorListingCardComponent } from '../../../doctors/components/public-doctor-listing-card/public-doctor-listing-card.component';
 import { PublicSurgeryCardComponent } from '../../components/public-surgery-card/public-surgery-card.component';

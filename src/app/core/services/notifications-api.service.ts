@@ -22,10 +22,17 @@ export class NotificationsApiService {
       params['unreadOnly'] = query.unreadOnly === true || query.unreadOnly === 'true' ? 'true' : 'false';
     }
 
-    return this.api.get<NotificationListResponse>('/notifications/me', { params });
+    // Polling / bell refresh must not drive the global top progress bar.
+    return this.api.get<NotificationListResponse>('/notifications/me', {
+      params,
+      skipLoading: true,
+      skipErrorToast: true,
+    });
   }
 
   markRead(id: string): Observable<ApiResponse<{ notification: AppNotification }>> {
-    return this.api.patch<{ notification: AppNotification }>(`/notifications/${id}/read`, {});
+    return this.api.patch<{ notification: AppNotification }>(`/notifications/${id}/read`, {}, {
+      skipLoading: true,
+    });
   }
 }

@@ -4,7 +4,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { PublicHospitalView } from '../../../../core/models/hospital.model';
 import { ApiErrorService } from '../../../../core/services/api-error.service';
 import { citySlugFromParamMap } from '../../../../shared/utils/city-route.util';
-import { FacilityCardSkeletonComponent } from '../../../../shared/components/skeleton';
+import { FacilityCardSkeletonComponent } from '../../../../shared/components/skeleton/facility-card-skeleton.component';
 import { FacilityImageComponent } from '../../../../shared/components/facility-image/facility-image.component';
 import {
   cityNameFromSlug,

@@ -5,7 +5,7 @@ import { DoctorSearchResult } from '../../../../core/models/doctor.model';
 import { PublicHospitalView } from '../../../../core/models/hospital.model';
 import { ApiErrorService } from '../../../../core/services/api-error.service';
 import { PublicDoctorListingCardComponent } from '../../../doctors/components/public-doctor-listing-card/public-doctor-listing-card.component';
-import { FacilityDetailSkeletonComponent } from '../../../../shared/components/skeleton';
+import { FacilityDetailSkeletonComponent } from '../../../../shared/components/skeleton/facility-detail-skeleton.component';
 import { FacilityImageComponent } from '../../../../shared/components/facility-image/facility-image.component';
 import {
   cityNameFromSlug,

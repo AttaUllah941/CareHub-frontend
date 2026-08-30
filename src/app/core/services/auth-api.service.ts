@@ -48,7 +48,11 @@ export class AuthApiService {
   }
 
   getProfile(): Observable<ApiResponse<{ user: User }>> {
-    return this.api.get<{ user: User }>(`${this.basePath}/me`);
+    // Background session restore — do not flash the global loading bar on boot.
+    return this.api.get<{ user: User }>(`${this.basePath}/me`, {
+      skipLoading: true,
+      skipErrorToast: true,
+    });
   }
 
   forgotPassword(payload: ForgotPasswordRequest): Observable<ApiResponse<ForgotPasswordResponse>> {
