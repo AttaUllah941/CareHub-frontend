@@ -1,17 +1,17 @@
-<div class="bg-gray-50 min-h-full">
+<div class="bg-slate-50 min-h-full">
   <!-- Page header -->
-  <div class="bg-white border-b border-gray-200">
+  <div class="bg-white border-b border-slate-200">
     <div class="page-container py-6">
-      <nav class="text-sm text-gray-500 mb-3">
+      <nav class="breadcrumb mb-3" aria-label="Breadcrumb">
         <a routerLink="/" class="hover:text-brand-600">CareHub</a>
-        <span class="mx-2">&gt;</span>
-        <span class="text-gray-800">{{ breadcrumbSpecialty() }}</span>
+        <span aria-hidden="true">/</span>
+        <span class="breadcrumb-current">{{ breadcrumbSpecialty() }}</span>
       </nav>
-      <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 leading-tight">{{ pageTitle() }}</h1>
+      <h1 class="leading-tight">{{ pageTitle() }}</h1>
       @if (healthCondition()) {
-        <p class="mt-2 text-sm text-gray-600">
+        <p class="mt-2 text-sm text-slate-600">
           Showing <span class="font-semibold text-brand-600">{{ breadcrumbSpecialty() }}</span> for
-          <span class="font-semibold text-gray-900">{{ healthCondition() }}</span> in {{ selectedCity() }}
+          <span class="font-semibold text-slate-900">{{ healthCondition() }}</span> in {{ selectedCity() }}
         </p>
       }
     </div>
@@ -20,10 +20,12 @@
   <!-- Filter bar -->
   <div class="sticky-filter-bar">
     <div class="page-container py-3 sm:py-4 space-y-3">
-      <div class="flex flex-col sm:flex-row gap-3">
+      <form class="flex flex-col sm:flex-row gap-3" (submit)="$event.preventDefault(); onSearch()" role="search">
         <select
           [ngModel]="selectedCity()"
           (ngModelChange)="onCityChange($event)"
+          name="city"
+          aria-label="City"
           class="select-field w-full sm:w-auto sm:min-w-[140px] sm:max-w-[180px] sm:shrink-0"
         >
           @for (city of cities; track city.slug) {
@@ -33,65 +35,61 @@
 
         <div class="flex flex-1 min-w-0 gap-2">
           <input
-            type="text"
+            type="search"
+            name="q"
             [ngModel]="searchName()"
-            (ngModelChange)="searchName.set($event)"
-            placeholder="Search by Doctors"
+            (ngModelChange)="onSearchInput($event)"
+            placeholder="Search by doctor name"
+            aria-label="Search by doctor name"
+            autocomplete="off"
             class="input-field flex-1 min-w-0"
-            (keyup.enter)="onSearch()"
           />
-          <button
-            type="button"
-            (click)="onSearch()"
-            class="btn-clinical shrink-0 px-4 sm:px-5 touch-target"
-            aria-label="Search"
-          >
-            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-          </button>  
+          <button type="submit" class="btn-clinical shrink-0 px-4 sm:px-5 touch-target" aria-label="Search">
+            @if (loading()) {
+              <app-spinner size="sm" label="Searching" />
+            } @else {
+              <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            }
+          </button>
         </div>
-      </div>
+      </form>
 
       <div class="flex gap-2 overflow-x-auto scrollbar-hide pb-0.5 -mx-1 px-1 sm:flex-wrap sm:overflow-visible">
-        <button
-          type="button"
-          (click)="clearFilters()"
-          class="shrink-0 rounded-full border px-3 py-2 text-xs font-medium transition-colors min-h-9"
-          [class]="activeFilters().length === 0 && !searchName()
-            ? 'border-primary-600 bg-sky-50 text-primary-600'
-            : 'border-gray-200 text-gray-600 hover:border-gray-300'"
-        >
-          Clear Filters
+        <button type="button" class="chip" [class.chip-active]="sort() === 'rating'" (click)="toggleTopRated()" [attr.aria-pressed]="sort() === 'rating'">
+          Top rated
         </button>
-        @for (filter of ['Doctors Near Me', 'Fee Upto 500', 'Top Reviewed', 'Online Now']; track filter) {
-          <button
-            type="button"
-            (click)="toggleFilter(filter)"
-            class="shrink-0 rounded-full border px-3 py-2 text-xs font-medium transition-colors min-h-9"
-            [class]="isFilterActive(filter)
-              ? 'border-primary-600 bg-sky-50 text-primary-600'
-              : 'border-gray-200 text-gray-600 hover:border-gray-300'"
-          >
-            {{ filter }}
+
+        <select
+          class="chip-select"
+          aria-label="Consultation fee"
+          [ngModel]="maxFee()"
+          (ngModelChange)="onFeeChange($event)"
+          name="fee"
+        >
+          @for (option of feeOptions; track option.value) {
+            <option [value]="option.value">{{ option.label }}</option>
+          }
+        </select>
+
+        <select
+          class="chip-select"
+          aria-label="Sort doctors"
+          [ngModel]="sort()"
+          (ngModelChange)="onSortChange($event)"
+          name="sort"
+        >
+          <option value="experience">Most experienced</option>
+          <option value="rating">Highest rated</option>
+          <option value="fee">Lowest fee</option>
+        </select>
+
+        @if (hasActiveFilters()) {
+          <button type="button" class="chip !border-transparent !text-brand-700 hover:underline" (click)="clearFilters()">
+            Clear all
           </button>
         }
-        <select class="shrink-0 rounded-full border border-gray-200 px-3 py-2 text-xs text-gray-600 bg-white min-h-9">
-          <option>Choose a Time</option>
-          <option>Today</option>
-          <option>Tomorrow</option>
-        </select>
-        <select
-          class="shrink-0 rounded-full border border-gray-200 px-3 py-2 text-xs text-gray-600 bg-white min-h-9"
-          [ngModel]="maxFee()"
-          (ngModelChange)="maxFee.set($event); loadDoctors(1)"
-        >
-          <option value="">Fee Range</option>
-          <option value="500">Up to 500</option>
-          <option value="1000">Up to 1,000</option>
-          <option value="2000">Up to 2,000</option>
-          <option value="5000">Up to 5,000</option>
-        </select>
       </div>
     </div>
   </div>
@@ -99,43 +97,57 @@
   <!-- Results -->
   <div class="page-container py-6 sm:py-8">
     <div class="max-w-4xl mx-auto">
-    @if (error()) {
-      <div class="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 mb-6">{{ error() }}</div>
-    }
-
-    @if (loading()) {
-      <div class="space-y-5" aria-busy="true" aria-live="polite">
-        <span class="sr-only">Loading doctors…</span>
-        @for (i of [1, 2, 3, 4]; track i) {
-          <app-doctor-card-skeleton />
-        }
-      </div>
-    } @else if (doctors().length === 0) {
-      <div class="bg-white rounded-xl border border-gray-200 p-8 sm:p-12 text-center">
-        <p class="text-gray-600">No doctors found for this specialty in {{ selectedCity() }}.</p>
-        <a routerLink="/auth/register" class="inline-flex mt-4 text-sm font-semibold text-brand-600 hover:text-brand-700">
-          Register to get notified when doctors are available
-        </a>
-      </div>
-    } @else {
-      <p class="text-sm text-gray-600 mb-5">{{ pagination().total | number }} doctor(s) found in {{ selectedCity() }}</p>
-      <div class="space-y-5">
-        @for (doctor of doctors(); track doctor.id; let i = $index) {
-          <app-public-doctor-listing-card [doctor]="doctor" [rank]="i" [city]="selectedCity()" [specialtySlug]="specialtySlug()" />
-        }
-      </div>
-
-      @if (pagination().totalPages > 1) {
-        <div class="mt-8">
-          <app-pagination
-            [page]="pagination().page"
-            [totalPages]="pagination().totalPages"
-            [total]="pagination().total"
-            (pageChange)="onPageChange($event)"
-          />
+      @if (error()) {
+        <app-empty-state tone="error" title="We couldn't load doctors" [description]="error()!">
+          <button type="button" class="btn-outline btn-sm" (click)="onSearch()">Try again</button>
+        </app-empty-state>
+      } @else if (showSkeleton()) {
+        <div class="space-y-5" aria-busy="true" aria-live="polite">
+          <span class="sr-only">Loading doctors…</span>
+          <div class="skeleton h-5 w-48"></div>
+          @for (i of [1, 2, 3, 4]; track i) {
+            <app-doctor-card-skeleton />
+          }
         </div>
+      } @else if (doctors().length === 0) {
+        <app-empty-state
+          title="No doctors match your search"
+          [description]="'Try a different city, widen the fee range, or clear your filters in ' + selectedCity() + '.'"
+        >
+          @if (hasActiveFilters()) {
+            <button type="button" class="btn-clinical btn-sm" (click)="clearFilters()">Clear filters</button>
+          }
+          <a routerLink="/auth/register" class="btn-outline btn-sm">Get notified when doctors join</a>
+        </app-empty-state>
+      } @else {
+        <div class="mb-5 flex h-5 items-center gap-2 text-sm text-slate-600" aria-live="polite">
+          <span>{{ pagination().total | number }} doctor{{ pagination().total === 1 ? '' : 's' }} in {{ selectedCity() }}</span>
+          @if (loading()) {
+            <app-spinner size="sm" label="Updating results" />
+          }
+        </div>
+        <div class="space-y-5" [class.is-refreshing]="loading()" [attr.aria-busy]="loading()">
+          @for (doctor of doctors(); track doctor.id; let i = $index) {
+            <app-public-doctor-listing-card
+              [doctor]="doctor"
+              [rank]="i"
+              [city]="selectedCity()"
+              [specialtySlug]="specialtySlug()"
+            />
+          }
+        </div>
+
+        @if (pagination().totalPages > 1) {
+          <div class="mt-8">
+            <app-pagination
+              [page]="pagination().page"
+              [totalPages]="pagination().totalPages"
+              [total]="pagination().total"
+              (pageChange)="onPageChange($event)"
+            />
+          </div>
+        }
       }
-    }
     </div>
   </div>
 </div>

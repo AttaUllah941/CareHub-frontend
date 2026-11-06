@@ -1,0 +1,35 @@
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+
+/** Consistent "nothing here" / error panel with a projected action slot. */
+@Component({
+  selector: 'app-empty-state',
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `
+    <div class="empty-state" [class.!border-red-200]="tone() === 'error'" [class.!bg-red-50]="tone() === 'error'">
+      <span
+        class="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl"
+        [class]="tone() === 'error' ? 'bg-red-100 text-red-600' : 'bg-brand-50 text-brand-600'"
+        aria-hidden="true"
+      >
+        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+          @if (tone() === 'error') {
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m0 3.75h.008M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          } @else {
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 10a7 7 0 11-14 0 7 7 0 0114 0z" />
+          }
+        </svg>
+      </span>
+      <h3 class="text-base">{{ title() }}</h3>
+      @if (description()) {
+        <p class="mt-1 max-w-sm text-sm text-slate-500">{{ description() }}</p>
+      }
+      <div class="mt-4 flex flex-wrap justify-center gap-2"><ng-content /></div>
+    </div>
+  `,
+})
+export class EmptyStateComponent {
+  readonly title = input.required<string>();
+  readonly description = input('');
+  readonly tone = input<'neutral' | 'error'>('neutral');
+}
