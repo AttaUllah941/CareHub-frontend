@@ -1,0 +1,31 @@
+<header class="flex items-center gap-3 bg-gradient-to-r from-primary-700 to-primary-600 px-3 py-3 text-white sm:px-4">
+  <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/15" aria-hidden="true">
+    <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 3l1.9 4.6L18.5 9l-4.6 1.9L12 15.5l-1.9-4.6L5.5 9l4.6-1.4L12 3zM18 15l.9 2.1L21 18l-2.1.9L18 21l-.9-2.1L15 18l2.1-.9L18 15z" />
+    </svg>
+  </span>
+  <div class="min-w-0 flex-1">
+    <h2 class="truncate text-base font-bold !text-white leading-tight">{{ title() }}</h2>
+    @if (subtitle()) {
+      <p class="truncate text-xs text-primary-100">{{ subtitle() }}</p>
+    }
+  </div>
+
+  <div class="flex items-center gap-1">
+    <button type="button" class="header-btn" [class.is-active]="historyOpen()" (click)="toggleHistory.emit()" [attr.aria-pressed]="historyOpen()" aria-label="Conversation history" title="History">
+      <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M3 12a9 9 0 109-9 9 9 0 00-6.4 2.6L3 8M3 3v5h5M12 7v5l3 2" />
+      </svg>
+    </button>
+    <button type="button" class="header-btn" (click)="newChat.emit()" aria-label="New chat" title="New chat">
+      <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+        <path d="M12 5v14M5 12h14" />
+      </svg>
+    </button>
+    <button type="button" class="header-btn" (click)="closed.emit()" aria-label="Close chat" title="Close">
+      <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+        <path d="M6 6l12 12M18 6L6 18" />
+      </svg>
+    </button>
+  </div>
+</header>

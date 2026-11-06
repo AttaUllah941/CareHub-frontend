@@ -1,0 +1,25 @@
+:host {
+  display: block;
+}
+
+.header-btn {
+  display: inline-flex;
+  height: 2.5rem;
+  width: 2.5rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.75rem;
+  color: rgb(255 255 255 / 0.85);
+  transition: background-color 150ms, color 150ms;
+}
+
+.header-btn.is-active,
+.header-btn:hover {
+  background-color: rgb(255 255 255 / 0.15);
+  color: #fff;
+}
+
+.header-btn:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 1px;
+}

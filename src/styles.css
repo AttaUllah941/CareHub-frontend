@@ -495,7 +495,8 @@
   }
 
   .skeleton-card {
-    @apply rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden;
+    @apply rounded-2xl border border-slate-200/80 bg-white overflow-hidden;
+    box-shadow: var(--shadow-soft);
   }
 
   .skeleton-stack {

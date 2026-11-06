@@ -1,2 +1,9 @@
 <app-global-shell />
 <router-outlet />
+
+<!-- CareHub AI: signed-in users only, loaded lazily after the page is idle (never delays first paint) -->
+@if (authService.isAuthenticated()) {
+  @defer (on idle) {
+    <app-chat-widget />
+  }
+}
