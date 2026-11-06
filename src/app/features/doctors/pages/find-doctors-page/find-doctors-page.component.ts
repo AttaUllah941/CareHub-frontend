@@ -6,20 +6,59 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Params, Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { DecimalPipe } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { catchError, combineLatest, of, ReplaySubject, switchMap, tap } from 'rxjs';
+import {
+  catchError,
+  combineLatest,
+  debounceTime,
+  distinctUntilChanged,
+  of,
+  Subject,
+  switchMap,
+  tap,
+} from 'rxjs';
 import { PublicDoctorApiService } from '../../services/public-doctor-api.service';
 import { PublicDoctorListingCardComponent } from '../../components/public-doctor-listing-card/public-doctor-listing-card.component';
 import { PaginationComponent } from '../../../../shared/components/pagination/pagination.component';
 import { DoctorCardSkeletonComponent } from '../../../../shared/components/skeleton/doctor-card-skeleton.component';
+import { SpinnerComponent } from '../../../../shared/components/spinner/spinner.component';
+import { EmptyStateComponent } from '../../../../shared/components/empty-state/empty-state.component';
 import { PAKISTAN_CITIES } from '../../../home/data/home-content';
 import { ReferenceDataService } from '../../../../core/services/reference-data.service';
 import { ApiErrorService } from '../../../../core/services/api-error.service';
 import { DoctorSearchResult, PaginationMeta } from '../../../../core/models/doctor.model';
 
+type DoctorSort = 'experience' | 'rating' | 'fee';
+
+const PAGE_SIZE = 10;
+const DEFAULT_CITY = 'Lahore';
+const SEARCH_DEBOUNCE_MS = 400;
+
+const SORT_QUERY: Record<DoctorSort, { sortBy: string; sortOrder: 'asc' | 'desc' }> = {
+  experience: { sortBy: 'yearsOfExperience', sortOrder: 'desc' },
+  rating: { sortBy: 'averageRating', sortOrder: 'desc' },
+  fee: { sortBy: 'consultationFee', sortOrder: 'asc' },
+};
+
+const EMPTY_PAGINATION: PaginationMeta = { page: 1, limit: PAGE_SIZE, total: 0, totalPages: 0 };
+
+interface SearchRequest {
+  page: number;
+  city: string;
+  specialtySlug: string;
+  name: string;
+  maxFee: string;
+  sort: DoctorSort;
+}
+
+/**
+ * Listing page. The URL is the single source of truth for filters
+ * (?city, ?q, ?maxFee, ?sort, ?page) so back/forward, refresh and shared links all work,
+ * and every filter change triggers exactly one (cancellable) API request.
+ */
 @Component({
   selector: 'app-find-doctors-page',
   standalone: true,
@@ -30,6 +69,8 @@ import { DoctorSearchResult, PaginationMeta } from '../../../../core/models/doct
     PublicDoctorListingCardComponent,
     PaginationComponent,
     DoctorCardSkeletonComponent,
+    SpinnerComponent,
+    EmptyStateComponent,
   ],
   templateUrl: './find-doctors-page.component.html',
   styleUrl: './find-doctors-page.component.scss',
@@ -42,76 +83,70 @@ export class FindDoctorsPageComponent implements OnInit {
   private readonly referenceData = inject(ReferenceDataService);
   private readonly apiErrorService = inject(ApiErrorService);
 
-  /** Replay buffer avoids dropping the first search if route emits before subscribe. */
-  private readonly searchPage$ = new ReplaySubject<number>(1);
+  private readonly request$ = new Subject<SearchRequest>();
+  private readonly searchText$ = new Subject<string>();
 
   readonly cities = PAKISTAN_CITIES;
+  readonly feeOptions = [
+    { value: '', label: 'Any fee' },
+    { value: '500', label: 'Up to Rs 500' },
+    { value: '1000', label: 'Up to Rs 1,000' },
+    { value: '2000', label: 'Up to Rs 2,000' },
+    { value: '5000', label: 'Up to Rs 5,000' },
+  ];
+
   readonly specialtySlug = signal('');
-  readonly selectedCity = signal('Lahore');
+  readonly selectedCity = signal(DEFAULT_CITY);
+  /** Text in the search box (may be ahead of the URL while debouncing). */
   readonly searchName = signal('');
   readonly healthCondition = signal('');
   readonly maxFee = signal('');
+  readonly sort = signal<DoctorSort>('experience');
+
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
   readonly doctors = signal<DoctorSearchResult[]>([]);
-  readonly pagination = signal<PaginationMeta>({ page: 1, limit: 10, total: 0, totalPages: 1 });
+  readonly pagination = signal<PaginationMeta>(EMPTY_PAGINATION);
 
-  readonly activeFilters = signal<string[]>([]);
+  /** Skeletons only for the very first load; later refreshes keep results on screen. */
+  readonly showSkeleton = computed(() => this.loading() && this.doctors().length === 0);
+  readonly hasActiveFilters = computed(
+    () => !!this.searchName().trim() || !!this.maxFee() || this.sort() !== 'experience',
+  );
 
   readonly pageTitle = computed(() => {
     const total = this.pagination().total;
     const slug = this.specialtySlug();
-    const specialty = slug
-      ? this.referenceData.getSpecialtyPluralTitle(slug)
-      : 'Doctors';
-    const city = this.selectedCity();
+    const specialty = slug ? this.referenceData.getSpecialtyPluralTitle(slug) : 'Doctors';
     const countLabel = total > 0 ? `${total.toLocaleString()} ` : '';
-    return `${countLabel}Best ${specialty} In ${city} | Top Specialists`;
+    return `${countLabel}${specialty} in ${this.selectedCity()}`;
   });
 
   readonly breadcrumbSpecialty = computed(() => {
     const slug = this.specialtySlug();
-    return slug ? this.referenceData.getSpecialtyName(slug) : 'All Specialities';
+    return slug ? this.referenceData.getSpecialtyName(slug) : 'All specialities';
   });
 
   constructor() {
-    // Subscribe to search pipeline BEFORE route listener so the first loadDoctors() is never dropped.
-    this.searchPage$
+    // Search pipeline is subscribed BEFORE the route listener so the first request is never dropped.
+    this.request$
       .pipe(
         tap(() => {
           this.loading.set(true);
           this.error.set(null);
         }),
-        switchMap((page) => {
-          const query: Record<string, string | number> = {
-            page,
-            limit: 10,
-            city: this.selectedCity(),
-            sortBy: this.activeFilters().includes('Top Reviewed') ? 'averageRating' : 'yearsOfExperience',
-            sortOrder: 'desc',
-          };
-
-          const specialtySlug = this.specialtySlug().trim();
-          if (specialtySlug) {
-            query['specialtySlug'] = specialtySlug;
-          }
-
-          const name = this.searchName().trim();
-          if (name) query['name'] = name;
-
-          const fee = this.maxFee();
-          if (fee) query['maxFee'] = fee;
-
-          return this.publicDoctorApi.searchDoctors(query).pipe(
+        // switchMap cancels the in-flight request when filters change quickly.
+        switchMap((request) =>
+          this.publicDoctorApi.searchDoctors(this.toApiQuery(request)).pipe(
             catchError((err) => {
               this.doctors.set([]);
-              this.pagination.set({ page: 1, limit: 10, total: 0, totalPages: 0 });
+              this.pagination.set(EMPTY_PAGINATION);
               this.error.set(this.apiErrorService.getMessage(err));
               this.loading.set(false);
               return of(null);
             }),
-          );
-        }),
+          ),
+        ),
         takeUntilDestroyed(),
       )
       .subscribe((res) => {
@@ -121,30 +156,44 @@ export class FindDoctorsPageComponent implements OnInit {
         this.loading.set(false);
       });
 
+    this.searchText$
+      .pipe(debounceTime(SEARCH_DEBOUNCE_MS), distinctUntilChanged(), takeUntilDestroyed())
+      .subscribe((text) =>
+        this.updateParams({ q: text.trim() || null, name: null, condition: null }),
+      );
+
     combineLatest([this.route.paramMap, this.route.queryParamMap])
       .pipe(takeUntilDestroyed())
-      .subscribe(([params, queryParams]) => {
+      .subscribe(([params, query]) => {
         const rawSlug = params.get('specialtySlug') ?? 'all';
         this.specialtySlug.set(rawSlug === 'all' ? '' : rawSlug);
+        this.selectedCity.set(query.get('city') || DEFAULT_CITY);
+        this.maxFee.set(query.get('maxFee') ?? '');
 
-        const city = queryParams.get('city');
-        if (city) {
-          this.selectedCity.set(city);
-        }
+        const sort = query.get('sort');
+        this.sort.set(sort === 'rating' || sort === 'fee' ? sort : 'experience');
 
-        const condition = queryParams.get('condition');
-        if (condition) {
-          this.healthCondition.set(condition);
-          this.searchName.set('');
-        } else {
-          this.healthCondition.set('');
-          const name = queryParams.get('q') ?? queryParams.get('name');
-          if (name != null) {
+        const condition = query.get('condition');
+        this.healthCondition.set(condition ?? '');
+        if (!condition) {
+          const name = query.get('q') ?? query.get('name') ?? '';
+          // Don't clobber text the user is still typing.
+          if (name.trim() !== this.searchName().trim()) {
             this.searchName.set(name);
           }
+        } else {
+          this.searchName.set('');
         }
 
-        this.loadDoctors(1);
+        const page = Math.max(1, parseInt(query.get('page') ?? '1', 10) || 1);
+        this.request$.next({
+          page,
+          city: this.selectedCity(),
+          specialtySlug: this.specialtySlug().trim(),
+          name: this.searchName().trim(),
+          maxFee: this.maxFee(),
+          sort: this.sort(),
+        });
       });
   }
 
@@ -152,56 +201,65 @@ export class FindDoctorsPageComponent implements OnInit {
     this.referenceData.loadSpecialties();
   }
 
-  loadDoctors(page = 1): void {
-    this.searchPage$.next(page);
+  onSearchInput(value: string): void {
+    this.searchName.set(value);
+    this.searchText$.next(value);
   }
 
+  /** Enter / button — apply immediately, skipping the debounce. */
   onSearch(): void {
-    this.loadDoctors(1);
+    this.updateParams({ q: this.searchName().trim() || null, name: null, condition: null });
   }
 
   onCityChange(city: string): void {
-    this.selectedCity.set(city);
-    this.router.navigate([], {
-      relativeTo: this.route,
-      queryParams: { city },
-      queryParamsHandling: 'merge',
-    });
+    this.updateParams({ city });
   }
 
-  toggleFilter(filter: string): void {
-    const isActive = this.activeFilters().includes(filter);
+  onFeeChange(value: string): void {
+    this.updateParams({ maxFee: value || null });
+  }
 
-    if (isActive) {
-      this.activeFilters.update((current) => current.filter((f) => f !== filter));
-      if (filter === 'Fee Upto 500') this.maxFee.set('');
-    } else {
-      this.activeFilters.update((current) => [...current, filter]);
-      if (filter === 'Fee Upto 500') this.maxFee.set('500');
-    }
+  onSortChange(sort: DoctorSort): void {
+    this.updateParams({ sort: sort === 'experience' ? null : sort });
+  }
 
-    this.loadDoctors(1);
+  toggleTopRated(): void {
+    this.onSortChange(this.sort() === 'rating' ? 'experience' : 'rating');
   }
 
   clearFilters(): void {
-    this.activeFilters.set([]);
-    this.maxFee.set('');
     this.searchName.set('');
-    this.healthCondition.set('');
-    this.router.navigate([], {
-      relativeTo: this.route,
-      queryParams: { condition: null, q: null, name: null },
-      queryParamsHandling: 'merge',
-    });
-    this.loadDoctors(1);
+    this.updateParams({ q: null, name: null, condition: null, maxFee: null, sort: null });
   }
 
   onPageChange(page: number): void {
-    this.loadDoctors(page);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    this.updateParams({ page: page > 1 ? page : null }, false);
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   }
 
-  isFilterActive(filter: string): boolean {
-    return this.activeFilters().includes(filter);
+  /** Any filter change resets pagination unless told otherwise. */
+  private updateParams(changes: Params, resetPage = true): void {
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: resetPage ? { ...changes, page: null } : changes,
+      queryParamsHandling: 'merge',
+    });
+  }
+
+  private toApiQuery(request: SearchRequest): Record<string, string | number> {
+    const query: Record<string, string | number> = {
+      page: request.page,
+      limit: PAGE_SIZE,
+      city: request.city,
+      ...SORT_QUERY[request.sort],
+    };
+
+    if (request.specialtySlug) query['specialtySlug'] = request.specialtySlug;
+    if (request.name) query['name'] = request.name;
+    if (request.maxFee) query['maxFee'] = request.maxFee;
+
+    return query;
   }
 }

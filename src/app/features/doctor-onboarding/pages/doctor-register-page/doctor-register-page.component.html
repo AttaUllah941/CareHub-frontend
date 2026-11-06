@@ -254,8 +254,14 @@
               type="button"
               (click)="submit()"
               [disabled]="!canSubmit()"
-              class="px-5 py-2.5 rounded-lg bg-brand-600 text-white font-semibold hover:bg-brand-700 disabled:opacity-50"
-            >Submit Application</button>
+              class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-brand-600 text-white font-semibold hover:bg-brand-700 disabled:opacity-50"
+            >
+              @if (submitting()) {
+                <span class="spinner-sm" aria-hidden="true"></span>Submitting…
+              } @else {
+                Submit Application
+              }
+            </button>
           }
         </div>
       </div>
