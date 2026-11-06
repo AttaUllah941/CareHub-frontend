@@ -1,0 +1,8 @@
+:host {
+  display: block;
+}
+
+.is-error {
+  border-color: var(--color-danger-100);
+  background-color: var(--color-danger-50);
+}

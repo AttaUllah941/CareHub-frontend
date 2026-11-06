@@ -7,12 +7,10 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 @Component({
   selector: 'app-spinner',
   standalone: true,
+  templateUrl: './spinner.component.html',
+  styleUrl: './spinner.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { role: 'status', '[attr.aria-label]': 'label()' },
-  template: `
-    <span [class]="size() === 'sm' ? 'spinner-sm' : 'spinner'" aria-hidden="true"></span>
-    <span class="sr-only">{{ label() }}</span>
-  `,
 })
 export class SpinnerComponent {
   readonly size = input<'sm' | 'md'>('md');

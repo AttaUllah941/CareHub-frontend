@@ -1,0 +1,30 @@
+@if (isUser()) {
+  <div class="flex flex-col items-end gap-1">
+    <div class="max-w-[85%] whitespace-pre-wrap break-words rounded-2xl rounded-br-md bg-brand-600 px-3.5 py-2.5 text-sm leading-relaxed text-white shadow-sm">{{ message().content }}</div>
+    @if (message().failed) {
+      <p class="flex items-center gap-2 text-xs text-red-600" role="alert">
+        Not sent.
+        <button type="button" class="font-semibold underline underline-offset-2" (click)="retry.emit()">Retry</button>
+      </p>
+    } @else {
+      <time class="text-[11px] text-slate-400" [attr.datetime]="message().createdAt">{{ message().createdAt | date: 'shortTime' }}</time>
+    }
+  </div>
+} @else {
+  <div class="flex max-w-full flex-col items-start gap-2">
+    @if (html()) {
+      <div class="chat-md max-w-[92%] break-words rounded-2xl rounded-bl-md border border-slate-200 bg-white px-3.5 py-2.5 text-sm leading-relaxed text-slate-800 shadow-sm" [innerHTML]="html()"></div>
+    }
+    @for (action of message().actions; track $index) {
+      <div class="w-full max-w-[96%]">
+        <app-tool-result
+          [action]="action"
+          [interactive]="isLatest()"
+          (ask)="ask.emit($event)"
+          (navigated)="navigated.emit()"
+        />
+      </div>
+    }
+    <time class="text-[11px] text-slate-400" [attr.datetime]="message().createdAt">{{ message().createdAt | date: 'shortTime' }}</time>
+  </div>
+}

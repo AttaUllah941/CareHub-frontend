@@ -1,0 +1,10 @@
+:host {
+  display: block;
+}
+
+/* Grows with the content (modern browsers) up to a comfortable maximum. */
+.chat-textarea {
+  max-height: 8rem;
+  field-sizing: content;
+  min-height: 2.75rem;
+}

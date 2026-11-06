@@ -1,0 +1,320 @@
+@switch (action().type) {
+  @case ('DOCTOR_RESULTS') {
+    <div class="space-y-2">
+      @for (doctor of doctors(); track doctor.id) {
+        <app-doctor-result-card [doctor]="doctor" [interactive]="interactive()" (ask)="send($event)" (navigated)="navigated.emit()" />
+      }
+    </div>
+  }
+
+  @case ('APPOINTMENTS') {
+    <div class="space-y-2">
+      @if (appointments().heading) {
+        <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">{{ appointments().heading }}</p>
+      }
+      @for (appointment of appointments().appointments; track appointment.id) {
+        <app-appointment-result-card [appointment]="appointment" [interactive]="interactive()" (ask)="send($event)" (navigated)="navigated.emit()" />
+      }
+    </div>
+  }
+
+  @case ('CONFIRMATION') {
+    <app-confirmation-card [data]="confirmation()" [interactive]="interactive()" />
+  }
+
+  @case ('AVAILABILITY') {
+    <section class="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm">
+      <h4 class="!text-sm">{{ availability().doctorName }}</h4>
+      <p class="text-xs text-slate-500">Open slots · {{ availability().dateLabel }}</p>
+      @if (availability().slots.length) {
+        <div class="mt-2.5 grid grid-cols-3 gap-1.5">
+          @for (slot of availability().slots; track slot.time) {
+            <button type="button" class="chip !justify-center !px-1 !text-[11px]" [disabled]="!interactive()" (click)="bookSlot(slot.time)">{{ slot.time }}</button>
+          }
+        </div>
+      } @else {
+        <p class="mt-2 text-sm text-slate-500">No open slots on this date.</p>
+      }
+    </section>
+  }
+
+  @case ('LAB_RESULTS') {
+    <div class="space-y-2">
+      @for (lab of labs(); track lab.id) {
+        <article class="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm">
+          <h4 class="!text-sm">{{ lab.name }}</h4>
+          <p class="text-xs text-slate-500">{{ lab.city }} · {{ lab.address }}</p>
+          @if (lab.timings) {
+            <p class="text-xs text-slate-500">{{ lab.timings }}</p>
+          }
+          <div class="mt-2.5 flex flex-wrap gap-2">
+            <a [routerLink]="['/labs', lab.citySlug, lab.slug]" (click)="navigated.emit()" class="btn-outline btn-sm">Open lab</a>
+            @if (interactive()) {
+              <button type="button" class="btn-clinical btn-sm" (click)="send('Show the tests offered by ' + lab.name + ' (lab id ' + lab.id + ').')">View tests</button>
+            }
+          </div>
+        </article>
+      }
+    </div>
+  }
+
+  @case ('LAB_TESTS') {
+    <section class="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm">
+      <ul class="divide-y divide-slate-100">
+        @for (test of labTests().tests; track test.id) {
+          <li class="flex items-center justify-between gap-3 py-2 first:pt-0 last:pb-0">
+            <div class="min-w-0">
+              <p class="truncate text-sm font-semibold text-slate-800">{{ test.name }}</p>
+              @if (test.homeCollectionAvailable) {
+                <span class="badge-info">Home collection</span>
+              }
+            </div>
+            <div class="flex shrink-0 items-center gap-2">
+              <span class="text-sm font-bold text-brand-700">Rs {{ test.price | number }}</span>
+              @if (interactive()) {
+                <button type="button" class="btn-outline btn-sm" (click)="send('I want to book ' + test.name + ' (test id ' + test.id + ') at lab id ' + labTests().labId + '.')">Book</button>
+              }
+            </div>
+          </li>
+        }
+      </ul>
+    </section>
+  }
+
+  @case ('LAB_PRICE_COMPARISON') {
+    <section class="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm">
+      <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">{{ comparison().testName }} — cheapest first</p>
+      <ul class="divide-y divide-slate-100">
+        @for (row of comparison().rows; track row.labId + row.id) {
+          <li class="flex items-center justify-between gap-3 py-2 first:pt-0 last:pb-0">
+            <div class="min-w-0">
+              <p class="truncate text-sm font-semibold text-slate-800">{{ row.labName }}</p>
+              <p class="truncate text-xs text-slate-500">{{ row.name }} · {{ row.city }}</p>
+            </div>
+            <div class="flex shrink-0 items-center gap-2">
+              <span class="text-sm font-bold" [class]="row.price === cheapestPrice() ? 'text-success-700' : 'text-slate-700'">Rs {{ row.price | number }}</span>
+              @if (interactive()) {
+                <button type="button" class="btn-outline btn-sm" (click)="send('I want to book ' + row.name + ' (test id ' + row.id + ') at ' + row.labName + ' (lab id ' + row.labId + ').')">Book</button>
+              }
+            </div>
+          </li>
+        }
+      </ul>
+    </section>
+  }
+
+  @case ('MEDICINE_RESULTS') {
+    <div class="space-y-2">
+      @for (medicine of medicines(); track medicine.id) {
+        <article class="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm">
+          <div class="flex items-start justify-between gap-3">
+            <div class="min-w-0">
+              <h4 class="truncate !text-sm">{{ medicine.name }}</h4>
+              <p class="truncate text-xs text-slate-500">{{ medicine.manufacturer }}</p>
+              <p class="truncate text-xs text-slate-500">{{ medicine.pharmacy.name }}{{ medicine.pharmacy.city ? ' · ' + medicine.pharmacy.city : '' }}</p>
+            </div>
+            <span class="shrink-0 text-sm font-bold text-brand-700">Rs {{ medicine.price | number }}</span>
+          </div>
+          <div class="mt-2 flex flex-wrap items-center gap-2">
+            <span [class]="medicine.inStock ? 'badge-success' : 'badge-danger'">{{ medicine.inStock ? 'In stock' : 'Out of stock' }}</span>
+            @if (medicine.requiresPrescription) {
+              <span class="badge-warning">Prescription needed</span>
+            }
+            @if (interactive() && medicine.inStock && !medicine.requiresPrescription) {
+              <button type="button" class="btn-clinical btn-sm ml-auto" (click)="send('I want to order 1 × ' + medicine.name + ' (medicine id ' + medicine.id + ').')">Order</button>
+            }
+          </div>
+        </article>
+      }
+    </div>
+  }
+
+  @case ('PHARMACY_RESULTS') {
+    <div class="space-y-2">
+      @for (pharmacy of pharmacies(); track pharmacy.id) {
+        <article class="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm">
+          <h4 class="!text-sm">{{ pharmacy.name }}</h4>
+          <p class="text-xs text-slate-500">{{ pharmacy.city }} · {{ pharmacy.address }}</p>
+          <p class="mt-1 text-xs text-slate-600">
+            {{ pharmacy.isHomeDelivery ? 'Home delivery · Rs ' + (pharmacy.deliveryFee | number) + ' · ' + pharmacy.deliveryTime : 'Store pickup only' }}
+          </p>
+          <div class="mt-2.5 flex flex-wrap gap-2">
+            <a [routerLink]="['/medicines', pharmacy.citySlug, pharmacy.slug]" (click)="navigated.emit()" class="btn-outline btn-sm">Open pharmacy</a>
+          </div>
+        </article>
+      }
+    </div>
+  }
+
+  @case ('SURGERY_RESULTS') {
+    <div class="space-y-2">
+      @for (procedure of procedures(); track procedure.id) {
+        <article class="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm">
+          <h4 class="!text-sm">{{ procedure.name }}</h4>
+          <p class="text-xs text-slate-500">{{ procedure.category }} · {{ procedure.hospitalCount }} hospital{{ procedure.hospitalCount === 1 ? '' : 's' }}</p>
+          <p class="mt-1 text-sm font-bold text-brand-700">Rs {{ procedure.estimatedCostRange.min | number }} – {{ procedure.estimatedCostRange.max | number }}</p>
+          @if (interactive()) {
+            <button type="button" class="btn-outline btn-sm mt-2.5" (click)="send('Which hospitals offer ' + procedure.name + '? (procedure id ' + procedure.id + ')')">See hospitals</button>
+          }
+        </article>
+      }
+    </div>
+  }
+
+  @case ('HOSPITAL_RESULTS') {
+    <div class="space-y-2">
+      @for (hospital of hospitals(); track hospital.id) {
+        <article class="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm">
+          <h4 class="!text-sm">{{ hospital.name }}</h4>
+          <p class="text-xs text-slate-500">{{ hospital.city }} · {{ hospital.address }}</p>
+          <div class="mt-2.5 flex flex-wrap gap-2">
+            <a [routerLink]="['/hospitals', hospital.citySlug, hospital.slug]" (click)="navigated.emit()" class="btn-outline btn-sm">Open hospital</a>
+            @if (interactive() && hospital.offersSurgeries) {
+              <button type="button" class="btn-clinical btn-sm" (click)="send('I want a surgery consultation at ' + hospital.name + ' (hospital id ' + hospital.id + ').')">Request consultation</button>
+            }
+          </div>
+        </article>
+      }
+    </div>
+  }
+
+  @case ('CONSULTATION_REQUESTS') {
+    <section class="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm">
+      <ul class="divide-y divide-slate-100">
+        @for (request of requests(); track request.id) {
+          <li class="flex items-center justify-between gap-3 py-2 first:pt-0 last:pb-0">
+            <div class="min-w-0">
+              <p class="truncate text-sm font-semibold text-slate-800">{{ request.procedure || 'Consultation' }}</p>
+              <p class="truncate text-xs text-slate-500">{{ request.hospital }}</p>
+            </div>
+            <span class="badge-info shrink-0 capitalize">{{ request.status }}</span>
+          </li>
+        }
+      </ul>
+      <a routerLink="/my-surgery-requests" (click)="navigated.emit()" class="mt-2 inline-block text-xs font-semibold text-brand-700 hover:underline">View all requests</a>
+    </section>
+  }
+
+  @case ('KNOWLEDGE') {
+    <section class="space-y-2" aria-label="Sources">
+      <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Sources</p>
+      @for (passage of knowledge(); track passage.id) {
+        <article class="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm">
+          <div class="flex items-start justify-between gap-2">
+            <h4 class="!text-sm">{{ passage.title }}@if (passage.section) {<span class="font-normal text-slate-500"> › {{ passage.section }}</span>}</h4>
+            <span class="badge-neutral shrink-0">{{ kindLabel[passage.kind] }}</span>
+          </div>
+          <p class="mt-1 text-xs leading-relaxed text-slate-600">{{ passage.excerpt }}</p>
+          <p class="mt-1.5 text-[11px] text-slate-400">{{ passage.source }}</p>
+        </article>
+      }
+      @if (showMedicalNote()) {
+        <p class="px-1 text-[11px] leading-snug text-slate-400">General information only — not a diagnosis or treatment plan. See a doctor for advice about your situation.</p>
+      }
+    </section>
+  }
+
+  @case ('HEALTH_ANSWERS') {
+    <section class="space-y-2">
+      <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">From CareHub doctors · general information only</p>
+      @for (item of healthItems(); track item.id) {
+        <article class="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm">
+          <h4 class="!text-sm">{{ item.question }}</h4>
+          <p class="mt-1 text-xs leading-relaxed text-slate-600">{{ item.answer }}</p>
+          <p class="mt-1.5 text-[11px] text-slate-400">{{ item.answeredBy }}{{ item.specialty ? ' · ' + item.specialty : '' }}</p>
+        </article>
+      }
+    </section>
+  }
+
+  @case ('STATS') {
+    <section class="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm">
+      <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">{{ statsBlock().title }}</p>
+      <dl class="grid grid-cols-2 gap-2">
+        @for (stat of statsBlock().stats; track stat.label) {
+          <div class="rounded-xl bg-slate-50 px-3 py-2">
+            <dt class="truncate text-[11px] capitalize text-slate-500">{{ stat.label }}</dt>
+            <dd class="truncate text-base font-bold text-slate-900">{{ stat.value }}</dd>
+            @if (stat.hint) {
+              <dd class="truncate text-[11px] text-slate-400">{{ stat.hint }}</dd>
+            }
+          </div>
+        }
+      </dl>
+    </section>
+  }
+
+  @case ('TABLE') {
+    <section class="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm">
+      <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">{{ tableBlock().title }}</p>
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs">
+          <thead>
+            <tr class="border-b border-slate-100 text-slate-500">
+              @for (column of tableBlock().columns; track $index) {
+                <th class="whitespace-nowrap py-1.5 pr-3 font-semibold">{{ column }}</th>
+              }
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of tableBlock().rows; track $index) {
+              <tr class="border-b border-slate-50 last:border-0">
+                @for (cell of row; track $index) {
+                  <td class="py-1.5 pr-3 text-slate-700">{{ cell }}</td>
+                }
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+  }
+
+  @case ('LIST') {
+    <section class="space-y-2">
+      <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">{{ listBlock().title }}</p>
+      @for (item of listBlock().items; track item.id) {
+        <article class="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm">
+          <div class="flex items-start justify-between gap-3">
+            <div class="min-w-0">
+              <h4 class="truncate !text-sm">{{ item.title }}</h4>
+              @if (item.subtitle) {
+                <p class="text-xs text-slate-500">{{ item.subtitle }}</p>
+              }
+              @for (line of item.lines; track $index) {
+                <p class="text-xs text-slate-500">{{ line }}</p>
+              }
+            </div>
+            @if (item.badge; as badge) {
+              <span class="shrink-0 capitalize" [class]="badgeClass[badge.tone]">{{ badge.text }}</span>
+            }
+          </div>
+          @if (interactive() && item.actions.length) {
+            <div class="mt-2.5 flex flex-wrap gap-2">
+              @for (action of item.actions; track action.label) {
+                <button type="button" class="btn-outline btn-sm" (click)="send(action.message)">{{ action.label }}</button>
+              }
+            </div>
+          }
+        </article>
+      }
+    </section>
+  }
+
+  @case ('ACTION_RESULT') {
+    <section class="rounded-2xl border border-success-100 bg-success-50 p-3.5 shadow-sm">
+      <p class="flex items-center gap-1.5 text-sm font-bold text-success-700">
+        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 13l4 4L19 7" /></svg>
+        {{ result().title }}
+      </p>
+      <ul class="mt-1.5 space-y-0.5 text-xs text-slate-700">
+        @for (line of result().lines; track $index) {
+          <li>{{ line }}</li>
+        }
+      </ul>
+      @if (result().link) {
+        <a [routerLink]="result().link" (click)="navigated.emit()" class="mt-2 inline-block text-xs font-semibold text-brand-700 hover:underline">View details</a>
+      }
+    </section>
+  }
+}

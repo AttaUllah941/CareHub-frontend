@@ -1,0 +1,33 @@
+<form class="flex items-end gap-2" (submit)="$event.preventDefault(); submit()">
+  <div class="relative flex-1">
+    <label for="ai-chat-input" class="sr-only">Message CareHub AI</label>
+    <textarea
+      id="ai-chat-input"
+      rows="1"
+      class="chat-textarea input-field !rounded-2xl !py-3 pr-3 resize-none"
+      [placeholder]="placeholder()"
+      [value]="text()"
+      [disabled]="disabled()"
+      [attr.maxlength]="maxLength"
+      (input)="onInput($event)"
+      (keydown)="onKeydown($event)"
+    ></textarea>
+    @if (nearLimit()) {
+      <span class="absolute -top-5 right-1 text-[11px] text-slate-400" aria-live="polite">{{ text().length }}/{{ maxLength }}</span>
+    }
+  </div>
+  <button
+    type="submit"
+    class="btn-primary !min-h-11 !min-w-11 !rounded-full !p-0 shrink-0"
+    [disabled]="!canSend()"
+    aria-label="Send message"
+  >
+    @if (busy()) {
+      <span class="spinner-sm" aria-hidden="true"></span>
+    } @else {
+      <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M5 12h14M13 6l6 6-6 6" />
+      </svg>
+    }
+  </button>
+</form>
